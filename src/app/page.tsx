@@ -71,7 +71,7 @@ export default function Home() {
 
             {/* Right: Phone Mockup */}
             <div className="flex justify-center lg:justify-end">
-              <PhoneMockup priority />
+              <PhoneMockup src="/home.png" alt="CalorieCue Home Screen" priority />
             </div>
           </div>
         </div>
@@ -162,6 +162,54 @@ export default function Home() {
               title="Quick Logging"
               description="Log meals in seconds with natural language input. Just type what you ate and we'll handle the rest."
             />
+          </div>
+        </div>
+      </section>
+
+      {/* App Preview Section */}
+      <section className="py-20 md:py-28 px-4 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              See It in Action
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Explore the beautiful interface designed to make tracking effortless.
+            </p>
+          </motion.div>
+
+          {/* Screenshots Carousel */}
+          <div className="relative">
+            <div className="flex gap-6 overflow-x-auto pb-8 px-4 -mx-4 snap-x snap-mandatory scrollbar-hide">
+              {[
+                { src: "/home.png", label: "Dashboard" },
+                { src: "/diary.png", label: "Food Diary" },
+                { src: "/aicue.png", label: "AI Coach" },
+                { src: "/insights.png", label: "Insights" },
+                { src: "/goals.png", label: "Goals" },
+              ].map((screen, index) => (
+                <motion.div
+                  key={screen.src}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="flex-shrink-0 snap-center"
+                >
+                  <PhoneMockup src={screen.src} alt={screen.label} className="w-[240px] md:w-[280px]" />
+                  <p className="text-center text-muted-foreground text-sm mt-4 font-medium">{screen.label}</p>
+                </motion.div>
+              ))}
+            </div>
+            {/* Fade edges */}
+            <div className="absolute left-0 top-0 bottom-8 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-8 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none" />
           </div>
         </div>
       </section>

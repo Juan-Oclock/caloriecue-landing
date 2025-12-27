@@ -16,15 +16,19 @@ export default function PhoneMockup({
   className = "",
   priority = false,
 }: PhoneMockupProps) {
+  // Check if custom width is provided via className
+  const hasCustomWidth = className.includes("w-[");
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay: 0.3 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, delay: 0.2 }}
       className={`relative ${className}`}
     >
       {/* Phone Frame */}
-      <div className="relative mx-auto w-[280px] md:w-[320px]">
+      <div className={`relative mx-auto ${hasCustomWidth ? "w-full" : "w-[280px] md:w-[320px]"}`}>
         {/* Outer frame */}
         <div className="relative bg-gradient-to-b from-zinc-700 to-zinc-900 rounded-[3rem] p-[3px] shadow-2xl">
           {/* Inner frame */}
