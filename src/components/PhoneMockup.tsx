@@ -56,12 +56,13 @@ export default function PhoneMockup({
                   {/* App content preview */}
                   <div className="flex-1 p-4 pt-8 flex flex-col items-center">
                     {/* Logo */}
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary-light rounded-2xl flex items-center justify-center mb-4 shadow-soft">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="9" />
-                        <path d="M12 6v2m0 8v2M9 12H7m10 0h-2" strokeLinecap="round" />
-                      </svg>
-                    </div>
+                    <Image
+                      src="/CalorieCue - App Icons/120.png"
+                      alt="CalorieCue"
+                      width={64}
+                      height={64}
+                      className="rounded-2xl shadow-soft mb-4"
+                    />
                     <p className="text-gray-400 text-xs font-medium">CalorieCue</p>
 
                     {/* Fake UI elements */}

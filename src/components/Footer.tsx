@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -10,12 +11,13 @@ export default function Footer() {
           {/* Logo & Tagline */}
           <div className="flex flex-col items-center md:items-start gap-3">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 bg-gradient-to-br from-primary to-primary-light rounded-xl flex items-center justify-center shadow-soft transition-transform group-hover:scale-105">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M12 6v2m0 8v2M9 12H7m10 0h-2" strokeLinecap="round" />
-                </svg>
-              </div>
+              <Image
+                src="/CalorieCue - App Icons/80.png"
+                alt="CalorieCue"
+                width={36}
+                height={36}
+                className="rounded-xl shadow-soft transition-transform group-hover:scale-105"
+              />
               <span className="text-foreground font-semibold text-lg">CalorieCue</span>
             </Link>
             <p className="text-muted-foreground text-sm">

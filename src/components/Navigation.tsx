@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -33,12 +34,13 @@ export default function Navigation() {
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-xl flex items-center justify-center shadow-soft transition-transform group-hover:scale-105">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 6v2m0 8v2M9 12H7m10 0h-2" strokeLinecap="round" />
-            </svg>
-          </div>
+          <Image
+            src="/CalorieCue - App Icons/80.png"
+            alt="CalorieCue"
+            width={40}
+            height={40}
+            className="rounded-xl shadow-soft transition-transform group-hover:scale-105"
+          />
           <span className="text-foreground font-semibold text-lg tracking-tight">CalorieCue</span>
         </Link>
 
