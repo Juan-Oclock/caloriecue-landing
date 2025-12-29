@@ -59,7 +59,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                className="mt-10 flex items-center gap-6 justify-center lg:justify-start text-sm text-muted-foreground"
+                className="mt-10 flex flex-wrap items-center gap-3 sm:gap-6 justify-center lg:justify-start text-sm text-muted-foreground"
               >
                 <div className="flex items-center gap-2">
                   <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
@@ -92,19 +92,19 @@ export default function Home() {
               <div className="relative">
                 {/* Layer 1: Ambient shadow - soft, wide spread (light from top-left) */}
                 <div
-                  className="absolute inset-0 translate-x-10 translate-y-20 bg-black/10 blur-[50px] rounded-[2.5rem]"
+                  className="absolute inset-0 translate-x-4 translate-y-8 md:translate-x-10 md:translate-y-20 bg-black/10 blur-[30px] md:blur-[50px] rounded-[2.5rem]"
                   style={{ zIndex: 1 }}
                   aria-hidden="true"
                 />
                 {/* Layer 2: Mid shadow - medium spread */}
                 <div
-                  className="absolute inset-0 translate-x-7 translate-y-14 bg-black/15 blur-[35px] rounded-[2.5rem]"
+                  className="absolute inset-0 translate-x-3 translate-y-6 md:translate-x-7 md:translate-y-14 bg-black/15 blur-[20px] md:blur-[35px] rounded-[2.5rem]"
                   style={{ zIndex: 2 }}
                   aria-hidden="true"
                 />
                 {/* Layer 3: Contact shadow - tight, subtle */}
                 <div
-                  className="absolute inset-0 translate-x-4 translate-y-8 bg-black/20 blur-[20px] rounded-[2.5rem]"
+                  className="absolute inset-0 translate-x-2 translate-y-4 md:translate-x-4 md:translate-y-8 bg-black/20 blur-[12px] md:blur-[20px] rounded-[2.5rem]"
                   style={{ zIndex: 3 }}
                   aria-hidden="true"
                 />
@@ -114,7 +114,7 @@ export default function Home() {
                   width={340}
                   height={680}
                   priority
-                  className="relative z-10"
+                  className="relative z-10 w-[260px] md:w-[340px] h-auto"
                 />
               </div>
             </motion.div>

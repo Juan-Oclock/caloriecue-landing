@@ -64,10 +64,10 @@ export default function PricingSection() {
           </p>
 
           {/* Billing Toggle */}
-          <div className="inline-flex items-center bg-muted/50 p-1.5 rounded-full border border-border">
+          <div className="inline-flex items-center bg-muted/50 p-1 sm:p-1.5 rounded-full border border-border">
             <button
               onClick={() => setIsYearly(false)}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+              className={`px-3 sm:px-5 py-2 rounded-full text-sm font-medium transition-all ${
                 !isYearly
                   ? "bg-white text-foreground shadow-soft"
                   : "text-muted-foreground hover:text-foreground"
@@ -77,15 +77,15 @@ export default function PricingSection() {
             </button>
             <button
               onClick={() => setIsYearly(true)}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+              className={`px-3 sm:px-5 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5 sm:gap-2 ${
                 isYearly
                   ? "bg-white text-foreground shadow-soft"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Yearly
-              <span className="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">
-                Save 58%
+              <span className="bg-green-100 text-green-700 text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full">
+                -58%
               </span>
             </button>
           </div>
