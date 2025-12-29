@@ -9,25 +9,37 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Primary coral/orange theme
+        // Primary coral/orange theme - slightly refined for light mode
         primary: {
-          DEFAULT: "#E07A5F",
-          dark: "#C7593E",
-          light: "#F4A589",
+          DEFAULT: "#E05A3A",
+          dark: "#C74B2E",
+          light: "#FF7F5C",
+          50: "#FFF5F2",
+          100: "#FFE8E2",
+          200: "#FFD1C5",
+          500: "#E05A3A",
+          600: "#C74B2E",
         },
-        // Dark theme colors (matching iOS app)
-        background: "hsl(25, 15%, 7%)",
-        card: "hsl(25, 12%, 12%)",
-        foreground: "hsl(35, 15%, 95%)",
+        // Light theme colors
+        background: "#FAFAFA",
+        surface: "#FFFFFF",
+        card: "#FFFFFF",
+        foreground: "#1A1A1A",
         muted: {
-          DEFAULT: "hsl(25, 8%, 18%)",
-          foreground: "hsl(25, 10%, 60%)",
+          DEFAULT: "#F5F5F5",
+          foreground: "#6B7280",
         },
-        border: "hsl(25, 10%, 22%)",
-        // Macro colors
+        border: "#E5E7EB",
+        // Accent colors for visual interest
+        accent: {
+          blue: "#3B82F6",
+          purple: "#8B5CF6",
+          teal: "#14B8A6",
+        },
+        // Macro colors (kept for app consistency)
         protein: "#E05C7A",
-        carbs: "#5C8AE0",
-        fat: "#E0A85C",
+        carbs: "#3B82F6",
+        fat: "#F59E0B",
       },
       fontFamily: {
         sans: [
@@ -42,12 +54,15 @@ const config: Config = {
         ],
       },
       fontSize: {
-        "hero": ["3.5rem", { lineHeight: "1.1", fontWeight: "700" }],
-        "hero-mobile": ["2.5rem", { lineHeight: "1.15", fontWeight: "700" }],
+        "hero": ["4rem", { lineHeight: "1.05", fontWeight: "700", letterSpacing: "-0.02em" }],
+        "hero-mobile": ["2.75rem", { lineHeight: "1.1", fontWeight: "700", letterSpacing: "-0.02em" }],
+        "display": ["3rem", { lineHeight: "1.1", fontWeight: "600", letterSpacing: "-0.02em" }],
+        "display-mobile": ["2rem", { lineHeight: "1.15", fontWeight: "600", letterSpacing: "-0.01em" }],
       },
       spacing: {
         "18": "4.5rem",
         "22": "5.5rem",
+        "30": "7.5rem",
       },
       borderRadius: {
         "2xl": "1rem",
@@ -55,17 +70,21 @@ const config: Config = {
         "4xl": "2rem",
       },
       boxShadow: {
-        "glow": "0 0 40px -10px rgba(224, 122, 95, 0.4)",
-        "glow-lg": "0 0 60px -15px rgba(224, 122, 95, 0.5)",
-        "card": "0 4px 24px -4px rgba(0, 0, 0, 0.3)",
-        "card-hover": "0 8px 32px -4px rgba(0, 0, 0, 0.4)",
+        "soft": "0 2px 8px -2px rgba(0, 0, 0, 0.05), 0 4px 16px -4px rgba(0, 0, 0, 0.08)",
+        "soft-lg": "0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 8px 24px -4px rgba(0, 0, 0, 0.1)",
+        "glow": "0 0 40px -10px rgba(224, 90, 58, 0.25)",
+        "glow-lg": "0 0 60px -15px rgba(224, 90, 58, 0.35)",
+        "card": "0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04)",
+        "card-hover": "0 4px 8px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.08)",
+        "elevated": "0 8px 30px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0, 0, 0, 0.1)",
       },
       animation: {
         "fade-up": "fadeUp 0.6s ease-out forwards",
         "fade-in": "fadeIn 0.6s ease-out forwards",
         "slide-up": "slideUp 0.5s ease-out forwards",
         "float": "float 6s ease-in-out infinite",
-        "pulse-glow": "pulseGlow 2s ease-in-out infinite",
+        "pulse-soft": "pulseSoft 2s ease-in-out infinite",
+        "shimmer": "shimmer 2s linear infinite",
       },
       keyframes: {
         fadeUp: {
@@ -84,15 +103,20 @@ const config: Config = {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
         },
-        pulseGlow: {
-          "0%, 100%": { boxShadow: "0 0 20px -5px rgba(224, 122, 95, 0.3)" },
-          "50%": { boxShadow: "0 0 40px -5px rgba(224, 122, 95, 0.5)" },
+        pulseSoft: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
         },
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-mesh": "linear-gradient(135deg, hsl(25, 15%, 10%) 0%, hsl(25, 12%, 7%) 50%, hsl(20, 18%, 8%) 100%)",
-        "hero-gradient": "linear-gradient(135deg, hsl(16, 85%, 58%) 0%, hsl(25, 90%, 50%) 100%)",
+        "gradient-subtle": "linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 50%, #FAFAFA 100%)",
+        "hero-gradient": "linear-gradient(135deg, #E05A3A 0%, #FF7F5C 100%)",
+        "mesh-light": "radial-gradient(at 40% 20%, hsla(16, 79%, 58%, 0.08) 0px, transparent 50%), radial-gradient(at 80% 0%, hsla(27, 100%, 65%, 0.06) 0px, transparent 50%), radial-gradient(at 0% 50%, hsla(355, 85%, 65%, 0.04) 0px, transparent 50%)",
       },
     },
   },

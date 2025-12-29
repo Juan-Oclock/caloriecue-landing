@@ -65,8 +65,8 @@ export default function TermsOfService() {
 
           <section>
             <h2>5. Health Disclaimer</h2>
-            <div className="my-4 p-4 bg-yellow-500/10 rounded-xl border border-yellow-500/30">
-              <strong className="text-yellow-500">Important:</strong> CalorieCue is NOT a substitute for
+            <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+              <strong className="text-amber-600">Important:</strong> CalorieCue is NOT a substitute for
               professional medical advice, diagnosis, or treatment. The nutritional information,
               recommendations, and AI-generated suggestions provided by the App are for informational
               purposes only.

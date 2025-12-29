@@ -42,8 +42,8 @@ export default function PrivacyPolicy() {
               <li><strong>Google Sign-In:</strong> We receive your email address, name, and profile picture (if available). We use Google&apos;s OAuth 2.0 for authentication only.</li>
               <li><strong>Apple Sign-In:</strong> We receive your email address (or a private relay email) and name (if you choose to share it).</li>
             </ul>
-            <div className="my-4 p-4 bg-card rounded-xl border border-border">
-              <strong className="text-foreground">Important:</strong> We do NOT sell, share, or transfer your Google user data to any third parties.
+            <div className="my-4 p-4 bg-primary-50 rounded-xl border border-primary-100">
+              <strong className="text-primary">Important:</strong> We do NOT sell, share, or transfer your Google user data to any third parties.
               Your authentication data is used solely to identify your account and provide our services.
             </div>
 

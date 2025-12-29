@@ -1,11 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navLinks = [
     { href: "/privacy", label: "Privacy" },
@@ -14,17 +23,23 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass">
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-white/90 backdrop-blur-xl shadow-soft border-b border-border/50"
+          : "bg-transparent"
+      }`}
+    >
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center transition-transform group-hover:scale-105">
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-xl flex items-center justify-center shadow-soft transition-transform group-hover:scale-105">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="9" />
               <path d="M12 6v2m0 8v2M9 12H7m10 0h-2" strokeLinecap="round" />
             </svg>
           </div>
-          <span className="text-foreground font-semibold text-lg">CalorieCue</span>
+          <span className="text-foreground font-semibold text-lg tracking-tight">CalorieCue</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -33,14 +48,15 @@ export default function Navigation() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+              className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors relative group"
             >
               {link.label}
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
             </Link>
           ))}
           <a
             href="#download"
-            className="btn-primary text-sm py-2 px-4"
+            className="btn-primary text-sm py-2.5 px-5"
           >
             Download
           </a>
@@ -48,7 +64,7 @@ export default function Navigation() {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden p-2 text-foreground"
+          className="md:hidden p-2 text-foreground rounded-lg hover:bg-muted transition-colors"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
         >
@@ -74,14 +90,14 @@ export default function Navigation() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-border/50"
+            className="md:hidden border-t border-border/50 overflow-hidden"
           >
-            <div className="px-4 py-4 space-y-3 bg-card/95 backdrop-blur-xl">
+            <div className="px-4 py-4 space-y-1 bg-white/95 backdrop-blur-xl">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="block text-muted-foreground hover:text-foreground py-2 text-sm font-medium transition-colors"
+                  className="block text-muted-foreground hover:text-foreground hover:bg-muted py-3 px-4 rounded-xl text-sm font-medium transition-all"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.label}
@@ -89,7 +105,7 @@ export default function Navigation() {
               ))}
               <a
                 href="#download"
-                className="btn-primary w-full text-sm py-2.5 mt-2"
+                className="btn-primary w-full text-sm py-3 mt-3"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Download

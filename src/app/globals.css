@@ -3,14 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --primary: #E07A5F;
-  --primary-dark: #C7593E;
-  --background: hsl(25, 15%, 7%);
-  --card: hsl(25, 12%, 12%);
-  --foreground: hsl(35, 15%, 95%);
-  --muted: hsl(25, 8%, 18%);
-  --muted-foreground: hsl(25, 10%, 60%);
-  --border: hsl(25, 10%, 22%);
+  --primary: #E05A3A;
+  --primary-dark: #C74B2E;
+  --primary-light: #FF7F5C;
+  --background: #FAFAFA;
+  --surface: #FFFFFF;
+  --card: #FFFFFF;
+  --foreground: #1A1A1A;
+  --muted: #F5F5F5;
+  --muted-foreground: #6B7280;
+  --border: #E5E7EB;
 }
 
 * {
@@ -31,27 +33,27 @@ body {
 
 /* Selection styling */
 ::selection {
-  background: rgba(224, 122, 95, 0.3);
+  background: rgba(224, 90, 58, 0.15);
   color: var(--foreground);
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - light theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--background);
+  background: var(--muted);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--muted);
+  background: #D1D5DB;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--muted-foreground);
+  background: #9CA3AF;
 }
 
 /* Focus ring */
@@ -62,36 +64,42 @@ body {
 
   /* Gradient text */
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-light;
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #E05A3A 0%, #FF7F5C 100%);
   }
 
-  /* Glass effect */
+  /* Light glassmorphism effect */
   .glass {
-    @apply bg-card/80 backdrop-blur-xl border border-border/50;
+    @apply bg-white/80 backdrop-blur-xl border-b border-border/50;
   }
 
-  /* Glow effect */
+  /* Subtle gradient mesh background */
+  .mesh-bg {
+    background-image:
+      radial-gradient(at 40% 20%, hsla(16, 79%, 58%, 0.06) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, hsla(27, 100%, 65%, 0.04) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsla(355, 85%, 65%, 0.03) 0px, transparent 50%);
+  }
+
+  /* Soft glow effect for light theme */
   .glow {
-    box-shadow: 0 0 40px -10px rgba(224, 122, 95, 0.4);
+    box-shadow: 0 0 40px -10px rgba(224, 90, 58, 0.2);
   }
 
   .glow-hover:hover {
-    box-shadow: 0 0 60px -10px rgba(224, 122, 95, 0.5);
+    box-shadow: 0 0 60px -10px rgba(224, 90, 58, 0.3);
   }
 
-  /* Noise texture overlay */
-  .noise {
-    position: relative;
+  /* Bento card styles */
+  .bento-card {
+    @apply relative overflow-hidden;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
   }
 
-  .noise::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.03;
-    pointer-events: none;
-    z-index: 1;
+  /* Subtle pattern overlay */
+  .pattern-dots {
+    background-image: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 }
 
@@ -102,24 +110,63 @@ body {
   }
 
   .btn-primary {
-    @apply btn bg-primary text-white hover:bg-primary-dark hover:scale-[1.02] active:scale-[0.98];
+    @apply btn bg-primary text-white hover:bg-primary-dark hover:scale-[1.02] active:scale-[0.98] shadow-soft hover:shadow-soft-lg;
   }
 
   .btn-secondary {
-    @apply btn bg-muted text-foreground hover:bg-muted/80;
+    @apply btn bg-muted text-foreground hover:bg-gray-200;
   }
 
   .btn-ghost {
-    @apply btn bg-transparent text-foreground border border-border hover:bg-muted;
+    @apply btn bg-transparent text-foreground border border-border hover:bg-muted hover:border-gray-300;
   }
 
-  /* Card styles */
+  .btn-outline {
+    @apply btn bg-transparent text-primary border-2 border-primary hover:bg-primary hover:text-white;
+  }
+
+  /* Card styles - clean and minimal for light theme */
   .card {
-    @apply bg-card rounded-3xl border border-border/50 p-6;
+    @apply bg-white rounded-3xl border border-border p-6 shadow-card;
   }
 
   .card-hover {
-    @apply card transition-all duration-300 hover:border-primary/30 hover:shadow-card-hover hover:-translate-y-1;
+    @apply card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 hover:border-gray-200;
+  }
+
+  /* Feature card with gradient border on hover */
+  .feature-card {
+    @apply relative bg-white rounded-2xl p-6 border border-border transition-all duration-300;
+  }
+
+  .feature-card:hover {
+    @apply shadow-soft-lg border-primary/20;
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium;
+  }
+
+  .badge-primary {
+    @apply badge bg-primary-50 text-primary border border-primary-100;
+  }
+
+  /* Section styles */
+  .section-padding {
+    @apply py-20 md:py-28 px-4;
+  }
+
+  .section-header {
+    @apply text-center mb-16;
+  }
+
+  .section-title {
+    @apply text-display-mobile md:text-display text-foreground mb-4;
+  }
+
+  .section-subtitle {
+    @apply text-muted-foreground text-lg max-w-2xl mx-auto;
   }
 }
 
