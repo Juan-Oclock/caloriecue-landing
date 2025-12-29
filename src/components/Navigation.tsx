@@ -57,10 +57,10 @@ export default function Navigation() {
             </Link>
           ))}
           <a
-            href="#download"
+            href="#waitlist"
             className="btn-primary text-sm py-2.5 px-5"
           >
-            Download
+            Join Waitlist
           </a>
         </div>
 
@@ -106,11 +106,11 @@ export default function Navigation() {
                 </Link>
               ))}
               <a
-                href="#download"
+                href="#waitlist"
                 className="btn-primary w-full text-sm py-3 mt-3"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Download
+                Join Waitlist
               </a>
             </div>
           </motion.div>

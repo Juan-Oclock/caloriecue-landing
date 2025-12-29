@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Navigation, Footer, FeatureCard } from "@/components";
+import { Navigation, Footer, FeatureCard, PricingSection, WaitlistForm } from "@/components";
 
 export default function Home() {
   return (
@@ -23,7 +23,7 @@ export default function Home() {
                 className="inline-flex items-center gap-2 bg-primary-50 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6 border border-primary-100"
               >
                 <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                Now available on iOS
+                Coming Soon
               </motion.div>
 
               <motion.h1
@@ -50,21 +50,8 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
-                id="download"
               >
-                <a
-                  href="#"
-                  className="inline-flex items-center gap-3 bg-foreground text-white px-6 py-4 rounded-2xl font-semibold hover:bg-gray-800 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-elevated"
-                >
-                  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-                  </svg>
-                  <div className="text-left">
-                    <div className="text-xs opacity-80">Download on the</div>
-                    <div className="text-base font-semibold -mt-0.5">App Store</div>
-                  </div>
-                </a>
+                <WaitlistForm variant="hero" />
               </motion.div>
 
               {/* Trust indicators */}
@@ -248,7 +235,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          {/* Video Placeholder */}
+          {/* Video */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -256,15 +243,16 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="relative aspect-video bg-white rounded-3xl border border-border overflow-hidden shadow-soft-lg"
           >
-            {/* Placeholder content */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-white">
-              <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-4 hover:bg-primary/15 transition-colors cursor-pointer group">
-                <svg className="w-10 h-10 text-primary ml-1 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-              <p className="text-muted-foreground font-medium">Video coming soon</p>
-            </div>
+            <video
+              className="w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+            >
+              <source src="/see it in action.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </motion.div>
         </div>
       </section>
@@ -350,6 +338,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <PricingSection />
+
       {/* CTA Section */}
       <section className="py-24 md:py-32 px-4 relative overflow-hidden">
         {/* Background */}
@@ -368,24 +359,10 @@ export default function Home() {
               Ready to Take Control?
             </h2>
             <p className="text-muted-foreground text-lg mb-10 max-w-xl mx-auto">
-              Join thousands of users who are already tracking smarter, not harder.
-              Download CalorieCue today and start your journey.
+              Be the first to know when we launch. Join the waitlist and start your journey to better nutrition.
             </p>
 
-            <a
-              href="#"
-              className="inline-flex items-center gap-3 bg-primary text-white px-8 py-4 rounded-2xl font-semibold hover:bg-primary-dark transition-all hover:scale-[1.02] active:scale-[0.98] shadow-soft-lg"
-            >
-              <svg className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-              </svg>
-              Download for Free
-            </a>
-
-            {/* App Store badge alternative */}
-            <p className="mt-6 text-sm text-muted-foreground">
-              Available for iOS 16.0 and later
-            </p>
+            <WaitlistForm variant="cta" />
           </motion.div>
         </div>
       </section>
