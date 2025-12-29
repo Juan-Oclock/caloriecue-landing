@@ -39,7 +39,7 @@ export default function Navigation() {
             alt="CalorieCue"
             width={40}
             height={40}
-            className="rounded-xl shadow-soft transition-transform group-hover:scale-105"
+            className="rounded-xl shadow-soft transition-transform group-hover:scale-105 border-2 border-primary"
           />
           <span className="text-foreground font-semibold text-lg tracking-tight">CalorieCue</span>
         </Link>
