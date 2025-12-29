@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Navigation, Footer, FeatureCard, PhoneMockup } from "@/components";
+import Image from "next/image";
+import { Navigation, Footer, FeatureCard } from "@/components";
 
 export default function Home() {
   return (
@@ -9,11 +10,7 @@ export default function Home() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative pt-28 pb-20 md:pt-40 md:pb-32 px-4 overflow-hidden">
-        {/* Background mesh gradient */}
-        <div className="absolute inset-0 mesh-bg -z-10" />
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -z-10" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-blue/5 rounded-full blur-[100px] -z-10" />
+      <section className="relative pt-28 pb-20 md:pt-40 md:pb-32 px-4 bg-white">
 
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
@@ -98,16 +95,52 @@ export default function Home() {
               </motion.div>
             </div>
 
-            {/* Right: Phone Mockup */}
-            <div className="flex justify-center lg:justify-end">
-              <PhoneMockup alt="CalorieCue App" priority />
-            </div>
+            {/* Right: Hero Image */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="flex justify-center lg:justify-end"
+            >
+              <div className="relative">
+                {/* Layer 1: Ambient shadow - soft, wide spread (light from top-left) */}
+                <div
+                  className="absolute inset-0 translate-x-10 translate-y-20 bg-black/10 blur-[50px] rounded-[2.5rem]"
+                  style={{ zIndex: 1 }}
+                  aria-hidden="true"
+                />
+                {/* Layer 2: Mid shadow - medium spread */}
+                <div
+                  className="absolute inset-0 translate-x-7 translate-y-14 bg-black/15 blur-[35px] rounded-[2.5rem]"
+                  style={{ zIndex: 2 }}
+                  aria-hidden="true"
+                />
+                {/* Layer 3: Contact shadow - tight, subtle */}
+                <div
+                  className="absolute inset-0 translate-x-4 translate-y-8 bg-black/20 blur-[20px] rounded-[2.5rem]"
+                  style={{ zIndex: 3 }}
+                  aria-hidden="true"
+                />
+                <Image
+                  src="/mockup-calorie cue.png"
+                  alt="CalorieCue App"
+                  width={340}
+                  height={680}
+                  priority
+                  className="relative z-10"
+                />
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Features Section - Bento Grid Style */}
-      <section className="py-20 md:py-28 px-4 bg-white">
+      <section className="relative py-20 md:py-28 px-4 overflow-hidden">
+        {/* Background mesh gradient */}
+        <div className="absolute inset-0 mesh-bg -z-10" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -z-10" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-blue/5 rounded-full blur-[100px] -z-10" />
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
