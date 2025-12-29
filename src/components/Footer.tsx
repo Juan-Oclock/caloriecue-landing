@@ -1,56 +1,50 @@
 import Link from "next/link";
-import Image from "next/image";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="py-16 px-4 border-t border-border bg-white">
+    <footer className="py-8 px-4 border-t border-border/50 bg-white">
       <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-          {/* Logo & Tagline */}
-          <div className="flex flex-col items-center md:items-start gap-3">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <Image
-                src="/CalorieCue - App Icons/80.png"
-                alt="CalorieCue"
-                width={36}
-                height={36}
-                className="rounded-xl shadow-soft transition-transform group-hover:scale-105"
-              />
-              <span className="text-foreground font-semibold text-lg">CalorieCue</span>
-            </Link>
-            <p className="text-muted-foreground text-sm">
-              Every Bite in Sight, Every Day Done Right
-            </p>
-          </div>
-
+        <div className="flex flex-col items-center gap-4">
           {/* Links */}
-          <div className="flex items-center gap-8 text-sm">
+          <div className="flex items-center gap-6 text-sm">
             <Link
               href="/privacy"
-              className="text-muted-foreground hover:text-primary transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
-              Privacy Policy
+              Privacy
             </Link>
             <Link
               href="/terms"
-              className="text-muted-foreground hover:text-primary transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
-              Terms of Service
+              Terms
             </Link>
             <Link
               href="/support"
-              className="text-muted-foreground hover:text-primary transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Support
             </Link>
           </div>
 
-          {/* Copyright */}
-          <p className="text-muted-foreground text-sm">
-            &copy; {currentYear} CalorieCue. All rights reserved.
-          </p>
+          {/* Copyright & Credit */}
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs text-muted-foreground">
+            <span>&copy; {currentYear} CalorieCue</span>
+            <span className="hidden sm:inline">·</span>
+            <span>
+              Proudly over-engineered by{" "}
+              <a
+                href="https://juan-oclock.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Juan Oclock
+              </a>
+            </span>
+          </div>
         </div>
       </div>
     </footer>
