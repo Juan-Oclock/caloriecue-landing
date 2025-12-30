@@ -13,7 +13,7 @@ export default function TermsOfService() {
       <main className="pt-28 pb-16 px-4">
         <article className="max-w-3xl mx-auto prose-custom">
           <h1>Terms of Service</h1>
-          <p className="text-muted-foreground mb-8">Last updated: December 27, 2024</p>
+          <p className="text-muted-foreground mb-8">Last updated: December 30, 2024</p>
 
           <section>
             <h2>1. Acceptance of Terms</h2>
@@ -50,7 +50,51 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>4. Acceptable Use</h2>
+            <h2>4. Subscription Terms</h2>
+
+            <h3>4.1 Free Trial</h3>
+            <p>
+              New users receive a 7-day free trial with full access to all premium features.
+              No payment is required during the trial period.
+            </p>
+
+            <h3>4.2 Premium Subscription</h3>
+            <p>After your free trial, you may subscribe to CalorieCue Premium:</p>
+            <ul>
+              <li><strong>Monthly Plan:</strong> $2.99 for the first month (introductory offer), then $3.99/month</li>
+              <li><strong>Yearly Plan:</strong> $14.99 for the first year (introductory offer), then $19.99/year</li>
+            </ul>
+
+            <h3>4.3 Billing &amp; Renewal</h3>
+            <ul>
+              <li>Payment will be charged to your Apple ID account at confirmation of purchase</li>
+              <li>Subscriptions automatically renew unless canceled at least 24 hours before the end of the current period</li>
+              <li>Your account will be charged for renewal within 24 hours prior to the end of the current period</li>
+              <li>Introductory pricing is available to new subscribers only</li>
+            </ul>
+
+            <h3>4.4 Managing Your Subscription</h3>
+            <p>
+              You can manage or cancel your subscription at any time through your Apple ID Account Settings:
+            </p>
+            <ol>
+              <li>Go to Settings &gt; [Your Name] &gt; Subscriptions</li>
+              <li>Tap CalorieCue</li>
+              <li>Choose &quot;Cancel Subscription&quot; or modify your plan</li>
+            </ol>
+
+            <h3>4.5 Refunds</h3>
+            <p>
+              All purchases are processed through Apple. Refund requests must be submitted directly to Apple
+              through their support channels at{" "}
+              <a href="https://reportaproblem.apple.com" target="_blank" rel="noopener noreferrer">
+                https://reportaproblem.apple.com
+              </a>
+            </p>
+          </section>
+
+          <section>
+            <h2>5. Acceptable Use</h2>
             <p>You agree NOT to:</p>
             <ul>
               <li>Use the App for any unlawful purpose or in violation of any laws.</li>
@@ -64,7 +108,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>5. Health Disclaimer</h2>
+            <h2>6. Health Disclaimer</h2>
             <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
               <strong className="text-amber-600">Important:</strong> CalorieCue is NOT a substitute for
               professional medical advice, diagnosis, or treatment. The nutritional information,
@@ -80,7 +124,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>6. Intellectual Property</h2>
+            <h2>7. Intellectual Property</h2>
             <p>
               All content, features, and functionality of the App, including but not limited to text,
               graphics, logos, icons, images, and software, are the exclusive property of CalorieCue
@@ -93,7 +137,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>7. User Content</h2>
+            <h2>8. User Content</h2>
             <p>
               You retain ownership of any content you submit to the App (e.g., food logs, photos).
               By submitting content, you grant us a non-exclusive, worldwide, royalty-free license
@@ -102,7 +146,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>8. Third-Party Services</h2>
+            <h2>9. Third-Party Services</h2>
             <p>
               The App may integrate with third-party services (e.g., Google Sign-In, Apple Sign-In).
               Your use of these services is subject to their respective terms and privacy policies.
@@ -111,7 +155,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>9. Limitation of Liability</h2>
+            <h2>10. Limitation of Liability</h2>
             <p>
               TO THE MAXIMUM EXTENT PERMITTED BY LAW, CALORIECUE AND ITS AFFILIATES SHALL NOT BE
               LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES,
@@ -126,7 +170,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>10. Disclaimer of Warranties</h2>
+            <h2>11. Disclaimer of Warranties</h2>
             <p>
               THE APP IS PROVIDED &quot;AS IS&quot; AND &quot;AS AVAILABLE&quot; WITHOUT WARRANTIES OF ANY KIND,
               EITHER EXPRESS OR IMPLIED. WE DO NOT WARRANT THAT THE APP WILL BE UNINTERRUPTED,
@@ -135,7 +179,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>11. Termination</h2>
+            <h2>12. Termination</h2>
             <p>
               We reserve the right to suspend or terminate your account and access to the App at
               any time, with or without cause, with or without notice. Upon termination, your
@@ -144,7 +188,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>12. Changes to Terms</h2>
+            <h2>13. Changes to Terms</h2>
             <p>
               We may modify these Terms at any time. We will notify you of significant changes by
               posting the updated Terms in the App or on our website. Your continued use of the
@@ -153,7 +197,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>13. Governing Law</h2>
+            <h2>14. Governing Law</h2>
             <p>
               These Terms shall be governed by and construed in accordance with the laws of the
               jurisdiction in which CalorieCue operates, without regard to conflict of law principles.
@@ -161,7 +205,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>14. Contact Information</h2>
+            <h2>15. Contact Information</h2>
             <p>
               If you have any questions about these Terms, please contact us:
             </p>
