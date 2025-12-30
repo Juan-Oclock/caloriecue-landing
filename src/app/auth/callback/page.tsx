@@ -14,6 +14,7 @@ function AuthCallbackContent() {
   const [state, setState] = useState<VerificationState>("loading");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [authType, setAuthType] = useState<AuthType>("signup");
+  const [tokenHashForApp, setTokenHashForApp] = useState<string>("");
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -27,7 +28,16 @@ function AuthCallbackContent() {
       }
 
       setAuthType(type);
+      setTokenHashForApp(tokenHash);
 
+      // For password recovery, DON'T verify server-side
+      // Pass the token to the app and let it handle verification
+      if (type === "recovery") {
+        setState("success");
+        return;
+      }
+
+      // For other types (signup, email_change, etc.), verify server-side
       try {
         const { error } = await supabase.auth.verifyOtp({
           token_hash: tokenHash,
@@ -81,7 +91,12 @@ function AuthCallbackContent() {
 
   const handleOpenApp = () => {
     // Try to open the app using custom URL scheme
-    window.location.href = `caloriecue://auth-callback?verified=true&type=${authType}`;
+    // For recovery, pass the token_hash so the app can verify it
+    if (authType === "recovery" && tokenHashForApp) {
+      window.location.href = `caloriecue://auth-callback?token_hash=${tokenHashForApp}&type=${authType}`;
+    } else {
+      window.location.href = `caloriecue://auth-callback?verified=true&type=${authType}`;
+    }
   };
 
   const successMessage = getSuccessMessage();
