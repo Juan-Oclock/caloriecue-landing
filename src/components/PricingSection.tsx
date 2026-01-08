@@ -31,7 +31,6 @@ const PREMIUM_FEATURES = [
   { text: "Full diary history", included: true },
   { text: "AI Coach (Cue)", included: true },
   { text: "Insights & Analytics", included: true },
-  { text: "Personalized Meal Plans", included: true },
   { text: "AI Meal Analysis", included: true },
   { text: "Custom Recipes", included: true },
   { text: "Achievements & Streaks", included: true },
