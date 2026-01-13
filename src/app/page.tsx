@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Navigation, Footer, FeatureCard, PricingSection, WaitlistForm } from "@/components";
+import { Navigation, Footer, FeatureCard, PricingSection, AppStoreButton } from "@/components";
 
 export default function Home() {
   return (
@@ -16,15 +16,6 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             {/* Left: Content */}
             <div className="text-center lg:text-left">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-2 bg-primary-50 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6 border border-primary-100"
-              >
-                <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                Coming Soon
-              </motion.div>
 
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
@@ -51,7 +42,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
-                <WaitlistForm variant="hero" />
+                <AppStoreButton variant="hero" />
               </motion.div>
 
               {/* Trust indicators */}
@@ -241,10 +232,10 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative aspect-video bg-white rounded-3xl border border-border overflow-hidden shadow-soft-lg"
+            className="relative aspect-[3/4] md:aspect-video bg-white rounded-3xl border border-border overflow-hidden shadow-soft-lg"
           >
             <video
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover scale-[1.2] md:scale-100"
               autoPlay
               muted
               loop
@@ -359,10 +350,10 @@ export default function Home() {
               Ready to Take Control?
             </h2>
             <p className="text-muted-foreground text-lg mb-10 max-w-xl mx-auto">
-              Be the first to know when we launch. Join the waitlist and start your journey to better nutrition.
+              Download now and start your journey to better nutrition today.
             </p>
 
-            <WaitlistForm variant="cta" />
+            <AppStoreButton variant="hero" centered />
           </motion.div>
         </div>
       </section>
