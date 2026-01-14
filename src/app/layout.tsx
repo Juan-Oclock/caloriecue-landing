@@ -98,7 +98,7 @@ export const metadata: Metadata = {
 
   // Other
   other: {
-    "apple-itunes-app": "app-id=YOUR_APP_ID",
+    "apple-itunes-app": "app-id=6757112503",
     "mobile-web-app-capable": "yes",
     "apple-mobile-web-app-capable": "yes",
     "apple-mobile-web-app-status-bar-style": "default",
@@ -124,6 +124,57 @@ export default function RootLayout({
               gtag('js', new Date());
               gtag('config', 'G-4E4N33E19T');
             `,
+          }}
+        />
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "WebSite",
+                  "@id": "https://caloriecue.app/#website",
+                  url: "https://caloriecue.app",
+                  name: "CalorieCue",
+                  description:
+                    "AI-powered calorie tracking app with smart meal analysis and personalized nutrition insights.",
+                  publisher: { "@id": "https://caloriecue.app/#organization" },
+                },
+                {
+                  "@type": "Organization",
+                  "@id": "https://caloriecue.app/#organization",
+                  name: "CalorieCue",
+                  url: "https://caloriecue.app",
+                  logo: {
+                    "@type": "ImageObject",
+                    url: "https://caloriecue.app/CalorieCue - App Icons/1024.png",
+                  },
+                  sameAs: [],
+                },
+                {
+                  "@type": "SoftwareApplication",
+                  name: "CalorieCue",
+                  operatingSystem: "iOS",
+                  applicationCategory: "HealthApplication",
+                  description:
+                    "Every Bite in Sight, Every Day Done Right. AI-powered calorie tracking app with smart meal analysis, personalized nutrition insights, and effortless food logging.",
+                  offers: {
+                    "@type": "Offer",
+                    price: "0",
+                    priceCurrency: "USD",
+                  },
+                  aggregateRating: {
+                    "@type": "AggregateRating",
+                    ratingValue: "5",
+                    ratingCount: "1",
+                  },
+                  downloadUrl:
+                    "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503",
+                },
+              ],
+            }),
           }}
         />
         <link rel="manifest" href="/manifest.json" />

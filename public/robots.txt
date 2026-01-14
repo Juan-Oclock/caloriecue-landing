@@ -1,0 +1,9 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://caloriecue.app/sitemap.xml
+
+# Disallow auth callback (not useful for indexing)
+Disallow: /auth/
