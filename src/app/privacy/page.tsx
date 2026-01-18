@@ -16,7 +16,7 @@ export default function PrivacyPolicy() {
       <main className="pt-28 pb-16 px-4">
         <article className="max-w-3xl mx-auto prose-custom">
           <h1>Privacy Policy</h1>
-          <p className="text-muted-foreground mb-8">Last updated: January 18, 2026</p>
+          <p className="text-muted-foreground mb-8">Last updated: January 19, 2026</p>
 
           <section>
             <h2>1. Introduction</h2>
@@ -80,7 +80,69 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2>3. How We Use Your Information</h2>
+            <h2>3. Apple Health Integration</h2>
+            <p>
+              CalorieCue integrates with Apple Health (HealthKit) to sync your nutrition and weight data.
+              With your permission, we may read and write the following data types:
+            </p>
+            <ul>
+              <li><strong>Dietary Energy:</strong> Calories consumed</li>
+              <li><strong>Macronutrients:</strong> Protein, carbohydrates, fat</li>
+              <li><strong>Micronutrients:</strong> Fiber, sugar, sodium</li>
+              <li><strong>Body Mass:</strong> Weight</li>
+            </ul>
+            <p>
+              This data is used to track your nutrition progress and provide personalized insights.
+              HealthKit data is only accessed with your explicit permission and is stored locally on
+              your device or securely synced to your CalorieCue account.
+            </p>
+            <div className="my-4 p-4 bg-primary-50 rounded-xl border border-primary-100">
+              <strong className="text-primary">Important:</strong> We do NOT sell or share your HealthKit
+              data with third parties for advertising or marketing purposes.
+            </div>
+          </section>
+
+          <section>
+            <h2>4. Third-Party Services</h2>
+
+            <h3>4.1 Infrastructure Services</h3>
+            <p>We use the following services to operate our app:</p>
+            <ul>
+              <li>
+                <strong>Supabase:</strong> Cloud database and authentication provider with enterprise-grade
+                security for storing your account and nutrition data.
+              </li>
+              <li>
+                <strong>Google Gemini AI:</strong> For analyzing meal photos and providing AI-powered food
+                recognition and nutritional estimates.
+              </li>
+            </ul>
+
+            <h3>4.2 Nutrition Data Sources</h3>
+            <p>We use the following services to provide accurate nutrition information:</p>
+            <ul>
+              <li>
+                <strong>USDA FoodData Central:</strong> U.S. Department of Agriculture food composition
+                database (<a href="https://fdc.nal.usda.gov" target="_blank" rel="noopener noreferrer">fdc.nal.usda.gov</a>)
+              </li>
+              <li>
+                <strong>CalorieNinjas:</strong> Restaurant and branded food nutrition data
+                (<a href="https://calorieninjas.com" target="_blank" rel="noopener noreferrer">calorieninjas.com</a>)
+              </li>
+              <li>
+                <strong>Open Food Facts:</strong> Open-source database of food products worldwide
+                (<a href="https://openfoodfacts.org" target="_blank" rel="noopener noreferrer">openfoodfacts.org</a>)
+              </li>
+            </ul>
+            <p>
+              When you search for foods or scan barcodes, queries may be sent to these services to retrieve
+              nutritional information. These queries include only the food name or barcode being searched—no
+              personal information is shared with these services.
+            </p>
+          </section>
+
+          <section>
+            <h2>5. How We Use Your Information</h2>
             <p>We use the collected information to:</p>
             <ul>
               <li>Provide and maintain our services</li>
@@ -98,7 +160,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2>4. Data Storage and Security</h2>
+            <h2>6. Data Storage and Security</h2>
             <p>
               Your data is stored securely using Supabase, a trusted cloud database provider with
               enterprise-grade security. We implement appropriate technical and organizational measures
@@ -113,7 +175,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2>5. Data Sharing and Disclosure</h2>
+            <h2>7. Data Sharing and Disclosure</h2>
             <p>We do NOT sell your personal information. We may share your information only in the following circumstances:</p>
             <ul>
               <li><strong>Service Providers:</strong> With trusted third-party services that help us operate our app (e.g., cloud hosting, analytics).</li>
@@ -123,7 +185,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2>6. Your Rights and Choices</h2>
+            <h2>8. Your Rights and Choices</h2>
             <p>You have the right to:</p>
             <ul>
               <li><strong>Access:</strong> Request a copy of your personal data.</li>
@@ -139,7 +201,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2>7. Data Retention</h2>
+            <h2>9. Data Retention</h2>
             <p>
               We retain your personal information for as long as your account is active or as needed to
               provide our services. If you delete your account, we will delete your personal data within
@@ -148,7 +210,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2>8. Children&apos;s Privacy</h2>
+            <h2>10. Children&apos;s Privacy</h2>
             <p>
               CalorieCue is not intended for children under 13 years of age. We do not knowingly collect
               personal information from children under 13. If we discover that we have collected personal
@@ -157,7 +219,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2>9. Changes to This Policy</h2>
+            <h2>11. Changes to This Policy</h2>
             <p>
               We may update this Privacy Policy from time to time. We will notify you of any changes by
               posting the new Privacy Policy on this page and updating the &quot;Last updated&quot; date. We
@@ -166,7 +228,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2>10. Contact Us</h2>
+            <h2>12. Contact Us</h2>
             <p>
               If you have any questions about this Privacy Policy or our data practices, please contact us:
             </p>
