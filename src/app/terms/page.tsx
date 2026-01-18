@@ -70,21 +70,34 @@ export default function TermsOfService() {
             </p>
 
             <h3>4.2 Premium Subscription</h3>
-            <p>After your free trial, you may subscribe to CalorieCue Premium:</p>
+            <p>CalorieCue Premium is available at the following prices:</p>
             <ul>
-              <li><strong>Monthly Plan:</strong> $2.99 for the first month (introductory offer), then $3.99/month</li>
-              <li><strong>Yearly Plan:</strong> $14.99 for the first year (introductory offer), then $19.99/year</li>
+              <li><strong>Monthly Plan:</strong> $3.99/month</li>
+              <li><strong>Yearly Plan:</strong> $19.99/year</li>
             </ul>
 
-            <h3>4.3 Billing &amp; Renewal</h3>
+            <h3>4.3 Introductory Offer</h3>
+            <p>
+              After your 7-day free trial ends, you may be eligible for a limited-time introductory offer
+              available for 72 hours:
+            </p>
+            <ul>
+              <li><strong>Monthly Plan:</strong> $2.99 for the first month, then $3.99/month</li>
+              <li><strong>Yearly Plan:</strong> $14.99 for the first year, then $19.99/year</li>
+            </ul>
+            <p className="mt-2">
+              Introductory pricing is available to new subscribers only and must be redeemed within
+              72 hours of your free trial ending.
+            </p>
+
+            <h3>4.4 Billing &amp; Renewal</h3>
             <ul>
               <li>Payment will be charged to your Apple ID account at confirmation of purchase</li>
               <li>Subscriptions automatically renew unless canceled at least 24 hours before the end of the current period</li>
               <li>Your account will be charged for renewal within 24 hours prior to the end of the current period</li>
-              <li>Introductory pricing is available to new subscribers only</li>
             </ul>
 
-            <h3>4.4 Managing Your Subscription</h3>
+            <h3>4.5 Managing Your Subscription</h3>
             <p>
               You can manage or cancel your subscription at any time through your Apple ID Account Settings:
             </p>
@@ -94,7 +107,7 @@ export default function TermsOfService() {
               <li>Choose &quot;Cancel Subscription&quot; or modify your plan</li>
             </ol>
 
-            <h3>4.5 Premium Features</h3>
+            <h3>4.6 Premium Features</h3>
             <p>The following features require an active Premium subscription:</p>
             <ul>
               <li>Unlimited barcode scans</li>
@@ -107,7 +120,7 @@ export default function TermsOfService() {
               <li>Achievements</li>
             </ul>
 
-            <h3>4.6 Refunds</h3>
+            <h3>4.7 Refunds</h3>
             <p>
               All purchases are processed through Apple. Refund requests must be submitted directly to Apple
               through their support channels at{" "}

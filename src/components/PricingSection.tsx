@@ -6,14 +6,15 @@ import { motion } from "framer-motion";
 // Pricing data
 const PRICING = {
   monthly: {
-    current: "$2.99",
-    original: "$3.99",
+    price: "$3.99",
+    introPrice: "$2.99",
     period: "month",
   },
   yearly: {
-    current: "$14.99",
-    original: "$19.99",
+    price: "$19.99",
+    introPrice: "$14.99",
     period: "year",
+    monthlyEquivalent: "$1.67",
   },
 };
 
@@ -199,18 +200,18 @@ export default function PricingSection() {
             <div className="mb-6">
               <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="text-4xl md:text-5xl font-bold text-foreground">
-                  {currentPricing.current}
-                </span>
-                <span className="text-muted-foreground line-through text-lg">
-                  {currentPricing.original}
+                  {currentPricing.price}
                 </span>
                 <span className="text-muted-foreground">/{currentPricing.period}</span>
               </div>
               {isYearly && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  That&apos;s just $1.25/month
+                  That&apos;s just {PRICING.yearly.monthlyEquivalent}/month
                 </p>
               )}
+              <p className="text-sm text-primary mt-2">
+                Introductory offer: {currentPricing.introPrice}/{currentPricing.period} for first {isYearly ? "year" : "month"}
+              </p>
             </div>
 
             {/* CTA Button */}
