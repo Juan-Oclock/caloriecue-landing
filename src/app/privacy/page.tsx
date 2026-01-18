@@ -3,6 +3,9 @@ import { Navigation, Footer } from "@/components";
 export const metadata = {
   title: "Privacy Policy - CalorieCue",
   description: "CalorieCue Privacy Policy - Learn how we collect, use, and protect your data.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 export default function PrivacyPolicy() {

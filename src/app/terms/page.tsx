@@ -3,6 +3,9 @@ import { Navigation, Footer } from "@/components";
 export const metadata = {
   title: "Terms of Service - CalorieCue",
   description: "CalorieCue Terms of Service - Terms and conditions for using our app.",
+  alternates: {
+    canonical: "/terms",
+  },
 };
 
 export default function TermsOfService() {

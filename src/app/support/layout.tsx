@@ -4,6 +4,9 @@ export const metadata: Metadata = {
   title: "Support",
   description:
     "Get help with CalorieCue. Find answers to frequently asked questions, contact our support team, or send feedback.",
+  alternates: {
+    canonical: "/support",
+  },
   openGraph: {
     title: "Support | CalorieCue",
     description:

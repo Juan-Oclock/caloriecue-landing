@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Normalize trailing slashes - prevents duplicate URL issues for SEO
+  trailingSlash: false,
 };
 
 export default nextConfig;
