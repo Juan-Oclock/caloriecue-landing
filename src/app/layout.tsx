@@ -149,7 +149,7 @@ export default function RootLayout({
                   url: "https://caloriecue.app",
                   logo: {
                     "@type": "ImageObject",
-                    url: "https://caloriecue.app/CalorieCue - App Icons/1024.png",
+                    url: "https://caloriecue.app/app-icons/1024.png",
                   },
                   sameAs: [],
                 },

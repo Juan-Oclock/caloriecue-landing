@@ -57,7 +57,7 @@ export default function PhoneMockup({
                   <div className="flex-1 p-4 pt-8 flex flex-col items-center">
                     {/* Logo */}
                     <Image
-                      src="/CalorieCue - App Icons/120.png"
+                      src="/app-icons/120.png"
                       alt="CalorieCue"
                       width={64}
                       height={64}

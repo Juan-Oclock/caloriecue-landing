@@ -19,7 +19,7 @@ export default function WelcomePage() {
           className="text-center mb-8"
         >
           <Image
-            src="/CalorieCue - App Icons/180.png"
+            src="/app-icons/180.png"
             alt="CalorieCue"
             width={72}
             height={72}

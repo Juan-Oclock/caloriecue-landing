@@ -35,7 +35,7 @@ export default function Navigation() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <Image
-            src="/CalorieCue - App Icons/80.png"
+            src="/app-icons/80.png"
             alt="CalorieCue"
             width={40}
             height={40}

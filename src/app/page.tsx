@@ -100,7 +100,7 @@ export default function Home() {
                   aria-hidden="true"
                 />
                 <Image
-                  src="/mockup-calorie cue.png"
+                  src="/mockup-caloriecue.png"
                   alt="CalorieCue App"
                   width={340}
                   height={680}
