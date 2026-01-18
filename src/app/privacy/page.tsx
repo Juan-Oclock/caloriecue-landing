@@ -13,7 +13,7 @@ export default function PrivacyPolicy() {
       <main className="pt-28 pb-16 px-4">
         <article className="max-w-3xl mx-auto prose-custom">
           <h1>Privacy Policy</h1>
-          <p className="text-muted-foreground mb-8">Last updated: December 27, 2024</p>
+          <p className="text-muted-foreground mb-8">Last updated: January 18, 2026</p>
 
           <section>
             <h2>1. Introduction</h2>
@@ -47,7 +47,28 @@ export default function PrivacyPolicy() {
               Your authentication data is used solely to identify your account and provide our services.
             </div>
 
-            <h3>2.3 Automatically Collected Information</h3>
+            <h3>2.3 Voice Data</h3>
+            <ul>
+              <li>When using voice food logging, audio is temporarily processed to convert speech to text.</li>
+              <li>Audio is not stored permanently; only the transcribed text is saved to your food diary.</li>
+              <li>Voice processing occurs in real-time and recordings are discarded immediately after transcription.</li>
+            </ul>
+
+            <h3>2.4 Photo Data</h3>
+            <ul>
+              <li>Meal photos uploaded for AI analysis to estimate nutritional content.</li>
+              <li>Photos may be processed through Google Gemini AI for food recognition.</li>
+              <li>Photos are used to improve food recognition accuracy and provide personalized insights.</li>
+            </ul>
+
+            <h3>2.5 Offline Data</h3>
+            <ul>
+              <li>Barcode lookup data is cached locally on your device for offline access.</li>
+              <li>Cached data is stored only on your device and is not transmitted to our servers.</li>
+              <li>You can clear cached data at any time through the app settings.</li>
+            </ul>
+
+            <h3>2.6 Automatically Collected Information</h3>
             <ul>
               <li>Device information (device type, operating system)</li>
               <li>App usage data and analytics</li>
@@ -63,6 +84,9 @@ export default function PrivacyPolicy() {
               <li>Create and manage your account</li>
               <li>Track your nutrition and fitness progress</li>
               <li>Provide personalized recommendations and AI coaching</li>
+              <li>Process voice recordings for food logging (converted to text only)</li>
+              <li>Analyze meal photos for nutritional estimates using AI</li>
+              <li>Cache barcode data locally for faster offline lookups</li>
               <li>Send you relevant notifications (with your consent)</li>
               <li>Improve and optimize our app</li>
               <li>Respond to your inquiries and support requests</li>

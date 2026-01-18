@@ -13,7 +13,7 @@ export default function TermsOfService() {
       <main className="pt-28 pb-16 px-4">
         <article className="max-w-3xl mx-auto prose-custom">
           <h1>Terms of Service</h1>
-          <p className="text-muted-foreground mb-8">Last updated: December 30, 2024</p>
+          <p className="text-muted-foreground mb-8">Last updated: January 18, 2026</p>
 
           <section>
             <h2>1. Acceptance of Terms</h2>
@@ -30,6 +30,17 @@ export default function TermsOfService() {
               food intake, track macronutrients, set fitness goals, and receive AI-powered nutrition
               recommendations. The App is intended for informational and educational purposes only.
             </p>
+            <p className="mt-4">Key features of CalorieCue include:</p>
+            <ul>
+              <li>Barcode scanning for packaged foods</li>
+              <li>AI-powered meal photo analysis</li>
+              <li>Voice food logging (speak to log meals)</li>
+              <li>Meal planning and saved meals</li>
+              <li>Restaurant and branded food database</li>
+              <li>Data export in CSV and JSON formats</li>
+              <li>Offline barcode scanning with local cache</li>
+              <li>AI Coach (Cue) for personalized nutrition guidance</li>
+            </ul>
           </section>
 
           <section>
@@ -83,7 +94,20 @@ export default function TermsOfService() {
               <li>Choose &quot;Cancel Subscription&quot; or modify your plan</li>
             </ol>
 
-            <h3>4.5 Refunds</h3>
+            <h3>4.5 Premium Features</h3>
+            <p>The following features require an active Premium subscription:</p>
+            <ul>
+              <li>Unlimited barcode scans</li>
+              <li>Unlimited photo scanning</li>
+              <li>Voice food logging</li>
+              <li>Meal planning</li>
+              <li>Full diary history</li>
+              <li>Insights &amp; Analytics</li>
+              <li>AI Nutrition Coach</li>
+              <li>Achievements</li>
+            </ul>
+
+            <h3>4.6 Refunds</h3>
             <p>
               All purchases are processed through Apple. Refund requests must be submitted directly to Apple
               through their support channels at{" "}
@@ -94,7 +118,24 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>5. Acceptable Use</h2>
+            <h2>5. Voice Recording Consent</h2>
+            <p>
+              By using the voice food logging feature, you consent to the following:
+            </p>
+            <ul>
+              <li>Your device&apos;s microphone will be accessed to capture audio when you initiate voice logging.</li>
+              <li>Audio is processed in real-time to convert your speech to text.</li>
+              <li>No audio recordings are permanently stored; only the transcribed text is saved to your food diary.</li>
+              <li>Voice data is processed solely for the purpose of logging food entries.</li>
+            </ul>
+            <p className="mt-4">
+              You can revoke microphone access at any time through your device settings, which will disable
+              the voice logging feature.
+            </p>
+          </section>
+
+          <section>
+            <h2>6. Acceptable Use</h2>
             <p>You agree NOT to:</p>
             <ul>
               <li>Use the App for any unlawful purpose or in violation of any laws.</li>
@@ -108,7 +149,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>6. Health Disclaimer</h2>
+            <h2>7. Health Disclaimer</h2>
             <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
               <strong className="text-amber-600">Important:</strong> CalorieCue is NOT a substitute for
               professional medical advice, diagnosis, or treatment. The nutritional information,
@@ -124,7 +165,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>7. Intellectual Property</h2>
+            <h2>8. Intellectual Property</h2>
             <p>
               All content, features, and functionality of the App, including but not limited to text,
               graphics, logos, icons, images, and software, are the exclusive property of CalorieCue
@@ -137,7 +178,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>8. User Content</h2>
+            <h2>9. User Content</h2>
             <p>
               You retain ownership of any content you submit to the App (e.g., food logs, photos).
               By submitting content, you grant us a non-exclusive, worldwide, royalty-free license
@@ -146,7 +187,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>9. Third-Party Services</h2>
+            <h2>10. Third-Party Services</h2>
             <p>
               The App may integrate with third-party services (e.g., Google Sign-In, Apple Sign-In).
               Your use of these services is subject to their respective terms and privacy policies.
@@ -155,7 +196,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>10. Limitation of Liability</h2>
+            <h2>11. Limitation of Liability</h2>
             <p>
               TO THE MAXIMUM EXTENT PERMITTED BY LAW, CALORIECUE AND ITS AFFILIATES SHALL NOT BE
               LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES,
@@ -170,7 +211,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>11. Disclaimer of Warranties</h2>
+            <h2>12. Disclaimer of Warranties</h2>
             <p>
               THE APP IS PROVIDED &quot;AS IS&quot; AND &quot;AS AVAILABLE&quot; WITHOUT WARRANTIES OF ANY KIND,
               EITHER EXPRESS OR IMPLIED. WE DO NOT WARRANT THAT THE APP WILL BE UNINTERRUPTED,
@@ -179,7 +220,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>12. Termination</h2>
+            <h2>13. Termination</h2>
             <p>
               We reserve the right to suspend or terminate your account and access to the App at
               any time, with or without cause, with or without notice. Upon termination, your
@@ -188,7 +229,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>13. Changes to Terms</h2>
+            <h2>14. Changes to Terms</h2>
             <p>
               We may modify these Terms at any time. We will notify you of significant changes by
               posting the updated Terms in the App or on our website. Your continued use of the
@@ -197,7 +238,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>14. Governing Law</h2>
+            <h2>15. Governing Law</h2>
             <p>
               These Terms shall be governed by and construed in accordance with the laws of the
               jurisdiction in which CalorieCue operates, without regard to conflict of law principles.
@@ -205,7 +246,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2>15. Contact Information</h2>
+            <h2>16. Contact Information</h2>
             <p>
               If you have any questions about these Terms, please contact us:
             </p>

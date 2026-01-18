@@ -19,21 +19,22 @@ const PRICING = {
 
 const FREE_FEATURES = [
   { text: "5 barcode scans per day", included: true },
-  { text: "3 days diary history", included: true },
-  { text: "Basic meal tracking", included: true },
-  { text: "AI Coach (Cue)", included: false },
-  { text: "Insights & Analytics", included: false },
-  { text: "AI Meal Analysis", included: false },
+  { text: "3 photo scans per day", included: true },
+  { text: "3 AI Coach messages per day", included: true },
+  { text: "3 days of diary history", included: true },
+  { text: "Limited insights access", included: true },
+  { text: "No meal planning", included: false },
 ];
 
 const PREMIUM_FEATURES = [
   { text: "Unlimited barcode scans", included: true },
+  { text: "Unlimited photo scanning", included: true },
+  { text: "Voice food logging", included: true },
+  { text: "Meal planning", included: true },
   { text: "Full diary history", included: true },
-  { text: "AI Coach (Cue)", included: true },
   { text: "Insights & Analytics", included: true },
-  { text: "AI Meal Analysis", included: true },
-  { text: "Custom Recipes", included: true },
-  { text: "Achievements & Streaks", included: true },
+  { text: "AI Nutrition Coach", included: true },
+  { text: "Achievements", included: true },
 ];
 
 export default function PricingSection() {
