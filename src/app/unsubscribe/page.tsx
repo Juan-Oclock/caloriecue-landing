@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Navigation, Footer } from "@/components";
@@ -9,7 +9,7 @@ type UnsubscribeState = "loading" | "success" | "error" | "invalid";
 
 const EDGE_FUNCTION_URL = "https://bxhgpvkkeyguovvyqsft.supabase.co/functions/v1/unsubscribe";
 
-export default function UnsubscribePage() {
+function UnsubscribeContent() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
   const token = searchParams.get("token");
@@ -162,5 +162,26 @@ export default function UnsubscribePage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function UnsubscribePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <main className="pt-28 pb-16 px-4">
+          <div className="max-w-lg mx-auto">
+            <div className="card p-12 text-center">
+              <div className="w-16 h-16 mx-auto mb-6 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+              <p className="text-muted-foreground">Loading...</p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    }>
+      <UnsubscribeContent />
+    </Suspense>
   );
 }
