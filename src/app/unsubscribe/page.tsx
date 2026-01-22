@@ -33,13 +33,7 @@ function UnsubscribeContent() {
       // Call the edge function to process unsubscribe
       try {
         const response = await fetch(
-          `${EDGE_FUNCTION_URL}?email=${encodeURIComponent(email)}&token=${token}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
+          `${EDGE_FUNCTION_URL}?email=${encodeURIComponent(email)}&token=${token}`
         );
 
         if (response.ok) {
