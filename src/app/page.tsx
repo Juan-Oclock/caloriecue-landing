@@ -1,6 +1,3 @@
-"use client";
-
-import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import {
   Navigation,
@@ -8,45 +5,13 @@ import {
   FeatureCard,
   PricingSection,
   AppStoreButton,
+  FadeIn,
+  AnimatedCounter,
+  ScanLineAnimation,
+  VideoPreview,
+  FAQSection,
+  WaitlistForm,
 } from "@/components";
-import { useRef, useEffect, useState } from "react";
-
-function AnimatedCounter({
-  target,
-  suffix = "",
-}: {
-  target: number;
-  suffix?: string;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!isInView) return;
-    const duration = 1500;
-    const steps = 40;
-    const increment = target / steps;
-    let current = 0;
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= target) {
-        setCount(target);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(current));
-      }
-    }, duration / steps);
-    return () => clearInterval(timer);
-  }, [isInView, target]);
-
-  return (
-    <span ref={ref}>
-      {count.toLocaleString()}
-      {suffix}
-    </span>
-  );
-}
 
 export default function Home() {
   return (
@@ -59,94 +24,90 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             {/* Left: Content */}
             <div className="text-center lg:text-left">
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="text-hero-mobile md:text-hero text-foreground mb-6"
-              >
-                Snap a Photo.
-                <br />
-                <span className="text-gradient">Know Your Calories.</span>
-              </motion.h1>
+              <FadeIn delay={0.1} trigger="onMount">
+                <h1 className="text-hero-mobile md:text-hero text-foreground mb-6">
+                  Snap a Photo.
+                  <br />
+                  <span className="text-gradient">Know Your Calories.</span>
+                </h1>
+              </FadeIn>
 
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed"
-              >
-                Point your camera at any meal — CalorieCue&apos;s AI identifies
-                your food and tracks nutrition in 3 seconds.
-              </motion.p>
+              <FadeIn delay={0.2} trigger="onMount">
+                <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                  Point your camera at any meal — CalorieCue&apos;s AI identifies
+                  your food and tracks nutrition in 3 seconds.
+                </p>
+              </FadeIn>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                <AppStoreButton variant="hero" />
-              </motion.div>
+              <FadeIn delay={0.3} trigger="onMount">
+                <div className="space-y-5">
+                  <AppStoreButton variant="hero" hideTagline />
+
+                  {/* Waitlist divider */}
+                  <div className="flex items-center gap-3 max-w-md mx-auto lg:mx-0">
+                    <div className="h-px flex-1 bg-border" />
+                    <span className="text-sm text-muted-foreground">or</span>
+                    <div className="h-px flex-1 bg-border" />
+                  </div>
+
+                  <p className="text-sm text-muted-foreground max-w-md mx-auto lg:mx-0">
+                    Not on iOS? Get notified when we launch on Android.
+                  </p>
+                  <WaitlistForm variant="hero" />
+                </div>
+              </FadeIn>
 
               {/* Trust indicators */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
-                className="mt-10 flex flex-wrap items-center gap-3 sm:gap-6 justify-center lg:justify-start text-sm text-muted-foreground"
-              >
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 text-primary"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>Free to use</span>
+              <FadeIn delay={0.5} y={0} trigger="onMount">
+                <div className="mt-10 flex flex-wrap items-center gap-3 sm:gap-6 justify-center lg:justify-start text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5 text-primary"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span>Free to use</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5 text-primary"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span>No ads</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5 text-primary"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span>Privacy first</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 text-primary"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>No ads</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 text-primary"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>Privacy first</span>
-                </div>
-              </motion.div>
+              </FadeIn>
             </div>
 
             {/* Right: Hero Image */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="flex justify-center lg:justify-end"
-            >
+            <FadeIn delay={0.2} y={40} duration={0.8} trigger="onMount" className="flex justify-center lg:justify-end">
               <div className="relative">
                 {/* Layer 1: Ambient shadow */}
                 <div
@@ -175,7 +136,7 @@ export default function Home() {
                   className="relative z-10 w-[260px] md:w-[340px] h-auto"
                 />
               </div>
-            </motion.div>
+            </FadeIn>
           </div>
         </div>
       </section>
@@ -184,61 +145,41 @@ export default function Home() {
       <section className="py-14 md:py-16 px-4 bg-background border-y border-border">
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
+            <FadeIn>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
                 <AnimatedCounter target={500} suffix="+" />
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 Active Users
               </p>
-            </motion.div>
+            </FadeIn>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
+            <FadeIn delay={0.1}>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
                 <AnimatedCounter target={1678} suffix="+" />
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 Meals Scanned
               </p>
-            </motion.div>
+            </FadeIn>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
+            <FadeIn delay={0.2}>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
                 <AnimatedCounter target={675946} suffix="+" />
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 Calories Logged
               </p>
-            </motion.div>
+            </FadeIn>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
+            <FadeIn delay={0.3}>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
                 5.0
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 App Store Rating
               </p>
-            </motion.div>
+            </FadeIn>
           </div>
         </div>
       </section>
@@ -251,13 +192,7 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-blue/5 rounded-full blur-[100px] -z-10" />
 
         <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-16"
-          >
+          <FadeIn className="text-center mb-16">
             <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
               Features
             </span>
@@ -268,16 +203,14 @@ export default function Home() {
               Everything you need to take control of your nutrition with
               intelligent assistance.
             </p>
-          </motion.div>
+          </FadeIn>
 
           {/* Bento Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 lg:[grid-auto-rows:minmax(200px,auto)]">
             {/* Hero Card: AI Meal Scanning - spans 2 cols, 2 rows on lg */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5 }}
+            <FadeIn
+              y={30}
+              viewportMargin="-50px"
               className="md:col-span-2 lg:col-span-2 lg:row-span-2 group relative bg-gradient-to-br from-primary-50 via-white to-orange-50/30 rounded-3xl border border-primary-100/60 p-7 md:p-8 overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/10"
             >
               {/* Background decorations */}
@@ -353,15 +286,7 @@ export default function Home() {
                     </div>
 
                     {/* Animated scan line */}
-                    <motion.div
-                      className="absolute left-3 right-3 h-[1.5px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"
-                      animate={{ top: ["15%", "85%", "15%"] }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    />
+                    <ScanLineAnimation />
 
                     {/* Result chip */}
                     <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm border border-primary/20 rounded-full px-3.5 py-1 shadow-sm whitespace-nowrap">
@@ -383,7 +308,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </FadeIn>
 
             {/* AI Coach - spans 2 cols on lg */}
             <FeatureCard
@@ -514,13 +439,7 @@ export default function Home() {
       {/* App Preview Section */}
       <section className="py-20 md:py-28 px-4 bg-background">
         <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
-          >
+          <FadeIn className="text-center mb-12">
             <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
               Preview
             </span>
@@ -530,40 +449,21 @@ export default function Home() {
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Watch how easy it is to track your nutrition with CalorieCue.
             </p>
-          </motion.div>
+          </FadeIn>
 
           {/* Video */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="relative aspect-[3/4] md:aspect-video bg-white rounded-3xl border border-border overflow-hidden shadow-soft-lg"
-          >
-            <video
-              className="w-full h-full object-cover scale-[1.2] md:scale-100"
-              autoPlay
-              muted
-              loop
-              playsInline
-            >
-              <source src="/see it in action.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          </motion.div>
+          <VideoPreview
+            mp4Src="/see-it-in-action.mp4"
+            webmSrc="/see-it-in-action.webm"
+            poster="/see-it-in-action-poster.jpg"
+          />
         </div>
       </section>
 
       {/* Testimonials Section */}
       <section className="py-24 md:py-32 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-16"
-          >
+          <FadeIn className="text-center mb-16">
             <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
               Reviews
             </span>
@@ -573,7 +473,7 @@ export default function Home() {
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               See what people are saying on the App Store.
             </p>
-          </motion.div>
+          </FadeIn>
 
           <div className="grid md:grid-cols-3 gap-5 lg:gap-6">
             {[
@@ -593,12 +493,11 @@ export default function Home() {
                 text: "I really like this app because it\u2019s very easy to navigate and user-friendly. Logging food is much easier, especially with the photo feature where the AI scans the food and automatically calculates the calories.",
               },
             ].map((review, index) => (
-              <motion.div
+              <FadeIn
                 key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                y={30}
+                delay={index * 0.1}
+                viewportMargin="-50px"
                 className="bg-background rounded-2xl border border-border p-6 md:p-7 flex flex-col"
               >
                 {/* Stars */}
@@ -634,7 +533,7 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
-              </motion.div>
+              </FadeIn>
             ))}
           </div>
         </div>
@@ -643,13 +542,7 @@ export default function Home() {
       {/* How It Works Section */}
       <section className="py-24 md:py-32 px-4 bg-background">
         <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-16 md:mb-20"
-          >
+          <FadeIn className="text-center mb-16 md:mb-20">
             <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
               How It Works
             </span>
@@ -659,7 +552,7 @@ export default function Home() {
             <p className="text-muted-foreground text-lg">
               Begin your journey to better nutrition in minutes.
             </p>
-          </motion.div>
+          </FadeIn>
 
           <div className="grid md:grid-cols-3 gap-10 md:gap-6 lg:gap-10">
             {[
@@ -728,12 +621,11 @@ export default function Home() {
                 ),
               },
             ].map((item, index) => (
-              <motion.div
+              <FadeIn
                 key={item.step}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: index * 0.15 }}
+                y={30}
+                delay={index * 0.15}
+                viewportMargin="-50px"
                 className="relative text-center"
               >
                 {/* Icon with step number badge */}
@@ -761,7 +653,7 @@ export default function Home() {
                 {index < 2 && (
                   <div className="hidden md:block absolute top-8 left-[58%] w-[84%] border-t-2 border-dashed border-primary/20" />
                 )}
-              </motion.div>
+              </FadeIn>
             ))}
           </div>
         </div>
@@ -770,6 +662,9 @@ export default function Home() {
       {/* Pricing Section */}
       <PricingSection />
 
+      {/* FAQ Section */}
+      <FAQSection />
+
       {/* CTA Section */}
       <section className="py-24 md:py-32 px-4 relative overflow-hidden">
         {/* Background */}
@@ -777,12 +672,7 @@ export default function Home() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[150px] -z-10" />
 
         <div className="max-w-3xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
+          <FadeIn>
             <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
               Get Started
             </span>
@@ -794,7 +684,7 @@ export default function Home() {
             </p>
 
             <AppStoreButton variant="hero" centered />
-          </motion.div>
+          </FadeIn>
         </div>
       </section>
 

@@ -7,6 +7,7 @@ const APP_STORE_URL = "https://apps.apple.com/us/app/caloriecue-calorie-counter/
 interface AppStoreButtonProps {
   variant?: "hero" | "compact";
   centered?: boolean;
+  hideTagline?: boolean;
   className?: string;
 }
 
@@ -81,7 +82,7 @@ function AppleLogo({ className = "w-5 h-5" }: { className?: string }) {
   );
 }
 
-export default function AppStoreButton({ variant = "hero", centered = false, className = "" }: AppStoreButtonProps) {
+export default function AppStoreButton({ variant = "hero", centered = false, hideTagline = false, className = "" }: AppStoreButtonProps) {
   const prefersReducedMotion = useReducedMotion();
 
   if (variant === "compact") {
@@ -141,14 +142,16 @@ export default function AppStoreButton({ variant = "hero", centered = false, cla
       </div>
 
       {/* Tagline */}
-      <motion.p
-        initial={prefersReducedMotion ? {} : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="text-sm text-muted-foreground"
-      >
-        Free to download. Start tracking today.
-      </motion.p>
+      {!hideTagline && (
+        <motion.p
+          initial={prefersReducedMotion ? {} : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="text-sm text-muted-foreground"
+        >
+          Free to download. Start tracking today.
+        </motion.p>
+      )}
     </div>
   );
 }
