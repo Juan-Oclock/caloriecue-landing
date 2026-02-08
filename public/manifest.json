@@ -9,32 +9,32 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/CalorieCue - App Icons/40.png",
+      "src": "/app-icons/40.png",
       "sizes": "40x40",
       "type": "image/png"
     },
     {
-      "src": "/CalorieCue - App Icons/60.png",
+      "src": "/app-icons/60.png",
       "sizes": "60x60",
       "type": "image/png"
     },
     {
-      "src": "/CalorieCue - App Icons/80.png",
+      "src": "/app-icons/80.png",
       "sizes": "80x80",
       "type": "image/png"
     },
     {
-      "src": "/CalorieCue - App Icons/120.png",
+      "src": "/app-icons/120.png",
       "sizes": "120x120",
       "type": "image/png"
     },
     {
-      "src": "/CalorieCue - App Icons/180.png",
+      "src": "/app-icons/180.png",
       "sizes": "180x180",
       "type": "image/png"
     },
     {
-      "src": "/CalorieCue - App Icons/1024.png",
+      "src": "/app-icons/1024.png",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any maskable"

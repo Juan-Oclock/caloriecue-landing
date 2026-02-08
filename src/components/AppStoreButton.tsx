@@ -103,34 +103,6 @@ export default function AppStoreButton({ variant = "hero", centered = false, cla
   // Hero variant with full effects
   return (
     <div className={`flex flex-col items-center ${centered ? "" : "lg:items-start"} gap-4 ${className}`}>
-      {/* Available Now Badge */}
-      <motion.div
-        initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative inline-flex items-center gap-2 bg-gradient-to-r from-primary-50 to-primary-100 text-primary px-4 py-2 rounded-full text-sm font-semibold border border-primary-200 overflow-hidden"
-      >
-        {/* Shimmer effect */}
-        {!prefersReducedMotion && (
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent -skew-x-12"
-            animate={{
-              x: ["-100%", "200%"],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              repeatDelay: 3,
-              ease: "easeInOut",
-            }}
-          />
-        )}
-        <span className="relative flex items-center gap-2">
-          <AppleLogo className="w-4 h-4" />
-          Available Now on the App Store
-        </span>
-      </motion.div>
-
       {/* Main App Store Button */}
       <div className="relative">
         {/* Floating particles */}

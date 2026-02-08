@@ -6,11 +6,11 @@ const siteUrl = "https://caloriecue.app";
 export const metadata: Metadata = {
   // Basic metadata
   title: {
-    default: "CalorieCue - Smart Calorie Tracking",
+    default: "CalorieCue — AI Photo Calorie Tracker",
     template: "%s | CalorieCue",
   },
   description:
-    "Every Bite in Sight, Every Day Done Right. AI-powered calorie tracking app with smart meal analysis, personalized nutrition insights, and effortless food logging. Download free on iOS.",
+    "Snap a photo of any meal and get instant calorie and macro tracking. Works on any cuisine. Free on iOS.",
   keywords: [
     "calorie tracker",
     "calorie counting app",
@@ -55,9 +55,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "CalorieCue",
-    title: "CalorieCue - Smart Calorie Tracking",
+    title: "CalorieCue — AI Photo Calorie Tracker",
     description:
-      "Every Bite in Sight, Every Day Done Right. AI-powered calorie tracking with smart meal analysis and personalized nutrition insights.",
+      "Snap a photo of any meal and get instant calorie and macro tracking. Works on any cuisine. Free on iOS.",
     images: [
       {
         url: "/opengraph-image",
@@ -71,9 +71,9 @@ export const metadata: Metadata = {
   // Twitter Card
   twitter: {
     card: "summary_large_image",
-    title: "CalorieCue - Smart Calorie Tracking",
+    title: "CalorieCue — AI Photo Calorie Tracker",
     description:
-      "Every Bite in Sight, Every Day Done Right. AI-powered calorie tracking with smart meal analysis.",
+      "Snap a photo of any meal and get instant calorie and macro tracking. Works on any cuisine. Free on iOS.",
     images: ["/twitter-image"],
     creator: "@caloriecue",
   },
@@ -82,7 +82,7 @@ export const metadata: Metadata = {
   appLinks: {
     ios: {
       url: "https://apps.apple.com/app/caloriecue",
-      app_store_id: "caloriecue",
+      app_store_id: "6757112503",
     },
   },
 
@@ -164,11 +164,6 @@ export default function RootLayout({
                     "@type": "Offer",
                     price: "0",
                     priceCurrency: "USD",
-                  },
-                  aggregateRating: {
-                    "@type": "AggregateRating",
-                    ratingValue: "5",
-                    ratingCount: "1",
                   },
                   downloadUrl:
                     "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503",

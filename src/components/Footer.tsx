@@ -4,11 +4,11 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="py-8 px-4 border-t border-border/50 bg-white">
+    <footer role="contentinfo" className="py-8 px-4 border-t border-border/50 bg-white">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col items-center gap-4">
           {/* Links */}
-          <div className="flex items-center gap-6 text-sm">
+          <nav aria-label="Footer" className="flex items-center gap-6 text-sm">
             <Link
               href="/privacy"
               className="text-muted-foreground hover:text-foreground transition-colors"
@@ -27,7 +27,7 @@ export default function Footer() {
             >
               Support
             </Link>
-          </div>
+          </nav>
 
           {/* Copyright & Credit */}
           <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs text-muted-foreground">

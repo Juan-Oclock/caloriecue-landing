@@ -61,7 +61,7 @@ export default function PricingSection() {
             Simple, Transparent Pricing
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
-            Start free and upgrade when you&apos;re ready for more.
+            Start free and upgrade when you&apos;re ready for more. Every premium plan includes a <strong className="text-foreground">7-day free trial</strong>.
           </p>
 
           {/* Billing Toggle */}
