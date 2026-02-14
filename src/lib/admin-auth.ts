@@ -27,8 +27,8 @@ export async function verifyAdmin(): Promise<{
 
     return { user, isAdmin: true };
   } catch (err) {
-    // Re-throw Next.js redirect errors
-    if (err instanceof Error && 'digest' in err) throw err;
+    // Re-throw Next.js redirect/notFound errors
+    if (typeof err === 'object' && err !== null && 'digest' in err) throw err;
     // Any other error (e.g. Supabase client failure) — redirect to login
     redirect('/admin/login');
   }
