@@ -5,6 +5,8 @@ export async function verifyAdmin(): Promise<{
   user: NonNullable<Awaited<ReturnType<Awaited<ReturnType<typeof createClient>>['auth']['getUser']>>['data']['user']>;
   isAdmin: true;
 }> {
+  let redirectTo: string | null = null;
+
   try {
     const supabase = await createClient();
 
@@ -13,23 +15,22 @@ export async function verifyAdmin(): Promise<{
     } = await supabase.auth.getUser();
 
     if (!user) {
-      redirect('/admin/login');
+      redirectTo = '/admin/login';
+    } else {
+      const adminUserIds = (process.env.ADMIN_USER_IDS ?? '')
+        .split(',')
+        .map((id) => id.trim())
+        .filter(Boolean);
+
+      if (!adminUserIds.includes(user.id)) {
+        redirectTo = '/admin/unauthorized';
+      } else {
+        return { user, isAdmin: true };
+      }
     }
-
-    const adminUserIds = (process.env.ADMIN_USER_IDS ?? '')
-      .split(',')
-      .map((id) => id.trim())
-      .filter(Boolean);
-
-    if (!adminUserIds.includes(user.id)) {
-      redirect('/admin/unauthorized');
-    }
-
-    return { user, isAdmin: true };
-  } catch (err) {
-    // Re-throw Next.js redirect/notFound errors
-    if (typeof err === 'object' && err !== null && 'digest' in err) throw err;
-    // Any other error (e.g. Supabase client failure) — redirect to login
-    redirect('/admin/login');
+  } catch {
+    redirectTo = '/admin/login';
   }
+
+  redirect(redirectTo!);
 }

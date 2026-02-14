@@ -7,6 +7,8 @@ import { checkRateLimit } from '@/lib/rate-limit';
 import { logAdminAction } from '@/lib/audit-log';
 
 export async function login(formData: FormData) {
+  let shouldRedirect = false;
+
   try {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
@@ -69,11 +71,13 @@ export async function login(formData: FormData) {
       metadata: { email },
     });
 
-    redirect('/admin');
-  } catch (err) {
-    // Re-throw Next.js redirect/notFound errors (they use a special digest property)
-    if (typeof err === 'object' && err !== null && 'digest' in err) throw err;
+    shouldRedirect = true;
+  } catch {
     return { error: 'Something went wrong. Please try again.' };
+  }
+
+  if (shouldRedirect) {
+    redirect('/admin');
   }
 }
 
@@ -113,6 +117,8 @@ export async function resetPassword(formData: FormData) {
 }
 
 export async function logout() {
+  let shouldRedirect = false;
+
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -125,11 +131,12 @@ export async function logout() {
     }
 
     await supabase.auth.signOut();
-    redirect('/admin/login');
-  } catch (err) {
-    // Re-throw Next.js redirect/notFound errors
-    if (typeof err === 'object' && err !== null && 'digest' in err) throw err;
-    // Fallback: redirect to login page
+    shouldRedirect = true;
+  } catch {
+    shouldRedirect = true;
+  }
+
+  if (shouldRedirect) {
     redirect('/admin/login');
   }
 }
