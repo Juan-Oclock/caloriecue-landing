@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 interface WaitlistFormProps {
   variant?: "hero" | "cta";
@@ -27,6 +27,7 @@ export default function WaitlistForm({ variant = "hero" }: WaitlistFormProps) {
     setLoading(true);
 
     try {
+      const supabase = createClient();
       const { error: insertError } = await supabase
         .from("waitlist")
         .insert([{ email: email.toLowerCase().trim() }]);

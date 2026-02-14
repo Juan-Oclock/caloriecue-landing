@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 export default function NewsletterSection() {
   const [email, setEmail] = useState("");
@@ -22,6 +22,7 @@ export default function NewsletterSection() {
     setLoading(true);
 
     try {
+      const supabase = createClient();
       const { error: insertError } = await supabase
         .from("newsletter")
         .insert([{ email: email.toLowerCase().trim() }]);

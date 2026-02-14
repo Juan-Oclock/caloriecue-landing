@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 type VerificationState = "loading" | "success" | "error";
 type AuthType = "signup" | "recovery" | "magiclink" | "email_change";
@@ -39,6 +39,7 @@ function AuthCallbackContent() {
 
       // For other types (signup, email_change, etc.), verify server-side
       try {
+        const supabase = createClient();
         const { error } = await supabase.auth.verifyOtp({
           token_hash: tokenHash,
           type: type === "signup" ? "email" : type,
