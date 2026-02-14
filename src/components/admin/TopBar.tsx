@@ -22,19 +22,16 @@ export default function TopBar({ title, snapshotTime, userEmail }: TopBarProps) 
         {userEmail && (
           <span className="text-sm text-gray-500 hidden sm:block">{userEmail}</span>
         )}
-        <form action="/admin/login/actions" method="post">
-          <button
-            formAction="/api/auth/logout"
-            type="button"
-            onClick={async () => {
-              const { logout } = await import('@/app/admin/login/actions');
-              logout();
-            }}
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            Sign out
-          </button>
-        </form>
+        <button
+          type="button"
+          onClick={async () => {
+            const { logout } = await import('@/app/admin/login/actions');
+            await logout();
+          }}
+          className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          Sign out
+        </button>
       </div>
     </header>
   );

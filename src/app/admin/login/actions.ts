@@ -73,7 +73,6 @@ export async function login(formData: FormData) {
   } catch (err) {
     // Re-throw Next.js redirect/notFound errors (they use a special digest property)
     if (typeof err === 'object' && err !== null && 'digest' in err) throw err;
-    console.error('Login action error:', err);
     return { error: 'Something went wrong. Please try again.' };
   }
 }
