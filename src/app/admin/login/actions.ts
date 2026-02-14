@@ -129,6 +129,7 @@ export async function logout() {
   } catch (err) {
     // Re-throw Next.js redirect errors
     if (err instanceof Error && 'digest' in err) throw err;
-    return { error: 'Something went wrong. Please try again.' };
+    // Fallback: redirect to login page
+    redirect('/admin/login');
   }
 }
