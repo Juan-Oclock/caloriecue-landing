@@ -18,6 +18,7 @@ export default function Navigation() {
   }, []);
 
   const navLinks = [
+    { href: "/blog", label: "Blog" },
     { href: "/privacy", label: "Privacy" },
     { href: "/terms", label: "Terms" },
     { href: "/support", label: "Support" },
@@ -31,7 +32,7 @@ export default function Navigation() {
           : "bg-transparent"
       }`}
     >
-    <nav>
+    <nav aria-label="Main navigation">
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
@@ -75,6 +76,8 @@ export default function Navigation() {
           className="md:hidden p-2 text-foreground rounded-lg hover:bg-muted transition-colors"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
+          aria-expanded={mobileMenuOpen}
+          aria-controls="mobile-menu"
         >
           <svg
             className="w-6 h-6"
@@ -98,6 +101,7 @@ export default function Navigation() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
+            id="mobile-menu"
             className="md:hidden border-t border-border/50 overflow-hidden"
           >
             <div className="px-4 py-4 space-y-1 bg-white/95 backdrop-blur-xl">

@@ -1,0 +1,111 @@
+---
+title: "How Photo Food Logging Works: Behind the Technology"
+description: "Ever wondered how your phone can identify food from a photo? Dive into the computer vision and machine learning technology that powers modern food logging apps."
+date: "2026-02-01"
+author: "CalorieCue Team"
+coverImage: "/blog/photo-food-logging2.jpg"
+tags:
+  - ai
+  - technology
+  - food-logging
+  - how-it-works
+published: true
+---
+
+You open CalorieCue, point your camera at a plate of pasta, and within seconds the app tells you it's spaghetti carbonara — approximately 550 calories, 22g of protein, 65g of carbs, and 20g of fat.
+
+It feels like magic. But behind that instant result is a sophisticated pipeline of computer vision, machine learning, and nutritional science. Let's peek under the hood.
+
+## The Computer Vision Pipeline
+
+When you take a food photo, it doesn't go straight to a simple image classifier. Instead, it passes through several stages:
+
+### Stage 1: Image Preprocessing
+
+The raw photo is cleaned up for analysis:
+
+- **Normalization** — adjusting brightness and contrast for consistency
+- **Cropping** — focusing on the plate area and removing background noise
+- **Resolution optimization** — balancing detail with processing speed
+
+### Stage 2: Food Detection
+
+This is where the AI identifies *what* foods are present. Modern food detection uses deep neural networks — specifically, architectures like convolutional neural networks (CNNs) — trained on millions of labeled food images.
+
+The model doesn't just classify the entire image as one food. It performs **object detection**, drawing bounding boxes around each distinct food item on the plate. A dinner plate might contain:
+
+- Grilled salmon (detected separately)
+- Steamed rice (detected separately)
+- Mixed salad (detected separately)
+
+<Callout type="info">
+CalorieCue's AI can identify foods from virtually any cuisine. Whether it's sushi, sinigang, tacos, or tikka masala — the model has seen it all during training.
+</Callout>
+
+### Stage 3: Portion Estimation
+
+Identifying the food is only half the battle. The AI also needs to estimate *how much* food is present.
+
+This is done through:
+
+- **Depth estimation** — understanding the 3D volume of food from a 2D image
+- **Reference scaling** — using known objects (plates, utensils) for size reference
+- **Statistical modeling** — comparing to average serving sizes for each food type
+
+Portion estimation is the hardest part of the pipeline and where most of the ongoing research focuses.
+
+### Stage 4: Nutritional Lookup
+
+Once the food is identified and the portion is estimated, the system matches each item against a comprehensive nutritional database. This database contains thousands of entries with calorie counts, macronutrient breakdowns, and micronutrient information.
+
+The final result combines all detected items into a complete meal summary.
+
+## Training the AI
+
+A food recognition model is only as good as its training data. Here's what goes into building one:
+
+### The Dataset
+
+Training requires hundreds of thousands of labeled food images. Each image needs:
+
+- **The type of food** identified by human annotators
+- **Bounding boxes** around each food item
+- **Portion size labels** when available
+
+### The Training Process
+
+The model learns through supervised learning — it sees an image, makes a prediction, compares it to the correct answer, and adjusts its internal parameters. This cycle repeats millions of times across the entire dataset.
+
+<Callout type="tip">
+Modern food recognition models achieve over 90% accuracy on standard food image benchmarks, with top-tier systems approaching 95% on common dishes.
+</Callout>
+
+### Continuous Improvement
+
+The model doesn't stop learning after initial training. User corrections ("that's not 6oz, it's 8oz") and new food trends (remember when acai bowls suddenly appeared everywhere?) are incorporated through periodic retraining.
+
+## Why It Sometimes Gets It Wrong
+
+No AI system is perfect. Common failure modes include:
+
+- **Visually similar foods** — Is that mashed potato or cauliflower mash?
+- **Hidden ingredients** — You can't see the butter used in cooking
+- **Unusual presentations** — Deconstructed dishes or artistic plating
+- **Mixed dishes** — A burrito's contents are hidden inside a tortilla
+
+That's why CalorieCue always lets you review and adjust the AI's estimates. Think of the AI as a very fast first draft — you provide the final edit.
+
+## What's Next for Food AI
+
+The technology is advancing rapidly:
+
+- **Multi-angle analysis** — using short video clips instead of single photos for better depth estimation
+- **Ingredient-level detection** — identifying individual ingredients within mixed dishes
+- **Personalized models** — learning your specific cooking style and portion preferences over time
+- **Real-time augmented reality** — overlaying nutrition info on your food as you look at it through your camera
+
+## Try It Yourself
+
+The best way to understand photo food logging is to experience it. Snap a photo of your next meal and see what CalorieCue's AI can do.
+
+<AppStoreLink />

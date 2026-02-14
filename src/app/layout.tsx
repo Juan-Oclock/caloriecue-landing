@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 const siteUrl = "https://caloriecue.app";
@@ -114,18 +115,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Google Analytics */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-4E4N33E19T"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-4E4N33E19T');
-            `,
-          }}
-        />
         {/* JSON-LD Structured Data */}
         <script
           type="application/ld+json"
@@ -234,10 +223,14 @@ export default function RootLayout({
             }),
           }}
         />
+        <link rel="alternate" type="application/rss+xml" title="CalorieCue Blog" href="/blog/feed.xml" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#E05A3A" />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <GoogleAnalytics />
+        {children}
+      </body>
     </html>
   );
 }

@@ -202,22 +202,23 @@ function AuthCallbackContent() {
                   {successMessage.subtitle}
                 </p>
 
-                <button
-                  onClick={handleOpenApp}
-                  className="w-full btn-primary text-lg py-4 mb-4"
-                >
-                  Open CalorieCue
-                  <svg className="w-5 h-5 ml-2 inline-block" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </button>
-
-                <p className="text-sm text-muted-foreground">
-                  App not opening?{" "}
-                  <span className="text-foreground">
-                    Make sure CalorieCue is installed via TestFlight.
-                  </span>
-                </p>
+                <>
+                  <button
+                    onClick={handleOpenApp}
+                    className="w-full btn-primary text-lg py-4 mb-4"
+                  >
+                    Open CalorieCue
+                    <svg className="w-5 h-5 ml-2 inline-block" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </button>
+                  <p className="text-sm text-muted-foreground">
+                    App not opening?{" "}
+                    <span className="text-foreground">
+                      Make sure CalorieCue is installed on your device.
+                    </span>
+                  </p>
+                </>
               </motion.div>
             )}
 

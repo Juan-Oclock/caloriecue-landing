@@ -1,17 +1,18 @@
 import Image from "next/image";
-import {
-  Navigation,
-  Footer,
-  FeatureCard,
-  PricingSection,
-  AppStoreButton,
-  FadeIn,
-  AnimatedCounter,
-  ScanLineAnimation,
-  VideoPreview,
-  FAQSection,
-  WaitlistForm,
-} from "@/components";
+import dynamic from "next/dynamic";
+import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
+import FeatureCard from "@/components/FeatureCard";
+import AppStoreButton from "@/components/AppStoreButton";
+import FadeIn from "@/components/FadeIn";
+import AnimatedCounter from "@/components/AnimatedCounter";
+import ScanLineAnimation from "@/components/ScanLineAnimation";
+import WaitlistForm from "@/components/WaitlistForm";
+
+const PricingSection = dynamic(() => import("@/components/PricingSection"));
+const FAQSection = dynamic(() => import("@/components/FAQSection"));
+const VideoPreview = dynamic(() => import("@/components/VideoPreview"));
+const BlogPreview = dynamic(() => import("@/components/BlogPreview"));
 
 export default function Home() {
   return (
@@ -44,16 +45,6 @@ export default function Home() {
                   <AppStoreButton variant="hero" hideTagline />
 
                   {/* Waitlist divider */}
-                  <div className="flex items-center gap-3 max-w-md mx-auto lg:mx-0">
-                    <div className="h-px flex-1 bg-border" />
-                    <span className="text-sm text-muted-foreground">or</span>
-                    <div className="h-px flex-1 bg-border" />
-                  </div>
-
-                  <p className="text-sm text-muted-foreground max-w-md mx-auto lg:mx-0">
-                    Not on iOS? Get notified when we launch on Android.
-                  </p>
-                  <WaitlistForm variant="hero" />
                 </div>
               </FadeIn>
 
@@ -664,6 +655,9 @@ export default function Home() {
 
       {/* FAQ Section */}
       <FAQSection />
+
+      {/* Blog Preview */}
+      <BlogPreview />
 
       {/* CTA Section */}
       <section className="py-24 md:py-32 px-4 relative overflow-hidden">

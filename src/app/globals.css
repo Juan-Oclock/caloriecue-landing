@@ -214,6 +214,30 @@ body {
   @apply font-semibold text-foreground;
 }
 
+.prose-custom blockquote p {
+  @apply mb-0;
+}
+
+.prose-custom pre code {
+  @apply bg-transparent p-0 rounded-none text-inherit;
+}
+
+.prose-custom img {
+  @apply rounded-xl;
+}
+
+.prose-custom table {
+  @apply w-full text-sm border-collapse my-6;
+}
+
+.prose-custom th {
+  @apply border border-border bg-muted px-4 py-2 text-left font-semibold;
+}
+
+.prose-custom td {
+  @apply border border-border px-4 py-2;
+}
+
 /* Hide scrollbar for carousel */
 .scrollbar-hide {
   -ms-overflow-style: none;
