@@ -26,6 +26,10 @@ export async function middleware(request: NextRequest) {
       .map((id) => id.trim())
       .filter(Boolean);
 
+    if (adminUserIds.length === 0) {
+      console.warn('ADMIN_USER_IDS env var is empty or not set — all admin access will be denied');
+    }
+
     if (!adminUserIds.includes(user.id)) {
       const unauthorizedUrl = request.nextUrl.clone();
       unauthorizedUrl.pathname = '/admin/unauthorized';
