@@ -7,8 +7,7 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGci
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { token_hash, type } = body;
+    const { token_hash, type } = await request.json();
 
     if (!token_hash || !type) {
       return NextResponse.json(
@@ -41,18 +40,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error('[verify] Unexpected error:', err);
-    return NextResponse.json(
-      { error: 'Server error', debug: String(err) },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

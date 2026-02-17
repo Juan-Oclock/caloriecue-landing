@@ -47,13 +47,13 @@ function AuthCallbackContent() {
 
         if (!res.ok) {
           setState("error");
-          setErrorMessage(`[${res.status}] ${data.error || "Verification failed."}${data.debug ? ` | ${data.debug}` : ""}`);
+          setErrorMessage(data.error || "Verification failed. The link may have expired.");
         } else {
           setState("success");
         }
-      } catch (err) {
+      } catch {
         setState("error");
-        setErrorMessage(`Fetch error: ${String(err)}`);
+        setErrorMessage("Something went wrong. Please try again.");
       }
     };
 
