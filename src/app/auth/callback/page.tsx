@@ -4,8 +4,6 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { createClient } from "@/lib/supabase/client";
-
 type VerificationState = "loading" | "success" | "error";
 type AuthType = "signup" | "recovery" | "magiclink" | "email_change";
 
@@ -37,17 +35,19 @@ function AuthCallbackContent() {
         return;
       }
 
-      // For other types (signup, email_change, etc.), verify server-side
+      // For other types (signup, email_change, etc.), verify via server-side API route
       try {
-        const supabase = createClient();
-        const { error } = await supabase.auth.verifyOtp({
-          token_hash: tokenHash,
-          type,
+        const res = await fetch("/api/auth/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token_hash: tokenHash, type }),
         });
 
-        if (error) {
+        const data = await res.json();
+
+        if (!res.ok) {
           setState("error");
-          setErrorMessage(error.message || "Verification failed. The link may have expired.");
+          setErrorMessage(data.error || "Verification failed. The link may have expired.");
         } else {
           setState("success");
         }
