@@ -42,7 +42,7 @@ function AuthCallbackContent() {
         const supabase = createClient();
         const { error } = await supabase.auth.verifyOtp({
           token_hash: tokenHash,
-          type: type === "signup" ? "email" : type,
+          type,
         });
 
         if (error) {
