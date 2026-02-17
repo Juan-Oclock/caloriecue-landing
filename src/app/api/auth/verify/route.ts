@@ -1,35 +1,48 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@supabase/ssr';
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://bxhgpvkkeyguovvyqsft.supabase.co';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ4aGdwdmtrZXlndW92dnlxc2Z0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY0MzM1OTUsImV4cCI6MjA4MjAwOTU5NX0.U2s9NxGHboptK6dUFAv9HXyaVk-WICTIiDKiV9TIS7E';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { token_hash, type } = body;
 
-    console.log('[verify] Received request:', { token_hash: token_hash?.substring(0, 10) + '...', type });
-    console.log('[verify] SUPABASE_URL set:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
-    console.log('[verify] ANON_KEY set:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-
     if (!token_hash || !type) {
       return NextResponse.json(
-        { error: 'Missing required parameters', debug: { hasTokenHash: !!token_hash, hasType: !!type } },
+        { error: 'Missing required parameters' },
         { status: 400 }
       );
     }
 
-    const supabase = await createClient();
-    console.log('[verify] Supabase client created, calling verifyOtp...');
+    const cookieStore = await cookies();
+    const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Called from Route Handler context, safe to ignore
+          }
+        },
+      },
+    });
 
-    const { data, error } = await supabase.auth.verifyOtp({
+    const { error } = await supabase.auth.verifyOtp({
       token_hash,
       type,
     });
 
-    console.log('[verify] verifyOtp result:', { hasData: !!data, hasError: !!error, errorMessage: error?.message });
-
     if (error) {
       return NextResponse.json(
-        { error: error.message, code: error.status },
+        { error: error.message },
         { status: 400 }
       );
     }
