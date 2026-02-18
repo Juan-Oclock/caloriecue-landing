@@ -5,6 +5,8 @@ export interface BlogPostMeta {
   date: string;
   author: string;
   coverImage?: string;
+  imageCredit?: string;
+  imageCreditUrl?: string;
   tags: string[];
   published: boolean;
   readingTime: number;

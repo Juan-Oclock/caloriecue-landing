@@ -159,6 +159,23 @@ export default async function BlogPostPage({
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
 
+        {post.imageCredit && (
+          <div className="absolute top-2 right-3 z-10">
+            {post.imageCreditUrl ? (
+              <a
+                href={post.imageCreditUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] text-white/40 hover:text-white/70 transition-colors"
+              >
+                {post.imageCredit}
+              </a>
+            ) : (
+              <span className="text-[10px] text-white/40">{post.imageCredit}</span>
+            )}
+          </div>
+        )}
+
         <div className="absolute inset-0 flex flex-col justify-end">
           <div className="max-w-5xl mx-auto w-full px-4 pb-8 md:pb-12">
             <FadeIn>
