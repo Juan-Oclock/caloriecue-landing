@@ -6,6 +6,17 @@ export const metadata = {
   alternates: {
     canonical: "/terms",
   },
+  openGraph: {
+    title: "Terms of Service | CalorieCue",
+    description: "Terms and conditions for using the CalorieCue app.",
+    url: "https://caloriecue.app/terms",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Terms of Service | CalorieCue",
+    description: "Terms and conditions for using the CalorieCue app.",
+  },
 };
 
 export default function TermsOfService() {

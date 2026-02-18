@@ -11,6 +11,14 @@ export const metadata: Metadata = {
     title: "Support | CalorieCue",
     description:
       "Get help with CalorieCue. Find answers to FAQs or contact our support team.",
+    url: "https://caloriecue.app/support",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Support | CalorieCue",
+    description:
+      "Get help with CalorieCue. Find answers to FAQs or contact our support team.",
   },
 };
 

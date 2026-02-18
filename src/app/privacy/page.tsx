@@ -6,6 +6,17 @@ export const metadata = {
   alternates: {
     canonical: "/privacy",
   },
+  openGraph: {
+    title: "Privacy Policy | CalorieCue",
+    description: "Learn how CalorieCue collects, uses, and protects your data.",
+    url: "https://caloriecue.app/privacy",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Privacy Policy | CalorieCue",
+    description: "Learn how CalorieCue collects, uses, and protects your data.",
+  },
 };
 
 export default function PrivacyPolicy() {

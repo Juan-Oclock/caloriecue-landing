@@ -56,6 +56,7 @@ export default function Home() {
                       className="w-5 h-5 text-primary"
                       fill="currentColor"
                       viewBox="0 0 20 20"
+                      aria-hidden="true"
                     >
                       <path
                         fillRule="evenodd"
@@ -70,6 +71,7 @@ export default function Home() {
                       className="w-5 h-5 text-primary"
                       fill="currentColor"
                       viewBox="0 0 20 20"
+                      aria-hidden="true"
                     >
                       <path
                         fillRule="evenodd"
@@ -84,6 +86,7 @@ export default function Home() {
                       className="w-5 h-5 text-primary"
                       fill="currentColor"
                       viewBox="0 0 20 20"
+                      aria-hidden="true"
                     >
                       <path
                         fillRule="evenodd"

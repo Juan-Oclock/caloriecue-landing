@@ -144,6 +144,7 @@ export default function RootLayout({
                 },
                 {
                   "@type": "SoftwareApplication",
+                  "@id": "https://caloriecue.app/#app",
                   name: "CalorieCue",
                   operatingSystem: "iOS",
                   applicationCategory: "HealthApplication",
@@ -153,6 +154,13 @@ export default function RootLayout({
                     "@type": "Offer",
                     price: "0",
                     priceCurrency: "USD",
+                  },
+                  aggregateRating: {
+                    "@type": "AggregateRating",
+                    ratingValue: "5.0",
+                    ratingCount: "3",
+                    bestRating: "5",
+                    worstRating: "1",
                   },
                   downloadUrl:
                     "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503",

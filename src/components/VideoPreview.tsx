@@ -98,6 +98,7 @@ export default function VideoPreview({
         playsInline
         preload="none"
         poster={poster}
+        title="CalorieCue app demo - AI calorie tracking in action"
         onLoadedData={() => setIsLoaded(true)}
       >
         {webmSrc && <source src={webmSrc} type="video/webm" />}
