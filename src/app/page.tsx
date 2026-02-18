@@ -14,9 +14,104 @@ const FAQSection = dynamic(() => import("@/components/FAQSection"));
 const VideoPreview = dynamic(() => import("@/components/VideoPreview"));
 const BlogPreview = dynamic(() => import("@/components/BlogPreview"));
 
+const softwareAppJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "CalorieCue",
+  operatingSystem: "iOS",
+  applicationCategory: "HealthApplication",
+  description:
+    "Every Bite in Sight, Every Day Done Right. AI-powered calorie tracking app with smart meal analysis, personalized nutrition insights, and effortless food logging.",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: 5.0,
+    reviewCount: 3,
+    bestRating: 5,
+    worstRating: 1,
+  },
+  downloadUrl:
+    "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503",
+};
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "How accurate is the AI calorie estimation?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Our AI estimates are typically within 10\u201315% of actual values, and you can always adjust portion sizes for better accuracy. For packaged foods, our barcode scanner pulls exact nutrition data from verified databases.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Is CalorieCue really free?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes! The free tier includes 3 photo scans, 5 barcode scans, and 3 AI Coach messages per day. For unlimited access to all features, CalorieCue Premium is $3.99/month (or $19.99/year) with a 7-day free trial.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What types of food can CalorieCue recognize?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "CalorieCue works with virtually any food \u2014 home-cooked meals, restaurant dishes, mixed plates, single items, and any cuisine from sushi to sinigang. You can also scan barcodes on packaged foods or log meals manually with natural language.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How is this different from MyFitnessPal or Lose It?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "CalorieCue is photo-first \u2014 just snap a picture instead of searching through endless food databases. Our AI Coach (Cue) provides personalized nutrition advice on demand, and the interface is designed for speed: log a meal in 3 seconds, not 30.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Is my data private and secure?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Absolutely. We never sell your data or show ads. Apple Health data stays on your device. Your meal photos are processed securely and are not used to train AI models.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Does CalorieCue work offline?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "AI photo scanning and the AI Coach require an internet connection. However, manual food logging and viewing your diary history work offline \u2014 data syncs automatically when you\u2019re back online.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Is CalorieCue available on Android?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "CalorieCue is currently iOS-only. We\u2019re working on an Android version \u2014 join our waitlist to get notified the moment it launches!",
+      },
+    },
+  ],
+};
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <Navigation />
 
       {/* Hero Section */}
