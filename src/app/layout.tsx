@@ -79,14 +79,6 @@ export const metadata: Metadata = {
     creator: "@caloriecue",
   },
 
-  // App Links
-  appLinks: {
-    ios: {
-      url: "https://apps.apple.com/app/caloriecue",
-      app_store_id: "6757112503",
-    },
-  },
-
   // Additional metadata
   category: "Health & Fitness",
   classification: "Health, Fitness, Nutrition",
