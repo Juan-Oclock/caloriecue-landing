@@ -20,13 +20,13 @@ export const metadata: Metadata = {
     "macros for weight loss",
   ],
   alternates: {
-    canonical: "https://caloriecue.com/tdee-calculator",
+    canonical: "https://caloriecue.app/tdee-calculator",
   },
   openGraph: {
     title: "Free TDEE Calculator — Calculate Your Daily Calorie Needs",
     description:
       "Calculate your Total Daily Energy Expenditure (TDEE) with our free calculator. Get your BMR, macros, and personalized calorie targets.",
-    url: "https://caloriecue.com/tdee-calculator",
+    url: "https://caloriecue.app/tdee-calculator",
     siteName: "CalorieCue",
     type: "website",
   },
@@ -51,7 +51,7 @@ const webAppJsonLd = {
     price: "0",
     priceCurrency: "USD",
   },
-  url: "https://caloriecue.com/tdee-calculator",
+  url: "https://caloriecue.app/tdee-calculator",
 };
 
 const faqJsonLd = {
@@ -109,13 +109,13 @@ const breadcrumbJsonLd = {
       "@type": "ListItem",
       position: 1,
       name: "Home",
-      item: "https://caloriecue.com",
+      item: "https://caloriecue.app",
     },
     {
       "@type": "ListItem",
       position: 2,
       name: "TDEE Calculator",
-      item: "https://caloriecue.com/tdee-calculator",
+      item: "https://caloriecue.app/tdee-calculator",
     },
   ],
 };
