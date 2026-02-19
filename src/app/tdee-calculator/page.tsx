@@ -29,12 +29,28 @@ export const metadata: Metadata = {
     url: "https://caloriecue.app/tdee-calculator",
     siteName: "CalorieCue",
     type: "website",
+    images: [
+      {
+        url: "https://caloriecue.app/blog/tdee-calculator-og.webp",
+        width: 1200,
+        height: 630,
+        alt: "Free TDEE Calculator — Calculate Your Daily Calorie Needs",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Free TDEE Calculator | CalorieCue",
     description:
       "Calculate your TDEE, BMR, macros, and personalized calorie targets for weight loss or muscle gain.",
+    images: [
+      {
+        url: "https://caloriecue.app/blog/tdee-calculator-og.webp",
+        width: 1200,
+        height: 630,
+        alt: "Free TDEE Calculator — Calculate Your Daily Calorie Needs",
+      },
+    ],
   },
 };
 
@@ -202,6 +218,17 @@ export default function TDEECalculatorPage() {
             </div>
           </section>
         )}
+        {/* Image Attribution */}
+        <div className="text-center pb-8">
+          <a
+            href="https://www.freepik.com/free-photo/calories-nutrition-food-exercise-concept_18134531.htm"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11px] text-muted-foreground/50 hover:text-muted-foreground/70 transition-colors"
+          >
+            Image by rawpixel.com on Freepik
+          </a>
+        </div>
       </main>
       <Footer />
     </>
