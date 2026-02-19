@@ -91,7 +91,6 @@ export const metadata: Metadata = {
 
   // Other
   other: {
-    "apple-itunes-app": "app-id=6757112503",
     "mobile-web-app-capable": "yes",
     "apple-mobile-web-app-capable": "yes",
     "apple-mobile-web-app-status-bar-style": "default",
