@@ -20,7 +20,7 @@ export async function GET() {
       <link>https://caloriecue.app/blog/${post.slug}</link>
       <guid isPermaLink="true">https://caloriecue.app/blog/${post.slug}</guid>
       <description>${escapeXml(post.description)}</description>
-      <pubDate>${new Date(post.date).toUTCString()}</pubDate>${post.coverImage ? `\n      <enclosure url="https://caloriecue.app${post.coverImage}" type="image/jpeg" length="0" />` : ""}
+      <pubDate>${new Date(post.date).toUTCString()}</pubDate>${post.coverImage ? `\n      <enclosure url="https://caloriecue.app${post.coverImage}" type="${post.coverImage.endsWith(".webp") ? "image/webp" : post.coverImage.endsWith(".png") ? "image/png" : "image/jpeg"}" length="0" />` : ""}
       ${post.tags.map((tag) => `<category>${escapeXml(tag)}</category>`).join("\n      ")}
     </item>`
     )

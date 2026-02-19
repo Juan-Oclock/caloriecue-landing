@@ -7,6 +7,16 @@ export const metadata: Metadata = {
   title: "Blog",
   description:
     "Tips, guides, and insights on nutrition tracking, healthy eating, and AI-powered calorie counting from the CalorieCue team.",
+  keywords: [
+    "calorie tracking blog",
+    "nutrition tips",
+    "healthy eating guides",
+    "AI calorie counting",
+    "weight loss tips",
+    "meal tracking advice",
+    "food logging",
+    "diet and nutrition",
+  ],
   alternates: {
     canonical: "/blog",
   },
@@ -16,21 +26,12 @@ export const metadata: Metadata = {
       "Tips, guides, and insights on nutrition tracking, healthy eating, and AI-powered calorie counting.",
     url: "https://caloriecue.app/blog",
     type: "website",
-    images: [
-      {
-        url: "https://caloriecue.app/app-icons/1024.png",
-        width: 1024,
-        height: 1024,
-        alt: "CalorieCue Blog",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Blog | CalorieCue",
     description:
       "Tips, guides, and insights on nutrition tracking, healthy eating, and AI-powered calorie counting.",
-    images: ["https://caloriecue.app/app-icons/1024.png"],
   },
 };
 
