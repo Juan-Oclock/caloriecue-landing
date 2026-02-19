@@ -1,12 +1,28 @@
 import { ImageResponse } from "next/og";
 import { getPostBySlug } from "@/lib/blog";
 
-export const alt = "CalorieCue Blog Post";
 export const size = {
   width: 1200,
   height: 630,
 };
 export const contentType = "image/png";
+
+export async function generateImageMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
+  return [
+    {
+      id: slug,
+      alt: post ? `${post.title} — CalorieCue Blog` : "CalorieCue Blog",
+      contentType: "image/png",
+      size,
+    },
+  ];
+}
 
 export default async function OGImage({
   params,

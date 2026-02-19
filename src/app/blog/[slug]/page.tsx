@@ -47,7 +47,12 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: post.title,
       description: post.description,
-      images: [post.coverImage ?? `/blog/${post.slug}/opengraph-image`],
+      images: [
+        {
+          url: post.coverImage ?? `/blog/${post.slug}/opengraph-image`,
+          alt: post.title,
+        },
+      ],
     },
   };
 }
@@ -74,7 +79,7 @@ export default async function BlogPostPage({
     headline: post.title,
     description: post.description,
     datePublished: post.date,
-    dateModified: post.date,
+    dateModified: post.dateModified ?? post.date,
     inLanguage: "en-US",
     author: {
       "@type": "Person",
