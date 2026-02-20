@@ -41,6 +41,7 @@ export function getAllPosts(): BlogPostMeta[] {
         tags: data.tags ?? [],
         published: data.published !== false,
         readingTime: computeReadingTime(content),
+        faq: data.faq,
       } satisfies BlogPostMeta;
     })
     .filter((post) => post.published)
@@ -71,6 +72,7 @@ export function getPostBySlug(slug: string): BlogPost | null {
     tags: data.tags ?? [],
     published: true,
     readingTime: computeReadingTime(content),
+    faq: data.faq,
     content,
   };
 }

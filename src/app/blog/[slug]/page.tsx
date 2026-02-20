@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { compileMDX } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
 import { Navigation, Footer, FadeIn } from "@/components";
 import { TableOfContents, ShareButtons, RelatedPosts, NewsletterSection, getMDXComponents } from "@/components/blog";
 import { getAllPosts, getPostBySlug, extractHeadings } from "@/lib/blog";
@@ -71,6 +72,7 @@ export default async function BlogPostPage({
   const { content } = await compileMDX({
     source: post.content,
     components: getMDXComponents(),
+    options: { mdxOptions: { remarkPlugins: [remarkGfm] } },
   });
 
   const jsonLd = {
@@ -109,6 +111,21 @@ export default async function BlogPostPage({
     wordCount: post.content.trim().split(/\s+/).length,
   };
 
+  const faqJsonLd = post.faq?.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: post.faq.map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.answer,
+          },
+        })),
+      }
+    : null;
+
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -146,6 +163,12 @@ export default async function BlogPostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
 
       {/* Hero Image Section */}
       <div className="relative w-full h-[350px] md:h-[450px] lg:h-[500px] mt-16 md:mt-20">
