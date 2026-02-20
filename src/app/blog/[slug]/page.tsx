@@ -257,12 +257,12 @@ export default async function BlogPostPage({
       </div>
 
       {/* Article Content */}
-      <article className="py-12 md:py-16 px-4">
+      <article className="py-12 md:py-16 px-4 overflow-x-hidden">
         <div className="max-w-5xl mx-auto">
           {/* Two-column layout */}
           <div className="grid lg:grid-cols-12 gap-10">
             {/* Content */}
-            <div className="lg:col-span-8">
+            <div className="lg:col-span-8 min-w-0">
               <TableOfContents headings={headings} variant="mobile" />
               <div className="prose-custom">{content}</div>
 

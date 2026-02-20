@@ -173,6 +173,8 @@ body {
 /* Prose styles for content pages */
 .prose-custom {
   @apply text-foreground/90;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .prose-custom h1,
@@ -227,7 +229,23 @@ body {
 }
 
 .prose-custom table {
-  @apply w-full text-sm border-collapse my-6;
+  @apply w-full text-sm border-collapse my-6 block overflow-x-auto;
+}
+
+.prose-custom th,
+.prose-custom td {
+  @apply whitespace-nowrap;
+}
+
+@media (min-width: 768px) {
+  .prose-custom table {
+    @apply table;
+  }
+
+  .prose-custom th,
+  .prose-custom td {
+    @apply whitespace-normal;
+  }
 }
 
 .prose-custom th {
