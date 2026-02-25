@@ -1,21 +1,33 @@
 "use client";
 
-import { useReducer, FormEvent, useState } from "react";
+import { useReducer, FormEvent, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import FadeIn from "@/components/FadeIn";
 import ResultsDashboard from "@/components/tdee/ResultsDashboard";
+import ProgressBar from "@/components/tdee/steps/ProgressBar";
+import StepBasics from "@/components/tdee/steps/StepBasics";
+import StepMeasurements from "@/components/tdee/steps/StepMeasurements";
+import StepLifestyle from "@/components/tdee/steps/StepLifestyle";
 import type {
   Gender,
   UnitSystem,
   ActivityLevel,
   TDEEResults,
 } from "@/lib/tdee/types";
-import { ACTIVITY_LABELS } from "@/lib/tdee/constants";
 import {
   calculateAll,
   lbsToKg,
+  kgToLbs,
   feetInchesToCm,
+  cmToFeetInches,
 } from "@/lib/tdee/formulas";
+
+// --- Step config ---
+const STEPS = [
+  { title: "Let\u2019s get started", subtitle: "Just the basics \u2014 takes 30 seconds" },
+  { title: "Your measurements", subtitle: "We\u2019ll use this to calculate your BMR" },
+  { title: "Your lifestyle", subtitle: "Almost done!" },
+];
 
 // --- State ---
 interface State {
@@ -32,6 +44,8 @@ interface State {
   results: TDEEResults | null;
   computedWeightKg: number;
   computedHeightCm: number;
+  currentStep: number;
+  direction: number;
 }
 
 type Action =
@@ -40,7 +54,10 @@ type Action =
   | { type: "SET_ACTIVITY"; payload: ActivityLevel }
   | { type: "SET_FIELD"; field: string; value: string }
   | { type: "SET_RESULTS"; payload: { results: TDEEResults; weightKg: number; heightCm: number } }
-  | { type: "CLEAR_RESULTS" };
+  | { type: "CLEAR_RESULTS" }
+  | { type: "NEXT_STEP" }
+  | { type: "PREV_STEP" }
+  | { type: "GO_TO_STEP"; payload: number };
 
 const initialState: State = {
   unitSystem: "imperial",
@@ -56,12 +73,38 @@ const initialState: State = {
   results: null,
   computedWeightKg: 0,
   computedHeightCm: 0,
+  currentStep: 0,
+  direction: 1,
 };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case "SET_UNIT":
-      return { ...state, unitSystem: action.payload, results: null };
+    case "SET_UNIT": {
+      const next: State = { ...state, unitSystem: action.payload, results: null };
+
+      if (action.payload === "metric" && state.unitSystem === "imperial") {
+        // Imperial → Metric: convert lbs→kg, ft+in→cm
+        const lbs = parseFloat(state.weightLbs);
+        if (lbs) next.weightKg = String(Math.round(lbsToKg(lbs) * 10) / 10);
+        const ft = parseInt(state.heightFeet);
+        if (ft) {
+          const inches = parseInt(state.heightInches) || 0;
+          next.heightCm = String(Math.round(feetInchesToCm(ft, inches)));
+        }
+      } else if (action.payload === "imperial" && state.unitSystem === "metric") {
+        // Metric → Imperial: convert kg→lbs, cm→ft+in
+        const kg = parseFloat(state.weightKg);
+        if (kg) next.weightLbs = String(Math.round(kgToLbs(kg) * 10) / 10);
+        const cm = parseFloat(state.heightCm);
+        if (cm) {
+          const { feet, inches } = cmToFeetInches(cm);
+          next.heightFeet = String(feet);
+          next.heightInches = String(inches);
+        }
+      }
+
+      return next;
+    }
     case "SET_GENDER":
       return { ...state, gender: action.payload, results: null };
     case "SET_ACTIVITY":
@@ -69,116 +112,70 @@ function reducer(state: State, action: Action): State {
     case "SET_FIELD":
       return { ...state, [action.field]: action.value, results: null };
     case "SET_RESULTS":
-      return { ...state, results: action.payload.results, computedWeightKg: action.payload.weightKg, computedHeightCm: action.payload.heightCm };
+      return {
+        ...state,
+        results: action.payload.results,
+        computedWeightKg: action.payload.weightKg,
+        computedHeightCm: action.payload.heightCm,
+      };
     case "CLEAR_RESULTS":
-      return { ...state, results: null };
+      return { ...state, results: null, currentStep: 0, direction: -1 };
+    case "NEXT_STEP":
+      return { ...state, currentStep: Math.min(state.currentStep + 1, 2), direction: 1 };
+    case "PREV_STEP":
+      return { ...state, currentStep: Math.max(state.currentStep - 1, 0), direction: -1 };
+    case "GO_TO_STEP":
+      return {
+        ...state,
+        currentStep: action.payload,
+        direction: action.payload > state.currentStep ? 1 : -1,
+      };
     default:
       return state;
   }
 }
 
-// --- Activity level config with multiplier labels ---
-const ACTIVITY_CONFIG: { key: ActivityLevel; icon: React.ReactNode; multiplier: string }[] = [
-  {
-    key: "sedentary",
-    multiplier: "x1.2",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
-      </svg>
-    ),
-  },
-  {
-    key: "light",
-    multiplier: "x1.375",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-      </svg>
-    ),
-  },
-  {
-    key: "moderate",
-    multiplier: "x1.55",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
-      </svg>
-    ),
-  },
-  {
-    key: "very_active",
-    multiplier: "x1.725",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z" />
-      </svg>
-    ),
-  },
-  {
-    key: "extreme",
-    multiplier: "x1.9",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
-      </svg>
-    ),
-  },
-];
-
-// --- Step number badge ---
-function StepBadge({ number }: { number: number }) {
-  return (
-    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex-shrink-0">
-      {number}
-    </span>
-  );
+// --- Step validation ---
+function isStepValid(state: State, step: number): boolean {
+  switch (step) {
+    case 0:
+      return true;
+    case 1: {
+      const age = parseInt(state.age);
+      if (!age || age < 1 || age > 120) return false;
+      if (state.unitSystem === "imperial") {
+        const weightLbs = parseFloat(state.weightLbs);
+        const feet = parseInt(state.heightFeet);
+        if (!weightLbs || weightLbs <= 0 || !feet || feet <= 0) return false;
+      } else {
+        const weightKg = parseFloat(state.weightKg);
+        const heightCm = parseFloat(state.heightCm);
+        if (!weightKg || weightKg <= 0 || !heightCm || heightCm <= 0) return false;
+      }
+      return true;
+    }
+    case 2:
+      return true;
+    default:
+      return true;
+  }
 }
 
-// --- Input with unit suffix ---
-function InputWithUnit({
-  id,
-  value,
-  onChange,
-  placeholder,
-  unit,
-  required = false,
-  min,
-  max,
-  step,
-}: {
-  id?: string;
-  value: string;
-  onChange: (val: string) => void;
-  placeholder: string;
-  unit: string;
-  required?: boolean;
-  min?: string;
-  max?: string;
-  step?: string;
-}) {
-  return (
-    <div className="relative">
-      <input
-        id={id}
-        type="number"
-        inputMode="decimal"
-        min={min}
-        max={max}
-        step={step}
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required={required}
-        className="w-full pl-3.5 pr-11 py-2.5 rounded-xl border border-border bg-white text-foreground text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground/40"
-      />
-      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-muted-foreground/70">
-        {unit}
-      </span>
-    </div>
-  );
-}
+// --- Animation variants ---
+const stepVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 60 : -60,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -60 : 60,
+    opacity: 0,
+  }),
+};
 
 // --- FAQ items ---
 const TDEE_FAQ = [
@@ -213,9 +210,9 @@ export default function TDEECalculatorClient() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+  const canProceed = isStepValid(state, state.currentStep);
 
+  const calculate = useCallback(() => {
     const age = parseInt(state.age);
     if (!age || age < 1 || age > 120) return;
 
@@ -240,166 +237,139 @@ export default function TDEECalculatorClient() {
     dispatch({ type: "SET_RESULTS", payload: { results, weightKg, heightCm } });
 
     setTimeout(() => {
-      document.getElementById("tdee-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
+  }, [state]);
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!canProceed) return;
+    if (state.currentStep < 2) {
+      dispatch({ type: "NEXT_STEP" });
+    } else {
+      calculate();
+    }
+  };
+
+  const handleFieldChange = (field: string, value: string) => {
+    dispatch({ type: "SET_FIELD", field, value });
+  };
+
+  const handleRecalculate = () => {
+    dispatch({ type: "CLEAR_RESULTS" });
+    setTimeout(() => {
+      document.getElementById("tdee-form")?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 100);
   };
 
-  const isImperial = state.unitSystem === "imperial";
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero */}
-      <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-4 mesh-bg">
-        <div className="max-w-3xl mx-auto text-center">
-          <FadeIn trigger="onMount">
-            <h1 className="text-hero-mobile md:text-hero text-foreground mb-4">
-              TDEE <span className="text-gradient">Calculator</span>
-            </h1>
-            <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-              Calculate your Total Daily Energy Expenditure to find out exactly how many
-              calories you need each day to lose weight, build muscle, or maintain your physique.
-            </p>
-          </FadeIn>
+      {/* Compact Hero */}
+      <section className="pt-20 pb-4 md:pt-28 md:pb-8 px-4 mesh-bg">
+        <div className="max-w-lg mx-auto text-center">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1.5">
+            TDEE <span className="text-gradient">Calculator</span>
+          </h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Find out how many calories you burn each day.
+          </p>
         </div>
       </section>
 
-      {/* Calculator Form */}
-      <section className="px-4 pb-10 md:pb-12 -mt-2">
-        <div className="max-w-2xl mx-auto">
-          <FadeIn delay={0.1}>
-            <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-elevated border border-border p-5 md:p-7">
-              {/* Top row: Gender toggle + Unit toggle */}
-              <div className="flex items-center justify-between mb-5">
-                {/* Gender as a pill toggle */}
-                <div className="inline-flex items-center bg-muted/50 p-0.5 rounded-full border border-border">
-                  {(["male", "female"] as Gender[]).map((g) => (
+      {/* Step Form */}
+      {!state.results && (
+        <section id="tdee-form" className="px-4 py-8 md:py-12">
+          <div className="max-w-lg md:max-w-xl mx-auto">
+            <FadeIn trigger="onMount">
+              <form onSubmit={handleSubmit} className="w-full bg-white rounded-3xl shadow-elevated border border-border p-7 md:p-9">
+                {/* Progress Bar */}
+                <ProgressBar currentStep={state.currentStep} totalSteps={3} />
+
+                {/* Step Header + Content */}
+                <AnimatePresence mode="wait" custom={state.direction}>
+                  <motion.div
+                    key={state.currentStep}
+                    custom={state.direction}
+                    variants={stepVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  >
+                    {/* Step Header */}
+                    <div className="mt-6 mb-5">
+                      <h2 className="text-lg font-semibold text-foreground">{STEPS[state.currentStep].title}</h2>
+                      <p className="text-sm text-muted-foreground">{STEPS[state.currentStep].subtitle}</p>
+                    </div>
+
+                    {/* Step Content */}
+                    {state.currentStep === 0 && (
+                      <StepBasics
+                        gender={state.gender}
+                        onGenderChange={(g) => dispatch({ type: "SET_GENDER", payload: g })}
+                      />
+                    )}
+                    {state.currentStep === 1 && (
+                      <StepMeasurements
+                        unitSystem={state.unitSystem}
+                        age={state.age}
+                        weightLbs={state.weightLbs}
+                        weightKg={state.weightKg}
+                        heightFeet={state.heightFeet}
+                        heightInches={state.heightInches}
+                        heightCm={state.heightCm}
+                        onFieldChange={handleFieldChange}
+                        onUnitChange={(u) => dispatch({ type: "SET_UNIT", payload: u })}
+                      />
+                    )}
+                    {state.currentStep === 2 && (
+                      <StepLifestyle
+                        bodyFatPercent={state.bodyFatPercent}
+                        activityLevel={state.activityLevel}
+                        onFieldChange={handleFieldChange}
+                        onActivityChange={(a) => dispatch({ type: "SET_ACTIVITY", payload: a })}
+                      />
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Navigation */}
+                <div className="mt-6">
+                  {state.currentStep === 0 ? (
                     <button
-                      key={g}
-                      type="button"
-                      onClick={() => dispatch({ type: "SET_GENDER", payload: g })}
-                      className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${
-                        state.gender === g
-                          ? "bg-primary text-white shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
+                      type="submit"
+                      className="w-full py-3.5 rounded-2xl bg-primary text-white font-semibold text-sm transition-all hover:bg-primary-dark active:scale-[0.99] shadow-soft hover:shadow-soft-lg"
                     >
-                      {g === "male" ? "Male" : "Female"}
+                      Continue
                     </button>
-                  ))}
-                </div>
-                {/* Unit toggle */}
-                <div className="inline-flex items-center bg-muted/50 p-0.5 rounded-full border border-border">
-                  <button
-                    type="button"
-                    onClick={() => dispatch({ type: "SET_UNIT", payload: "imperial" })}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      isImperial ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    Imperial
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => dispatch({ type: "SET_UNIT", payload: "metric" })}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      !isImperial ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    Metric
-                  </button>
-                </div>
-              </div>
-
-              {/* Inputs — compact 2-col grid */}
-              <div className="grid grid-cols-2 gap-x-3 gap-y-4 mb-5">
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">Age</label>
-                  <InputWithUnit value={state.age} onChange={(v) => dispatch({ type: "SET_FIELD", field: "age", value: v })} placeholder="28" unit="yrs" required min="1" max="120" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">Weight</label>
-                  <InputWithUnit value={isImperial ? state.weightLbs : state.weightKg} onChange={(v) => dispatch({ type: "SET_FIELD", field: isImperial ? "weightLbs" : "weightKg", value: v })} placeholder={isImperial ? "180" : "82"} unit={isImperial ? "lbs" : "kg"} required min="1" step="0.1" />
-                </div>
-                {isImperial ? (
-                  <>
-                    <div>
-                      <label className="block text-xs font-medium text-muted-foreground mb-1.5">Height</label>
-                      <InputWithUnit value={state.heightFeet} onChange={(v) => dispatch({ type: "SET_FIELD", field: "heightFeet", value: v })} placeholder="5" unit="ft" required min="1" max="8" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-muted-foreground mb-1.5">&nbsp;</label>
-                      <InputWithUnit value={state.heightInches} onChange={(v) => dispatch({ type: "SET_FIELD", field: "heightInches", value: v })} placeholder="10" unit="in" min="0" max="11" />
-                    </div>
-                  </>
-                ) : (
-                  <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">Height</label>
-                    <InputWithUnit value={state.heightCm} onChange={(v) => dispatch({ type: "SET_FIELD", field: "heightCm", value: v })} placeholder="178" unit="cm" required min="1" />
-                  </div>
-                )}
-                <div className={isImperial ? "" : ""}>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">Body Fat <span className="font-normal text-muted-foreground/60">(optional)</span></label>
-                  <InputWithUnit value={state.bodyFatPercent} onChange={(v) => dispatch({ type: "SET_FIELD", field: "bodyFatPercent", value: v })} placeholder="18" unit="%" min="1" max="60" step="0.1" />
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="border-t border-border my-5" />
-
-              {/* Activity Level — compact stacked list */}
-              <div className="mb-5">
-                <label className="block text-xs font-medium text-muted-foreground mb-2.5">Activity Level</label>
-                <div className="space-y-1.5">
-                  {ACTIVITY_CONFIG.map(({ key, multiplier }) => {
-                    const info = ACTIVITY_LABELS[key];
-                    const isActive = state.activityLevel === key;
-                    return (
+                  ) : (
+                    <div className="flex items-center gap-3">
                       <button
-                        key={key}
                         type="button"
-                        onClick={() => dispatch({ type: "SET_ACTIVITY", payload: key })}
-                        className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all text-left ${
-                          isActive
-                            ? "bg-primary-50 ring-1 ring-primary/30"
-                            : "hover:bg-muted/50"
+                        onClick={() => dispatch({ type: "PREV_STEP" })}
+                        className="px-4 py-3.5 rounded-2xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all border border-border"
+                      >
+                        &larr; Back
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={!canProceed}
+                        className={`flex-1 py-3.5 rounded-2xl font-semibold text-sm transition-all shadow-soft hover:shadow-soft-lg ${
+                          canProceed
+                            ? "bg-primary text-white hover:bg-primary-dark active:scale-[0.99]"
+                            : "bg-primary/40 text-white/70 cursor-not-allowed"
                         }`}
                       >
-                        {/* Radio dot */}
-                        <div className={`flex-shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                          isActive ? "border-primary" : "border-gray-300"
-                        }`}>
-                          {isActive && <div className="w-2 h-2 rounded-full bg-primary" />}
-                        </div>
-                        {/* Text */}
-                        <div className="flex-1 min-w-0">
-                          <span className={`text-sm font-medium ${isActive ? "text-foreground" : "text-foreground"}`}>
-                            {info.title}
-                          </span>
-                          <span className="text-xs text-muted-foreground ml-1.5">{info.description}</span>
-                        </div>
-                        {/* Multiplier */}
-                        <span className={`flex-shrink-0 text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded ${
-                          isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground/70"
-                        }`}>
-                          {multiplier}
-                        </span>
+                        {state.currentStep === 2 ? "Calculate My TDEE" : "Continue"}
                       </button>
-                    );
-                  })}
+                    </div>
+                  )}
                 </div>
-              </div>
-
-              {/* Calculate Button */}
-              <button
-                type="submit"
-                className="w-full py-3.5 rounded-2xl bg-primary text-white font-semibold text-sm transition-all hover:bg-primary-dark active:scale-[0.99] shadow-soft hover:shadow-soft-lg"
-              >
-                Calculate My TDEE
-              </button>
-            </form>
-          </FadeIn>
-        </div>
-      </section>
+              </form>
+            </FadeIn>
+          </div>
+        </section>
+      )}
 
       {/* Results */}
       <AnimatePresence>
@@ -420,6 +390,7 @@ export default function TDEECalculatorClient() {
                 gender={state.gender}
                 activityLevel={state.activityLevel}
                 unitSystem={state.unitSystem}
+                onRecalculate={handleRecalculate}
               />
             </div>
           </motion.section>

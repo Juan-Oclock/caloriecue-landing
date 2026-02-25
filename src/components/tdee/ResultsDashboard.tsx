@@ -18,6 +18,7 @@ interface ResultsDashboardProps {
   gender: Gender;
   activityLevel: ActivityLevel;
   unitSystem: UnitSystem;
+  onRecalculate?: () => void;
 }
 
 const stagger = (i: number) => ({
@@ -25,7 +26,7 @@ const stagger = (i: number) => ({
   visible: { opacity: 1, y: 0, transition: { duration: 0.35, delay: i * 0.06 } },
 });
 
-export default function ResultsDashboard({ results, weightKg, heightCm, gender, activityLevel, unitSystem }: ResultsDashboardProps) {
+export default function ResultsDashboard({ results, weightKg, heightCm, gender, activityLevel, unitSystem, onRecalculate }: ResultsDashboardProps) {
   const [macroPlan, setMacroPlan] = useState<MacroPlan>("balanced");
   const [goal, setGoal] = useState<"cut" | "maintain" | "bulk">("cut");
   const [calorieOffset, setCalorieOffset] = useState(500);
@@ -58,16 +59,30 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
 
   return (
     <div className="space-y-4">
-      {/* Row 1: TDEE + BMR + BMI — three stat cards */}
-      <div className="grid grid-cols-3 gap-4">
-        <motion.div variants={stagger(0)} initial="hidden" animate="visible" className="col-span-3 sm:col-span-1 bg-gradient-to-br from-primary to-primary-dark rounded-2xl px-6 py-5 text-white">
-          <p className="text-xs font-medium text-white/70 uppercase tracking-wider">TDEE</p>
-          <div className="text-4xl font-bold tracking-tight mt-1">
-            <AnimatedCounter target={results.tdee} />
-          </div>
-          <p className="text-xs text-white/60 mt-1">cal/day</p>
-        </motion.div>
+      {/* Recalculate button */}
+      {onRecalculate && (
+        <button
+          onClick={onRecalculate}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
+          </svg>
+          Recalculate
+        </button>
+      )}
 
+      {/* TDEE hero card */}
+      <motion.div id="tdee-hero" variants={stagger(0)} initial="hidden" animate="visible" className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl px-6 py-5 text-white scroll-mt-20">
+        <p className="text-xs font-medium text-white/70 uppercase tracking-wider">TDEE</p>
+        <div className="text-4xl font-bold tracking-tight mt-1">
+          <AnimatedCounter target={results.tdee} />
+        </div>
+        <p className="text-xs text-white/60 mt-1">cal/day</p>
+      </motion.div>
+
+      {/* BMR + BMI row */}
+      <div className="grid grid-cols-2 gap-4">
         <motion.div variants={stagger(1)} initial="hidden" animate="visible" className="bg-white rounded-2xl border border-border px-6 py-5">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">BMR</p>
           <div className="text-3xl font-bold text-foreground mt-1">
@@ -78,9 +93,9 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
 
         <motion.div variants={stagger(2)} initial="hidden" animate="visible" className="bg-white rounded-2xl border border-border px-6 py-5">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">BMI</p>
-          <div className="flex items-baseline gap-2 mt-1">
+          <div className="flex items-baseline gap-2 mt-1 flex-wrap">
             <span className="text-3xl font-bold text-foreground">{results.bmi}</span>
-            <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${bmiInfo.bg} ${bmiInfo.color}`}>{bmiInfo.label}</span>
+            <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap ${bmiInfo.bg} ${bmiInfo.color}`}>{bmiInfo.label}</span>
           </div>
           {/* BMI visual scale */}
           <div className="mt-3">
