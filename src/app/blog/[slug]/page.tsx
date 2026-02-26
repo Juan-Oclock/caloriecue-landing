@@ -180,7 +180,7 @@ export default async function BlogPostPage({
             priority
             sizes="100vw"
             quality={85}
-            className="object-cover"
+            className={`object-cover ${post.imagePosition === "top" ? "object-top" : post.imagePosition === "bottom" ? "object-bottom" : "object-center"}`}
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/70 to-orange-900" />

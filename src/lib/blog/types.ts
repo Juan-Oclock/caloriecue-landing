@@ -8,6 +8,7 @@ export interface BlogPostMeta {
   coverImage?: string;
   imageCredit?: string;
   imageCreditUrl?: string;
+  imagePosition?: "top" | "center" | "bottom";
   tags: string[];
   published: boolean;
   readingTime: number;

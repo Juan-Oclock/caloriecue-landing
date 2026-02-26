@@ -21,7 +21,7 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
               fill
               priority
               sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className={`object-cover transition-transform duration-500 group-hover:scale-105 ${post.imagePosition === "top" ? "object-top" : post.imagePosition === "bottom" ? "object-bottom" : "object-center"}`}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary/20 via-primary/10 to-accent-blue/10 flex items-center justify-center">

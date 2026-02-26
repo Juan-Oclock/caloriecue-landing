@@ -25,7 +25,7 @@ export default function BlogPostCardOverlay({
               alt={post.title}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className={`object-cover transition-transform duration-500 group-hover:scale-105 ${post.imagePosition === "top" ? "object-top" : post.imagePosition === "bottom" ? "object-bottom" : "object-center"}`}
             />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/20 to-accent-blue/20 transition-transform duration-500 group-hover:scale-105" />
