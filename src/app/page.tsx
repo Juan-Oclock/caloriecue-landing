@@ -104,7 +104,7 @@ const faqJsonLd = {
 
 export const revalidate = 3600; // Revalidate stats every hour
 
-const FALLBACK_STATS = { total_users: 500, meals_scanned: 1678, calories_logged: 675946, app_store_rating: 5.0 };
+const FALLBACK_STATS = { total_users: 700, meals_scanned: 2800, calories_logged: 480000, app_store_rating: 4.9 };
 
 async function getLandingStats() {
   try {
