@@ -8,6 +8,7 @@ import FadeIn from "@/components/FadeIn";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import ScanLineAnimation from "@/components/ScanLineAnimation";
 import WaitlistForm from "@/components/WaitlistForm";
+import { createClient } from "@/lib/supabase/server";
 
 const PricingSection = dynamic(() => import("@/components/PricingSection"));
 const FAQSection = dynamic(() => import("@/components/FAQSection"));
@@ -101,7 +102,23 @@ const faqJsonLd = {
   ],
 };
 
-export default function Home() {
+export const revalidate = 3600; // Revalidate stats every hour
+
+const FALLBACK_STATS = { total_users: 500, meals_scanned: 1678, calories_logged: 675946, app_store_rating: 5.0 };
+
+async function getLandingStats() {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("get_landing_page_stats");
+    if (error || !data) return FALLBACK_STATS;
+    return data as typeof FALLBACK_STATS;
+  } catch {
+    return FALLBACK_STATS;
+  }
+}
+
+export default async function Home() {
+  const stats = await getLandingStats();
   return (
     <main className="min-h-screen bg-background">
       <script
@@ -236,7 +253,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12 text-center">
             <FadeIn>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
-                <AnimatedCounter target={500} suffix="+" />
+                <AnimatedCounter target={stats.total_users} suffix="+" />
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 Active Users
@@ -245,7 +262,7 @@ export default function Home() {
 
             <FadeIn delay={0.1}>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
-                <AnimatedCounter target={1678} suffix="+" />
+                <AnimatedCounter target={stats.meals_scanned} suffix="+" />
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 Meals Scanned
@@ -254,7 +271,7 @@ export default function Home() {
 
             <FadeIn delay={0.2}>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
-                <AnimatedCounter target={675946} suffix="+" />
+                <AnimatedCounter target={stats.calories_logged} suffix="+" />
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 Calories Logged
@@ -263,7 +280,7 @@ export default function Home() {
 
             <FadeIn delay={0.3}>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
-                5.0
+                {Number(stats.app_store_rating).toFixed(1)}
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 App Store Rating
