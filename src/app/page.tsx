@@ -105,22 +105,40 @@ export const revalidate = 3600; // Revalidate stats every hour
 const FALLBACK_STATS = { total_users: 700, meals_scanned: 2800, calories_logged: 480000, app_store_rating: 4.9 };
 
 async function getLandingStats() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  console.log("[stats] SUPABASE_URL defined:", !!supabaseUrl);
+  console.log("[stats] SUPABASE_KEY defined:", !!supabaseKey);
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.error("[stats] Missing env vars");
+    return FALLBACK_STATS;
+  }
+
   try {
-    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/rpc/get_landing_page_stats`;
+    const url = `${supabaseUrl}/rest/v1/rpc/get_landing_page_stats`;
+    console.log("[stats] Fetching:", url);
     const res = await fetch(url, {
       method: "POST",
       headers: {
-        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
         "Content-Type": "application/json",
       },
       next: { revalidate: 3600 },
     });
-    if (!res.ok) return FALLBACK_STATS;
+    console.log("[stats] Response status:", res.status);
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("[stats] Error response:", text);
+      return FALLBACK_STATS;
+    }
     const data = await res.json();
+    console.log("[stats] Data:", JSON.stringify(data));
     if (!data || !data.total_users) return FALLBACK_STATS;
     return data as typeof FALLBACK_STATS;
-  } catch {
+  } catch (e) {
+    console.error("[stats] Fetch error:", e);
     return FALLBACK_STATS;
   }
 }
