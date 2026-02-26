@@ -107,18 +107,10 @@ const FALLBACK_STATS = { total_users: 700, meals_scanned: 2800, calories_logged:
 async function getLandingStats() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  console.log("[stats] SUPABASE_URL defined:", !!supabaseUrl);
-  console.log("[stats] SUPABASE_KEY defined:", !!supabaseKey);
-
-  if (!supabaseUrl || !supabaseKey) {
-    console.error("[stats] Missing env vars");
-    return FALLBACK_STATS;
-  }
+  if (!supabaseUrl || !supabaseKey) return FALLBACK_STATS;
 
   try {
-    const url = `${supabaseUrl}/rest/v1/rpc/get_landing_page_stats`;
-    console.log("[stats] Fetching:", url);
-    const res = await fetch(url, {
+    const res = await fetch(`${supabaseUrl}/rest/v1/rpc/get_landing_page_stats`, {
       method: "POST",
       headers: {
         apikey: supabaseKey,
@@ -127,18 +119,11 @@ async function getLandingStats() {
       },
       next: { revalidate: 3600 },
     });
-    console.log("[stats] Response status:", res.status);
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("[stats] Error response:", text);
-      return FALLBACK_STATS;
-    }
+    if (!res.ok) return FALLBACK_STATS;
     const data = await res.json();
-    console.log("[stats] Data:", JSON.stringify(data));
     if (!data || !data.total_users) return FALLBACK_STATS;
     return data as typeof FALLBACK_STATS;
-  } catch (e) {
-    console.error("[stats] Fetch error:", e);
+  } catch {
     return FALLBACK_STATS;
   }
 }
