@@ -1,7 +1,19 @@
 import { updateSession } from '@/lib/supabase/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
 
+const CANONICAL_HOST = 'caloriecue.app';
+
 export async function middleware(request: NextRequest) {
+  const host = request.headers.get('host') ?? '';
+
+  // Redirect www → non-www (permanent 301)
+  if (host.startsWith('www.')) {
+    const url = request.nextUrl.clone();
+    url.host = CANONICAL_HOST;
+    url.port = '';
+    return NextResponse.redirect(url, 301);
+  }
+
   const { pathname } = request.nextUrl;
 
   // Only refresh Supabase session for admin routes
@@ -41,5 +53,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: [
+    // Match all routes except static files and Next.js internals
+    '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|xml|txt|json|webmanifest)).*)',
+  ],
 };
