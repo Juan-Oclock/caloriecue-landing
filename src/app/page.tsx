@@ -8,8 +8,6 @@ import FadeIn from "@/components/FadeIn";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import ScanLineAnimation from "@/components/ScanLineAnimation";
 import WaitlistForm from "@/components/WaitlistForm";
-import { createClient } from "@supabase/supabase-js";
-
 const PricingSection = dynamic(() => import("@/components/PricingSection"));
 const FAQSection = dynamic(() => import("@/components/FAQSection"));
 const VideoPreview = dynamic(() => import("@/components/VideoPreview"));
@@ -108,12 +106,19 @@ const FALLBACK_STATS = { total_users: 700, meals_scanned: 2800, calories_logged:
 
 async function getLandingStats() {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    );
-    const { data, error } = await supabase.rpc("get_landing_page_stats");
-    if (error || !data) return FALLBACK_STATS;
+    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/rpc/get_landing_page_stats`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        "Content-Type": "application/json",
+      },
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return FALLBACK_STATS;
+    const data = await res.json();
+    if (!data || !data.total_users) return FALLBACK_STATS;
     return data as typeof FALLBACK_STATS;
   } catch {
     return FALLBACK_STATS;
