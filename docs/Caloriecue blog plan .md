@@ -90,7 +90,7 @@ Add a full blogging system to the CalorieCue NextJS landing page using **MDX + O
      description: "SEO meta description"
      date: "2026-02-14"
      author: "CalorieCue Team"
-     coverImage: "/blog/images/post-slug/cover.jpg"
+     coverImage: "/blog/images/post-slug/cover.webp"
      tags: ["nutrition", "calorie-tracking", "tips"]
      published: true
      ---
