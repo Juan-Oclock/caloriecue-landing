@@ -83,7 +83,7 @@ export default function VideoPreview({
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
       ref={containerRef}
-      className="relative aspect-[3/4] md:aspect-video bg-white rounded-3xl border border-border overflow-hidden shadow-soft-lg"
+      className="relative aspect-[9/16] md:aspect-[3/4] md:max-w-xl md:mx-auto xl:max-w-none xl:aspect-video bg-white rounded-3xl border border-border overflow-hidden shadow-soft-lg"
     >
       {/* Loading skeleton */}
       {!isLoaded && (
@@ -92,7 +92,7 @@ export default function VideoPreview({
 
       <video
         ref={videoRef}
-        className="w-full h-full object-cover scale-[1.2] md:scale-100"
+        className="w-full h-full object-cover md:object-contain"
         muted
         loop
         playsInline

@@ -571,7 +571,7 @@ export default async function Home() {
           {/* Video */}
           <VideoPreview
             mp4Src="/see-it-in-action.mp4"
-            webmSrc="/see-it-in-action.webm"
+            webmSrc="/caloriecue-see-it-in-action.webm"
             poster="/see-it-in-action-poster.jpg"
           />
         </div>
