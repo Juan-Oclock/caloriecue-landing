@@ -570,9 +570,8 @@ export default async function Home() {
 
           {/* Video */}
           <VideoPreview
-            mp4Src="/see-it-in-action.mp4"
+            mp4Src="/caloriecue-calorie-counter-features.webm"
             webmSrc="/caloriecue-calorie-counter-features.webm"
-            poster="/see-it-in-action-poster.jpg"
           />
         </div>
       </section>
