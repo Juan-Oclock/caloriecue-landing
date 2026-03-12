@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CalorieCue - Shared Diary</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #f5f5f5;
+  color: #1a1a1a;
+  line-height: 1.5;
+  padding: 16px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+header { text-align: center; padding: 24px 0 16px; }
+header .logo { font-size: 1.5rem; font-weight: 700; color: #22c55e; }
+header h1 { font-size: 1.15rem; font-weight: 600; color: #444; margin-top: 4px; }
+.card {
+  background: #fff; border-radius: 12px; padding: 16px;
+  margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.card-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  flex-wrap: wrap; gap: 4px; margin-bottom: 12px; padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+.card-header h2 { font-size: 1rem; font-weight: 600; }
+.day-totals { display: flex; gap: 10px; font-size: 0.82rem; }
+.total-cals { font-weight: 600; color: #22c55e; }
+.macro { color: #888; }
+.meal { margin-bottom: 10px; }
+.meal:last-child { margin-bottom: 0; }
+.meal h3 {
+  font-size: 0.82rem; font-weight: 600; color: #22c55e;
+  text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px;
+}
+.item {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 3px 0; font-size: 0.9rem;
+}
+.item-name { flex: 1; margin-right: 8px; }
+.item-cals { font-weight: 500; white-space: nowrap; color: #555; }
+.brand { color: #aaa; font-size: 0.82rem; }
+.servings { color: #999; font-size: 0.82rem; }
+.badge {
+  display: inline-block; background: #22c55e20; color: #16a34a;
+  font-size: 0.7rem; font-weight: 600; padding: 1px 6px;
+  border-radius: 4px; vertical-align: middle;
+}
+.empty { text-align: center; color: #999; padding: 40px 0; }
+.error { text-align: center; color: #ef4444; padding: 40px 0; }
+.loading { text-align: center; color: #888; padding: 60px 0; }
+.loading .spinner {
+  display: inline-block; width: 24px; height: 24px;
+  border: 3px solid #e5e7eb; border-top-color: #22c55e;
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+  margin-bottom: 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+footer { text-align: center; padding: 24px 0 12px; font-size: 0.8rem; color: #aaa; }
+footer a { color: #22c55e; text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">CalorieCue</div>
+  <h1 id="title">Loading diary&hellip;</h1>
+</header>
+<div id="content">
+  <div class="loading"><div class="spinner"></div><br>Loading diary entries&hellip;</div>
+</div>
+<footer>
+  Powered by <a href="https://apps.apple.com/app/caloriecue" target="_blank" rel="noopener">CalorieCue</a>
+</footer>
+<script>
+  function esc(t) {
+    if (!t) return "";
+    return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+  function mealLabel(t) {
+    return {breakfast:"Breakfast",lunch:"Lunch",dinner:"Dinner",snack:"Snack"}[t] || t;
+  }
+  function foodName(e) {
+    if (e.foods && e.foods.name) return e.foods.name;
+    if (e.user_foods && e.user_foods.name) return e.user_foods.name;
+    if (e.recipes && e.recipes.name) return e.recipes.name;
+    return "Unknown item";
+  }
+  function formatDate(s) {
+    var d = new Date(s + "T00:00:00");
+    return d.toLocaleDateString("en-US", { weekday:"short", month:"short", day:"numeric" });
+  }
+
+  async function loadDiary() {
+    var params = new URLSearchParams(window.location.search);
+    var token = params.get("token");
+    if (!token) {
+      document.getElementById("content").innerHTML = '<p class="error">Missing token.</p>';
+      document.getElementById("title").textContent = "Error";
+      return;
+    }
+
+    var apiBase = "https://bxhgpvkkeyguovvyqsft.supabase.co";
+    var apiUrl = apiBase + "/functions/v1/view-diary-share?token=" + encodeURIComponent(token);
+
+    try {
+      var res = await fetch(apiUrl, { headers: { "Accept": "application/json" } });
+      if (!res.ok) {
+        var err = {};
+        try { err = await res.json(); } catch(e) {}
+        document.getElementById("content").innerHTML =
+          '<div class="card"><p class="error">' + esc(err.error || "Failed to load diary.") + '</p></div>';
+        document.getElementById("title").textContent = "Error";
+        return;
+      }
+
+      var data = await res.json();
+      render(data);
+    } catch (e) {
+      document.getElementById("content").innerHTML =
+        '<div class="card"><p class="error">Network error. Please try again.</p></div>';
+      document.getElementById("title").textContent = "Error";
+    }
+  }
+
+  function render(data) {
+    var days_range = data.days_range;
+    var entries = data.entries || [];
+    var daily_summaries = data.daily_summaries || [];
+    var quick_add_entries = data.quick_add_entries || [];
+
+    document.getElementById("title").textContent = "Food Diary \u2014 Last " + days_range + " Days";
+    document.title = "CalorieCue \u2014 Last " + days_range + " Days";
+
+    var byDate = new Map();
+    for (var e of entries) {
+      if (!byDate.has(e.date)) byDate.set(e.date, []);
+      byDate.get(e.date).push(e);
+    }
+
+    var qByDate = new Map();
+    for (var q of quick_add_entries) {
+      if (!qByDate.has(q.date)) qByDate.set(q.date, []);
+      qByDate.get(q.date).push(q);
+    }
+
+    var summaryMap = new Map(daily_summaries.map(function(s) { return [s.date, s]; }));
+
+    var allDates = Array.from(new Set([].concat(Array.from(byDate.keys()), Array.from(qByDate.keys()))))
+      .sort(function(a, b) { return b.localeCompare(a); });
+
+    if (allDates.length === 0) {
+      document.getElementById("content").innerHTML = '<p class="empty">No diary entries found for this period.</p>';
+      return;
+    }
+
+    var html = "";
+    for (var date of allDates) {
+      var summary = summaryMap.get(date);
+      var dayEntries = byDate.get(date) || [];
+      var dayQA = qByDate.get(date) || [];
+
+      var mealGroups = new Map();
+      for (var e of dayEntries) {
+        if (!mealGroups.has(e.meal_type)) mealGroups.set(e.meal_type, []);
+        mealGroups.get(e.meal_type).push(e);
+      }
+
+      var mealOrder = ["breakfast","lunch","dinner","snack"];
+      var sortedMeals = Array.from(mealGroups.entries()).sort(
+        function(a, b) { return (mealOrder.indexOf(a[0]) === -1 ? 99 : mealOrder.indexOf(a[0])) - (mealOrder.indexOf(b[0]) === -1 ? 99 : mealOrder.indexOf(b[0])); }
+      );
+
+      var mealsHtml = "";
+      for (var m of sortedMeals) {
+        var type = m[0], items = m[1];
+        var itemsHtml = "";
+        for (var item of items) {
+          var cals = Math.round(item.logged_calories || 0);
+          var brand = (item.foods && item.foods.brand) ? ' <span class="brand">' + esc(item.foods.brand) + '</span>' : "";
+          var srv = (item.servings && item.servings !== 1) ? ' <span class="servings">&times;' + item.servings + '</span>' : "";
+          itemsHtml += '<div class="item"><span class="item-name">' + esc(foodName(item)) + brand + srv + '</span><span class="item-cals">' + cals + ' cal</span></div>';
+        }
+        mealsHtml += '<div class="meal"><h3>' + mealLabel(type) + '</h3>' + itemsHtml + '</div>';
+      }
+
+      if (dayQA.length > 0) {
+        var qaHtml = "";
+        for (var q of dayQA) {
+          var cals = Math.round(q.calories || 0);
+          var text = q.description ? esc(q.description) : "Quick add";
+          qaHtml += '<div class="item"><span class="item-name">' + text + ' <span class="badge">Quick Add</span></span><span class="item-cals">' + cals + ' cal</span></div>';
+        }
+        mealsHtml += '<div class="meal"><h3>Quick Adds</h3>' + qaHtml + '</div>';
+      }
+
+      var c = summary ? summary.calories : 0;
+      var p = summary ? summary.protein : 0;
+      var cb = summary ? summary.carbs : 0;
+      var f = summary ? summary.fat : 0;
+
+      html += '<div class="card"><div class="card-header"><h2>' + formatDate(date) + '</h2><div class="day-totals"><span class="total-cals">' + c + ' cal</span><span class="macro">P ' + p + 'g</span><span class="macro">C ' + cb + 'g</span><span class="macro">F ' + f + 'g</span></div></div>' + mealsHtml + '</div>';
+    }
+
+    document.getElementById("content").innerHTML = html;
+  }
+
+  loadDiary();
+</script>
+</body>
+</html>
