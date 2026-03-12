@@ -8,7 +8,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: #f5f5f5;
+  background: #fff;
   color: #1a1a1a;
   line-height: 1.5;
   padding: 16px;
@@ -19,18 +19,21 @@ header { text-align: center; padding: 24px 0 16px; }
 header .logo { font-size: 1.5rem; font-weight: 700; color: #22c55e; }
 header h1 { font-size: 1.15rem; font-weight: 600; color: #444; margin-top: 4px; }
 .card {
-  background: #fff; border-radius: 12px; padding: 16px;
+  background: #fff; border-radius: 12px;
   margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  overflow: hidden;
 }
 .card-header {
-  display: flex; justify-content: space-between; align-items: baseline;
-  flex-wrap: wrap; gap: 4px; margin-bottom: 12px; padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: nowrap; gap: 8px; padding: 14px 16px;
+  background: #f0f0f0; border-bottom: 1px solid #e5e5e5;
 }
-.card-header h2 { font-size: 1rem; font-weight: 600; }
-.day-totals { display: flex; gap: 10px; font-size: 0.82rem; }
-.total-cals { font-weight: 600; color: #22c55e; }
-.macro { color: #888; }
+.card-header h2 { font-size: 1rem; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+.day-totals { display: flex; gap: 8px; font-size: 0.82rem; font-weight: 500; white-space: nowrap; }
+.total-cals { font-weight: 700; color: #16a34a; font-size: 0.92rem; }
+.macro { color: #444; }
+.macro-label { color: #888; font-size: 0.75rem; font-weight: 400; }
+.macro-val { font-weight: 600; }
 .meal { margin-bottom: 10px; }
 .meal:last-child { margin-bottom: 0; }
 .meal h3 {
@@ -50,19 +53,81 @@ header h1 { font-size: 1.15rem; font-weight: 600; color: #444; margin-top: 4px; 
   font-size: 0.7rem; font-weight: 600; padding: 1px 6px;
   border-radius: 4px; vertical-align: middle;
 }
-.empty { text-align: center; color: #999; padding: 40px 0; }
-.error { text-align: center; color: #ef4444; padding: 40px 0; }
-.loading { text-align: center; color: #888; padding: 60px 0; }
-.loading .spinner {
-  display: inline-block; width: 24px; height: 24px;
-  border: 3px solid #e5e7eb; border-top-color: #22c55e;
-  border-radius: 50%; animation: spin 0.8s linear infinite;
-  margin-bottom: 12px;
+details.card { list-style: none; }
+details.card > summary { list-style: none; cursor: pointer; }
+details.card > summary::-webkit-details-marker { display: none; }
+details.card > summary::marker { display: none; content: ""; }
+.card-header { position: relative; padding-right: 40px; }
+.card-header::after {
+  content: "\25B8"; position: absolute; right: 16px; top: 50%;
+  transform: translateY(-50%); font-size: 1.1rem; color: #22c55e;
+  transition: transform 0.2s ease;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+details.card:not([open]) > .card-header { border-bottom: none; }
+details.card[open] > .card-header::after { transform: translateY(-50%) rotate(90deg); }
+.card-body { padding: 12px 16px 16px; }
+.empty { text-align: center; color: #999; padding: 40px 16px; }
+.error-msg { text-align: center; color: #ef4444; padding: 40px 16px; }
 footer { text-align: center; padding: 24px 0 12px; font-size: 0.8rem; color: #aaa; }
 footer a { color: #22c55e; text-decoration: none; }
 footer a:hover { text-decoration: underline; }
+.skeleton-line {
+  display: inline-block;
+  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+#slow-msg { display: none; text-align: center; color: #888; padding: 8px 16px; font-size: 0.85rem; }
+#error-msg { display: none; text-align: center; color: #ef4444; padding: 16px; font-size: 0.9rem; }
+.pill-bar {
+  display: flex; gap: 6px; overflow-x: auto; padding: 8px 16px;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  position: sticky; top: 0; z-index: 10;
+  background: #fff; margin: 0 -16px 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+.pill-bar::-webkit-scrollbar { display: none; }
+.pill {
+  flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+  padding: 6px 10px; border-radius: 10px; background: #f0f0f0;
+  cursor: pointer; min-width: 44px; border: 2px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+.pill .pill-day { font-size: 0.7rem; color: #888; text-transform: uppercase; }
+.pill .pill-num { font-size: 0.95rem; font-weight: 600; }
+.pill.active { background: #22c55e; border-color: #22c55e; }
+.pill.active .pill-day, .pill.active .pill-num { color: #fff; }
+.pill-bar.fit { gap: 4px; }
+.pill-bar.fit .pill { flex: 1; min-width: 0; }
+.summary-banner {
+  background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 20px 16px; text-align: center; margin-bottom: 12px;
+}
+.summary-label {
+  font-size: 0.7rem; font-weight: 600; color: #888;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;
+}
+.summary-hero {
+  display: flex; justify-content: center; align-items: center; gap: 20px;
+}
+.summary-stat { display: flex; flex-direction: column; align-items: center; }
+.summary-big { font-size: 1.5rem; font-weight: 700; color: #1a1a1a; }
+.summary-big.green { color: #16a34a; }
+.summary-sub { font-size: 0.75rem; color: #888; }
+.summary-divider { width: 1px; height: 32px; background: #ddd; }
+.summary-macros {
+  display: flex; justify-content: space-around;
+  border-top: 1px solid #eee; margin-top: 14px; padding-top: 14px;
+}
+.summary-macro { display: flex; flex-direction: column; align-items: center; flex: 1; }
+.summary-macro-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.03em; }
+.summary-macro-val { font-size: 0.95rem; font-weight: 700; color: #1a1a1a; }
+.summary-macro-avg { font-size: 0.7rem; color: #aaa; }
 </style>
 </head>
 <body>
@@ -70,146 +135,285 @@ footer a:hover { text-decoration: underline; }
   <div class="logo">CalorieCue</div>
   <h1 id="title">Loading diary&hellip;</h1>
 </header>
-<div id="content">
-  <div class="loading"><div class="spinner"></div><br>Loading diary entries&hellip;</div>
+<div id="content-area">
+  <div class="summary-banner">
+    <div class="summary-label"><span class="skeleton-line" style="width:100px;height:12px"></span></div>
+    <div class="summary-hero">
+      <div class="summary-stat"><span class="skeleton-line" style="width:60px;height:28px"></span><span class="skeleton-line" style="width:50px;height:12px;margin-top:4px"></span></div>
+      <div class="summary-divider"></div>
+      <div class="summary-stat"><span class="skeleton-line" style="width:50px;height:28px"></span><span class="skeleton-line" style="width:50px;height:12px;margin-top:4px"></span></div>
+    </div>
+    <div class="summary-macros">
+      <div class="summary-macro"><span class="skeleton-line" style="width:40px;height:10px"></span><span class="skeleton-line" style="width:30px;height:16px;margin-top:4px"></span><span class="skeleton-line" style="width:45px;height:10px;margin-top:2px"></span></div>
+      <div class="summary-macro"><span class="skeleton-line" style="width:30px;height:10px"></span><span class="skeleton-line" style="width:30px;height:16px;margin-top:4px"></span><span class="skeleton-line" style="width:45px;height:10px;margin-top:2px"></span></div>
+      <div class="summary-macro"><span class="skeleton-line" style="width:20px;height:10px"></span><span class="skeleton-line" style="width:30px;height:16px;margin-top:4px"></span><span class="skeleton-line" style="width:45px;height:10px;margin-top:2px"></span></div>
+    </div>
+  </div>
+  <div class="pill-bar fit">
+    <div class="pill"><span class="skeleton-line" style="width:24px;height:10px"></span><span class="skeleton-line" style="width:18px;height:16px;margin-top:4px"></span></div>
+    <div class="pill"><span class="skeleton-line" style="width:24px;height:10px"></span><span class="skeleton-line" style="width:18px;height:16px;margin-top:4px"></span></div>
+    <div class="pill"><span class="skeleton-line" style="width:24px;height:10px"></span><span class="skeleton-line" style="width:18px;height:16px;margin-top:4px"></span></div>
+    <div class="pill"><span class="skeleton-line" style="width:24px;height:10px"></span><span class="skeleton-line" style="width:18px;height:16px;margin-top:4px"></span></div>
+    <div class="pill"><span class="skeleton-line" style="width:24px;height:10px"></span><span class="skeleton-line" style="width:18px;height:16px;margin-top:4px"></span></div>
+    <div class="pill"><span class="skeleton-line" style="width:24px;height:10px"></span><span class="skeleton-line" style="width:18px;height:16px;margin-top:4px"></span></div>
+    <div class="pill"><span class="skeleton-line" style="width:24px;height:10px"></span><span class="skeleton-line" style="width:18px;height:16px;margin-top:4px"></span></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h2><span class="skeleton-line" style="width:100px;height:16px"></span></h2><div class="day-totals"><span class="skeleton-line" style="width:50px;height:14px"></span><span class="skeleton-line" style="width:30px;height:14px"></span><span class="skeleton-line" style="width:30px;height:14px"></span><span class="skeleton-line" style="width:30px;height:14px"></span></div></div>
+    <div class="card-body">
+      <div class="meal"><h3><span class="skeleton-line" style="width:70px;height:12px"></span></h3>
+        <div class="item"><span class="skeleton-line" style="width:60%;height:14px"></span><span class="skeleton-line" style="width:45px;height:14px"></span></div>
+        <div class="item"><span class="skeleton-line" style="width:45%;height:14px"></span><span class="skeleton-line" style="width:45px;height:14px"></span></div>
+      </div>
+      <div class="meal"><h3><span class="skeleton-line" style="width:50px;height:12px"></span></h3>
+        <div class="item"><span class="skeleton-line" style="width:55%;height:14px"></span><span class="skeleton-line" style="width:45px;height:14px"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card"><div class="card-header"><h2><span class="skeleton-line" style="width:100px;height:16px"></span></h2><div class="day-totals"><span class="skeleton-line" style="width:50px;height:14px"></span><span class="skeleton-line" style="width:30px;height:14px"></span><span class="skeleton-line" style="width:30px;height:14px"></span><span class="skeleton-line" style="width:30px;height:14px"></span></div></div></div>
+  <div class="card"><div class="card-header"><h2><span class="skeleton-line" style="width:100px;height:16px"></span></h2><div class="day-totals"><span class="skeleton-line" style="width:50px;height:14px"></span><span class="skeleton-line" style="width:30px;height:14px"></span><span class="skeleton-line" style="width:30px;height:14px"></span><span class="skeleton-line" style="width:30px;height:14px"></span></div></div></div>
+  <div id="slow-msg">This may take a moment&hellip;</div>
+  <div id="error-msg"></div>
 </div>
 <footer>
   Powered by <a href="https://apps.apple.com/app/caloriecue" target="_blank" rel="noopener">CalorieCue</a>
 </footer>
 <script>
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get("token");
+  if (!token) {
+    document.getElementById("content-area").innerHTML = '<p class="error-msg">Missing token. This link appears to be incomplete.</p>';
+    document.getElementById("title").textContent = "Error";
+    return;
+  }
+
+  var slowTimer = setTimeout(function() {
+    document.getElementById("slow-msg").style.display = "block";
+  }, 3000);
+
+  var apiBase = "https://bxhgpvkkeyguovvyqsft.supabase.co";
+  var apiUrl = apiBase + "/functions/v1/view-diary-share?token=" + encodeURIComponent(token);
+
+  fetch(apiUrl, { headers: { "Accept": "application/json" } })
+    .then(function(r) {
+      if (!r.ok) {
+        return r.json().catch(function() { return {}; }).then(function(err) {
+          throw new Error(err.error || "Failed to load diary.");
+        });
+      }
+      return r.json();
+    })
+    .then(function(data) {
+      clearTimeout(slowTimer);
+      renderData(data);
+    })
+    .catch(function(e) {
+      clearTimeout(slowTimer);
+      document.getElementById("slow-msg").style.display = "none";
+      var el = document.getElementById("error-msg");
+      el.textContent = e.message || "Failed to load diary data. Please refresh.";
+      el.style.display = "block";
+    });
+
   function esc(t) {
     if (!t) return "";
-    return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    var d = document.createElement("div");
+    d.appendChild(document.createTextNode(t));
+    return d.innerHTML;
   }
+
+  function formatDateShort(ds) {
+    var d = new Date(ds + "T00:00:00");
+    return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  }
+
   function mealLabel(t) {
-    return {breakfast:"Breakfast",lunch:"Lunch",dinner:"Dinner",snack:"Snack"}[t] || t;
+    return { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack" }[t] || t;
   }
+
   function foodName(e) {
     if (e.foods && e.foods.name) return e.foods.name;
     if (e.user_foods && e.user_foods.name) return e.user_foods.name;
     if (e.recipes && e.recipes.name) return e.recipes.name;
     return "Unknown item";
   }
-  function formatDate(s) {
-    var d = new Date(s + "T00:00:00");
-    return d.toLocaleDateString("en-US", { weekday:"short", month:"short", day:"numeric" });
-  }
 
-  async function loadDiary() {
-    var params = new URLSearchParams(window.location.search);
-    var token = params.get("token");
-    if (!token) {
-      document.getElementById("content").innerHTML = '<p class="error">Missing token.</p>';
-      document.getElementById("title").textContent = "Error";
-      return;
-    }
-
-    var apiBase = "https://bxhgpvkkeyguovvyqsft.supabase.co";
-    var apiUrl = apiBase + "/functions/v1/view-diary-share?token=" + encodeURIComponent(token);
-
-    try {
-      var res = await fetch(apiUrl, { headers: { "Accept": "application/json" } });
-      if (!res.ok) {
-        var err = {};
-        try { err = await res.json(); } catch(e) {}
-        document.getElementById("content").innerHTML =
-          '<div class="card"><p class="error">' + esc(err.error || "Failed to load diary.") + '</p></div>';
-        document.getElementById("title").textContent = "Error";
-        return;
-      }
-
-      var data = await res.json();
-      render(data);
-    } catch (e) {
-      document.getElementById("content").innerHTML =
-        '<div class="card"><p class="error">Network error. Please try again.</p></div>';
-      document.getElementById("title").textContent = "Error";
-    }
-  }
-
-  function render(data) {
-    var days_range = data.days_range;
+  function renderData(data) {
+    var ds = data.daily_summaries || [];
     var entries = data.entries || [];
-    var daily_summaries = data.daily_summaries || [];
-    var quick_add_entries = data.quick_add_entries || [];
+    var quickAdds = data.quick_add_entries || [];
+    var daysRange = data.days_range;
 
-    document.getElementById("title").textContent = "Food Diary \u2014 Last " + days_range + " Days";
-    document.title = "CalorieCue \u2014 Last " + days_range + " Days";
+    document.getElementById("title").textContent = "Food Diary \u2014 Last " + daysRange + " Days";
+    document.title = "CalorieCue \u2014 Last " + daysRange + " Days";
 
-    var byDate = new Map();
-    for (var e of entries) {
-      if (!byDate.has(e.date)) byDate.set(e.date, []);
-      byDate.get(e.date).push(e);
+    // Summary banner
+    var totalCals = 0, totalP = 0, totalC = 0, totalF = 0;
+    for (var i = 0; i < ds.length; i++) {
+      totalCals += ds[i].calories; totalP += ds[i].protein;
+      totalC += ds[i].carbs; totalF += ds[i].fat;
     }
+    var days = ds.length;
+    var avgCals = days ? Math.round(totalCals / days) : 0;
+    var avgP = days ? Math.round(totalP / days) : 0;
+    var avgC = days ? Math.round(totalC / days) : 0;
+    var avgF = days ? Math.round(totalF / days) : 0;
 
-    var qByDate = new Map();
-    for (var q of quick_add_entries) {
-      if (!qByDate.has(q.date)) qByDate.set(q.date, []);
-      qByDate.get(q.date).push(q);
+    var html = '<div class="summary-banner">' +
+      '<div class="summary-label">' + daysRange + '-Day Summary</div>' +
+      '<div class="summary-hero">' +
+      '<div class="summary-stat"><span class="summary-big green">' + totalCals + '</span><span class="summary-sub">total cal</span></div>' +
+      '<div class="summary-divider"></div>' +
+      '<div class="summary-stat"><span class="summary-big">' + avgCals + '</span><span class="summary-sub">daily avg</span></div>' +
+      '</div>' +
+      '<div class="summary-macros">' +
+      '<div class="summary-macro"><span class="summary-macro-label">Protein</span><span class="summary-macro-val">' + totalP + 'g</span><span class="summary-macro-avg">~' + avgP + 'g/day</span></div>' +
+      '<div class="summary-macro"><span class="summary-macro-label">Carbs</span><span class="summary-macro-val">' + totalC + 'g</span><span class="summary-macro-avg">~' + avgC + 'g/day</span></div>' +
+      '<div class="summary-macro"><span class="summary-macro-label">Fat</span><span class="summary-macro-val">' + totalF + 'g</span><span class="summary-macro-avg">~' + avgF + 'g/day</span></div>' +
+      '</div></div>';
+
+    // Group entries by date
+    var byDate = {};
+    for (var i = 0; i < entries.length; i++) {
+      var e = entries[i];
+      if (!byDate[e.date]) byDate[e.date] = [];
+      byDate[e.date].push(e);
     }
+    var qByDate = {};
+    for (var i = 0; i < quickAdds.length; i++) {
+      var q = quickAdds[i];
+      if (!qByDate[q.date]) qByDate[q.date] = [];
+      qByDate[q.date].push(q);
+    }
+    var summaryMap = {};
+    for (var i = 0; i < ds.length; i++) summaryMap[ds[i].date] = ds[i];
 
-    var summaryMap = new Map(daily_summaries.map(function(s) { return [s.date, s]; }));
-
-    var allDates = Array.from(new Set([].concat(Array.from(byDate.keys()), Array.from(qByDate.keys()))))
-      .sort(function(a, b) { return b.localeCompare(a); });
+    var allDatesSet = {};
+    for (var k in byDate) allDatesSet[k] = true;
+    for (var k in qByDate) allDatesSet[k] = true;
+    var allDates = Object.keys(allDatesSet).sort(function(a, b) { return b.localeCompare(a); });
 
     if (allDates.length === 0) {
-      document.getElementById("content").innerHTML = '<p class="empty">No diary entries found for this period.</p>';
+      document.getElementById("content-area").innerHTML =
+        '<p class="empty">No diary entries found for this period.</p>';
       return;
     }
 
-    var html = "";
-    for (var date of allDates) {
-      var summary = summaryMap.get(date);
-      var dayEntries = byDate.get(date) || [];
-      var dayQA = qByDate.get(date) || [];
+    // Pill bar
+    var pillDates = allDates.slice().reverse();
+    var pills = "";
+    for (var i = 0; i < pillDates.length; i++) {
+      var pd = new Date(pillDates[i] + "T00:00:00");
+      var day = pd.toLocaleDateString("en-US", { weekday: "short" }).slice(0, 3);
+      var num = pd.getDate();
+      pills += '<div class="pill" data-date="' + pillDates[i] + '"><span class="pill-day">' + day + '</span><span class="pill-num">' + num + '</span></div>';
+    }
+    var fitCls = allDates.length <= 7 ? " fit" : "";
+    html += '<div class="pill-bar' + fitCls + '" id="pill-bar">' + pills + '</div>';
 
-      var mealGroups = new Map();
-      for (var e of dayEntries) {
-        if (!mealGroups.has(e.meal_type)) mealGroups.set(e.meal_type, []);
-        mealGroups.get(e.meal_type).push(e);
+    // Day cards
+    var mealOrder = ["breakfast", "lunch", "dinner", "snack"];
+    for (var di = 0; di < allDates.length; di++) {
+      var date = allDates[di];
+      var sm = summaryMap[date];
+      var dayEntries = byDate[date] || [];
+      var dayQA = qByDate[date] || [];
+
+      // Group by meal
+      var mealGroups = {};
+      for (var ei = 0; ei < dayEntries.length; ei++) {
+        var mt = dayEntries[ei].meal_type;
+        if (!mealGroups[mt]) mealGroups[mt] = [];
+        mealGroups[mt].push(dayEntries[ei]);
       }
-
-      var mealOrder = ["breakfast","lunch","dinner","snack"];
-      var sortedMeals = Array.from(mealGroups.entries()).sort(
-        function(a, b) { return (mealOrder.indexOf(a[0]) === -1 ? 99 : mealOrder.indexOf(a[0])) - (mealOrder.indexOf(b[0]) === -1 ? 99 : mealOrder.indexOf(b[0])); }
-      );
+      var sortedMeals = Object.keys(mealGroups).sort(function(a, b) {
+        var ai = mealOrder.indexOf(a); if (ai < 0) ai = 99;
+        var bi = mealOrder.indexOf(b); if (bi < 0) bi = 99;
+        return ai - bi;
+      });
 
       var mealsHtml = "";
-      for (var m of sortedMeals) {
-        var type = m[0], items = m[1];
+      for (var mi = 0; mi < sortedMeals.length; mi++) {
+        var mt = sortedMeals[mi];
+        var items = mealGroups[mt];
         var itemsHtml = "";
-        for (var item of items) {
+        for (var ii = 0; ii < items.length; ii++) {
+          var item = items[ii];
           var cals = Math.round(item.logged_calories || 0);
-          var brand = (item.foods && item.foods.brand) ? ' <span class="brand">' + esc(item.foods.brand) + '</span>' : "";
-          var srv = (item.servings && item.servings !== 1) ? ' <span class="servings">&times;' + item.servings + '</span>' : "";
+          var brand = (item.foods && item.foods.brand) ? ' <span class="brand">' + esc(item.foods.brand) + '</span>' : '';
+          var srv = (item.servings && item.servings !== 1) ? ' <span class="servings">\u00d7' + item.servings + '</span>' : '';
           itemsHtml += '<div class="item"><span class="item-name">' + esc(foodName(item)) + brand + srv + '</span><span class="item-cals">' + cals + ' cal</span></div>';
         }
-        mealsHtml += '<div class="meal"><h3>' + mealLabel(type) + '</h3>' + itemsHtml + '</div>';
+        mealsHtml += '<div class="meal"><h3>' + mealLabel(mt) + '</h3>' + itemsHtml + '</div>';
       }
 
+      // Quick adds
       if (dayQA.length > 0) {
         var qaHtml = "";
-        for (var q of dayQA) {
-          var cals = Math.round(q.calories || 0);
-          var text = q.description ? esc(q.description) : "Quick add";
-          qaHtml += '<div class="item"><span class="item-name">' + text + ' <span class="badge">Quick Add</span></span><span class="item-cals">' + cals + ' cal</span></div>';
+        for (var qi = 0; qi < dayQA.length; qi++) {
+          var qe = dayQA[qi];
+          var qCals = Math.round(qe.calories || 0);
+          var qText = qe.description ? esc(qe.description) : "Quick add";
+          qaHtml += '<div class="item"><span class="item-name">' + qText + ' <span class="badge">Quick Add</span></span><span class="item-cals">' + qCals + ' cal</span></div>';
         }
         mealsHtml += '<div class="meal"><h3>Quick Adds</h3>' + qaHtml + '</div>';
       }
 
-      var c = summary ? summary.calories : 0;
-      var p = summary ? summary.protein : 0;
-      var cb = summary ? summary.carbs : 0;
-      var f = summary ? summary.fat : 0;
+      var c = sm ? sm.calories : 0;
+      var p = sm ? sm.protein : 0;
+      var cb = sm ? sm.carbs : 0;
+      var f = sm ? sm.fat : 0;
 
-      html += '<div class="card"><div class="card-header"><h2>' + formatDate(date) + '</h2><div class="day-totals"><span class="total-cals">' + c + ' cal</span><span class="macro">P ' + p + 'g</span><span class="macro">C ' + cb + 'g</span><span class="macro">F ' + f + 'g</span></div></div>' + mealsHtml + '</div>';
+      var openAttr = di === 0 ? " open" : "";
+      html += '<details class="card" id="day-' + date + '"' + openAttr + '>' +
+        '<summary class="card-header"><h2>' + formatDateShort(date) + '</h2>' +
+        '<div class="day-totals"><span class="total-cals">' + c + ' cal</span>' +
+        '<span class="macro"><span class="macro-label">P</span> <span class="macro-val">' + p + 'g</span></span>' +
+        '<span class="macro"><span class="macro-label">C</span> <span class="macro-val">' + cb + 'g</span></span>' +
+        '<span class="macro"><span class="macro-label">F</span> <span class="macro-val">' + f + 'g</span></span>' +
+        '</div></summary><div class="card-body">' + mealsHtml + '</div></details>';
     }
 
-    document.getElementById("content").innerHTML = html;
-  }
+    document.getElementById("content-area").innerHTML = html;
 
-  loadDiary();
+    // Wire up pill bar interactivity
+    var pillEls = document.querySelectorAll(".pill");
+    var activePill = null;
+    var first = document.querySelector('.pill[data-date="' + allDates[0] + '"]');
+    if (first) { first.className = "pill active"; activePill = first; }
+    var bar = document.getElementById("pill-bar");
+    if (bar && first) bar.scrollLeft = bar.scrollWidth;
+
+    function selectPill(pill) {
+      if (activePill) activePill.className = "pill";
+      pill.className = "pill active";
+      activePill = pill;
+      pill.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+
+    for (var i = 0; i < pillEls.length; i++) {
+      pillEls[i].addEventListener("click", function() {
+        var date = this.getAttribute("data-date");
+        var card = document.getElementById("day-" + date);
+        if (!card) return;
+        selectPill(this);
+        card.setAttribute("open", "");
+        card.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+
+    var cardEls = document.querySelectorAll("details.card");
+    for (var j = 0; j < cardEls.length; j++) {
+      cardEls[j].addEventListener("toggle", function() {
+        if (!this.hasAttribute("open")) return;
+        var date = this.id.replace("day-", "");
+        var pill = document.querySelector('.pill[data-date="' + date + '"]');
+        if (pill) selectPill(pill);
+      });
+    }
+  }
+})();
 </script>
 </body>
 </html>
