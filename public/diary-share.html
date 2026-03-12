@@ -355,7 +355,7 @@ footer a:hover { text-decoration: underline; }
           var qe = dayQA[qi];
           var qCals = Math.round(qe.calories || 0);
           var qText = qe.description ? esc(qe.description) : "Quick add";
-          qaHtml += '<div class="item"><span class="item-name">' + qText + ' <span class="badge">Quick Add</span></span><span class="item-cals">' + qCals + ' cal</span></div>';
+          qaHtml += '<div class="item"><span class="item-name">' + qText + '</span><span class="item-cals">' + qCals + ' cal</span></div>';
         }
         mealsHtml += '<div class="meal"><h3>Quick Adds</h3>' + qaHtml + '</div>';
       }
