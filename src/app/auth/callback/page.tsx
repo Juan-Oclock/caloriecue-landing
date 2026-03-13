@@ -16,45 +16,67 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const verifyToken = async () => {
-      const tokenHash = searchParams.get("token_hash");
-      const type = searchParams.get("type") as AuthType;
-
-      if (!tokenHash || !type) {
-        setState("error");
-        setErrorMessage("Invalid verification link. Please request a new one.");
-        return;
-      }
-
-      setAuthType(type);
-      setTokenHashForApp(tokenHash);
-
-      // For password recovery, DON'T verify server-side
-      // Pass the token to the app and let it handle verification
-      if (type === "recovery") {
+      // --- PKCE flow: Supabase verified the token server-side and redirected
+      // with a `code` param (auth code). No client-side verification needed.
+      const code = searchParams.get("code");
+      if (code) {
+        const type = (searchParams.get("type") as AuthType) || "signup";
+        setAuthType(type);
         setState("success");
         return;
       }
 
-      // For other types (signup, email_change, etc.), verify via server-side API route
-      try {
-        const res = await fetch("/api/auth/verify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token_hash: tokenHash, type }),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          setState("error");
-          setErrorMessage(data.error || "Verification failed. The link may have expired.");
-        } else {
-          setState("success");
-        }
-      } catch {
+      // --- Supabase error redirect: verification failed server-side
+      const error = searchParams.get("error");
+      const errorDesc = searchParams.get("error_description");
+      if (error) {
         setState("error");
-        setErrorMessage("Something went wrong. Please try again.");
+        setErrorMessage(
+          errorDesc || "Verification failed. The link may have expired."
+        );
+        return;
       }
+
+      // --- Legacy / non-PKCE fallback: token_hash + type present
+      const tokenHash = searchParams.get("token_hash");
+      const type = searchParams.get("type") as AuthType;
+
+      if (tokenHash && type) {
+        setAuthType(type);
+        setTokenHashForApp(tokenHash);
+
+        // For password recovery, pass the token to the app instead
+        if (type === "recovery") {
+          setState("success");
+          return;
+        }
+
+        // Verify via server-side API route (works for non-PKCE tokens)
+        try {
+          const res = await fetch("/api/auth/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token_hash: tokenHash, type }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            setState("error");
+            setErrorMessage(data.error || "Verification failed. The link may have expired.");
+          } else {
+            setState("success");
+          }
+        } catch {
+          setState("error");
+          setErrorMessage("Something went wrong. Please try again.");
+        }
+        return;
+      }
+
+      // --- No recognized params: show generic success
+      // This handles edge cases where Supabase redirects without params
+      setState("success");
     };
 
     verifyToken();
