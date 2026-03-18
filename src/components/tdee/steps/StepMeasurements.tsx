@@ -28,10 +28,10 @@ function UnitPill({
     <button
       type="button"
       onClick={onChange}
-      className="inline-flex items-center bg-muted/50 rounded-full border border-border text-[11px] font-medium overflow-hidden"
+      className="inline-flex items-center bg-muted/50 rounded-full border border-border text-xs font-medium overflow-hidden"
     >
       <span
-        className={`px-2 py-1 transition-all ${
+        className={`px-2.5 py-1.5 transition-all ${
           active === 0
             ? "bg-primary text-white"
             : "text-muted-foreground"
@@ -40,7 +40,7 @@ function UnitPill({
         {options[0]}
       </span>
       <span
-        className={`px-2 py-1 transition-all ${
+        className={`px-2.5 py-1.5 transition-all ${
           active === 1
             ? "bg-primary text-white"
             : "text-muted-foreground"
@@ -49,6 +49,37 @@ function UnitPill({
         {options[1]}
       </span>
     </button>
+  );
+}
+
+/* Inline label icons */
+function ClockIcon() {
+  return (
+    <svg className="w-3.5 h-3.5 text-muted-foreground/50 inline mr-1 -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6l4 2" />
+    </svg>
+  );
+}
+
+function ScaleIcon() {
+  return (
+    <svg className="w-3.5 h-3.5 text-muted-foreground/50 inline mr-1 -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3v17" />
+      <path d="M5 10l7-7 7 7" />
+      <rect x="4" y="17" rx="1" width="16" height="4" />
+    </svg>
+  );
+}
+
+function RulerIcon() {
+  return (
+    <svg className="w-3.5 h-3.5 text-muted-foreground/50 inline mr-1 -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="5" width="4" height="14" rx="1" />
+      <path d="M7 8h2" />
+      <path d="M7 11h3" />
+      <path d="M7 14h2" />
+    </svg>
   );
 }
 
@@ -73,7 +104,9 @@ export default function StepMeasurements({
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1.5">Age</label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+            <ClockIcon />Age
+          </label>
           <InputWithUnit
             value={age}
             onChange={(v) => onFieldChange("age", v)}
@@ -85,7 +118,9 @@ export default function StepMeasurements({
         </div>
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-xs font-medium text-muted-foreground">Weight</label>
+            <label className="text-xs font-medium text-muted-foreground">
+              <ScaleIcon />Weight
+            </label>
             <UnitPill
               options={["lbs", "kg"]}
               active={isImperial ? 0 : 1}
@@ -105,7 +140,9 @@ export default function StepMeasurements({
 
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <label className="text-xs font-medium text-muted-foreground">Height</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            <RulerIcon />Height
+          </label>
           <UnitPill
             options={["ft/in", "cm"]}
             active={isImperial ? 0 : 1}

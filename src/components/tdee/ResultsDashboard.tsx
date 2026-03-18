@@ -10,6 +10,7 @@ import { MEAL_SPLIT, BMI_CATEGORIES } from "@/lib/tdee/constants";
 
 const MacroBreakdown = dynamic(() => import("./MacroBreakdown"), { ssr: false });
 const WeeklyProjection = dynamic(() => import("./WeeklyProjection"), { ssr: false });
+const MealPlanCard = dynamic(() => import("./MealPlanCard"), { ssr: false });
 
 interface ResultsDashboardProps {
   results: TDEEResults;
@@ -25,6 +26,94 @@ const stagger = (i: number) => ({
   hidden: { opacity: 0, y: 16 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.35, delay: i * 0.06 } },
 });
+
+/* Meal icons */
+function SunriseIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2v4" />
+      <path d="M5.64 5.64l2.83 2.83" />
+      <path d="M18.36 5.64l-2.83 2.83" />
+      <path d="M2 14h4" />
+      <path d="M18 14h4" />
+      <path d="M6 14a6 6 0 0112 0" />
+    </svg>
+  );
+}
+
+function SunIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2" />
+      <path d="M12 20v2" />
+      <path d="M4.93 4.93l1.41 1.41" />
+      <path d="M17.66 17.66l1.41 1.41" />
+      <path d="M2 12h2" />
+      <path d="M20 12h2" />
+      <path d="M4.93 19.07l1.41-1.41" />
+      <path d="M17.66 6.34l1.41-1.41" />
+    </svg>
+  );
+}
+
+function MoonIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+    </svg>
+  );
+}
+
+function SparklesIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" />
+      <path d="M18 15l.75 2.25L21 18l-2.25.75L18 21l-.75-2.25L15 18l2.25-.75L18 15z" />
+    </svg>
+  );
+}
+
+const MEAL_ICONS: Record<string, React.FC<{ className?: string }>> = {
+  Breakfast: SunriseIcon,
+  Lunch: SunIcon,
+  Dinner: MoonIcon,
+  Snacks: SparklesIcon,
+};
+
+/* Goal arrow icons */
+function ArrowDownIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5v14" />
+      <path d="M19 12l-7 7-7-7" />
+    </svg>
+  );
+}
+
+function EqualsIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 9h14" />
+      <path d="M5 15h14" />
+    </svg>
+  );
+}
+
+function ArrowUpIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 19V5" />
+      <path d="M5 12l7-7 7 7" />
+    </svg>
+  );
+}
+
+const GOAL_ICONS: Record<string, React.FC<{ className?: string }>> = {
+  cut: ArrowDownIcon,
+  maintain: EqualsIcon,
+  bulk: ArrowUpIcon,
+};
 
 export default function ResultsDashboard({ results, weightKg, heightCm, gender, activityLevel, unitSystem, onRecalculate }: ResultsDashboardProps) {
   const [macroPlan, setMacroPlan] = useState<MacroPlan>("balanced");
@@ -57,6 +146,9 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
     { key: "bulk", label: "Gain", cal: results.tdee + calorieOffset, rate: formatRate("+") },
   ];
 
+  // Slider percentage for filled track
+  const sliderPercent = ((calorieOffset - 100) / (1000 - 100)) * 100;
+
   return (
     <div className="space-y-4">
       {/* Recalculate button */}
@@ -73,12 +165,16 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
       )}
 
       {/* TDEE hero card */}
-      <motion.div id="tdee-hero" variants={stagger(0)} initial="hidden" animate="visible" className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl px-6 py-5 text-white scroll-mt-20">
-        <p className="text-xs font-medium text-white/70 uppercase tracking-wider">TDEE</p>
-        <div className="text-4xl font-bold tracking-tight mt-1">
-          <AnimatedCounter target={results.tdee} />
+      <motion.div id="tdee-hero" variants={stagger(0)} initial="hidden" animate="visible" className="relative overflow-hidden bg-gradient-to-br from-primary to-primary-dark rounded-3xl px-6 py-6 text-white scroll-mt-20 shadow-glow">
+        {/* Decorative blob */}
+        <div aria-hidden="true" className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
+        <div className="relative">
+          <p className="text-xs font-medium text-white/70 uppercase tracking-wider">Your TDEE</p>
+          <div className="text-5xl md:text-6xl font-bold tracking-tight mt-1">
+            <AnimatedCounter target={results.tdee} />
+          </div>
+          <p className="text-sm text-white/60 mt-1">Total Daily Energy Expenditure &middot; cal/day</p>
         </div>
-        <p className="text-xs text-white/60 mt-1">cal/day</p>
       </motion.div>
 
       {/* BMR + BMI row */}
@@ -99,7 +195,14 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
           </div>
           {/* BMI visual scale */}
           <div className="mt-3">
-            <div className="flex h-1.5 rounded-full overflow-hidden">
+            {/* Category labels */}
+            <div className="flex text-[10px] text-muted-foreground/60 mb-1">
+              <span className="flex-[18.5] text-center">Underweight</span>
+              <span className="flex-[6.5] text-center">Normal</span>
+              <span className="flex-[5] text-center">Over</span>
+              <span className="flex-[10] text-center">Obese</span>
+            </div>
+            <div className="flex h-2.5 rounded-full overflow-hidden">
               <div className="bg-blue-400 flex-[18.5]" />
               <div className="bg-green-400 flex-[6.5]" />
               <div className="bg-amber-400 flex-[5]" />
@@ -110,10 +213,10 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
                 className="absolute -translate-x-1/2"
                 style={{ left: `${Math.min(Math.max((results.bmi / 40) * 100, 2), 98)}%` }}
               >
-                <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-b-[5px] border-transparent border-b-foreground mx-auto" />
+                <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-b-[6px] border-transparent border-b-primary mx-auto" />
               </div>
             </div>
-            <div className="flex justify-between text-[9px] text-muted-foreground/60 -mt-0.5">
+            <div className="flex justify-between text-[11px] text-muted-foreground/60 -mt-0.5">
               <span>18.5</span>
               <span>25</span>
               <span>30</span>
@@ -127,21 +230,25 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
       <motion.div variants={stagger(3)} initial="hidden" animate="visible" className="bg-white rounded-2xl border border-border px-6 py-5">
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">Daily Calorie Goal</p>
         <div className="grid grid-cols-3 gap-3">
-          {goals.map((g) => (
-            <button
-              key={g.key}
-              onClick={() => setGoal(g.key)}
-              className={`rounded-xl py-3.5 px-4 text-center transition-all ${
-                goal === g.key
-                  ? "bg-primary-50 ring-1 ring-primary/30"
-                  : "bg-muted/40 hover:bg-muted/70"
-              }`}
-            >
-              <div className={`text-xl font-bold ${goal === g.key ? "text-primary" : "text-foreground"}`}>{g.cal}</div>
-              <div className="text-xs text-muted-foreground leading-tight mt-0.5">{g.label}</div>
-              {g.rate && <div className="text-[11px] text-primary/70 font-medium mt-1">{g.rate}</div>}
-            </button>
-          ))}
+          {goals.map((g) => {
+            const GoalIcon = GOAL_ICONS[g.key];
+            return (
+              <button
+                key={g.key}
+                onClick={() => setGoal(g.key)}
+                className={`rounded-xl py-3.5 px-4 text-center transition-all ${
+                  goal === g.key
+                    ? "bg-primary-50 ring-1 ring-primary/30"
+                    : "bg-muted/40 hover:bg-muted/70"
+                }`}
+              >
+                <GoalIcon className={`w-5 h-5 mx-auto mb-1.5 ${goal === g.key ? "text-primary" : "text-muted-foreground/50"}`} />
+                <div className={`text-xl font-bold ${goal === g.key ? "text-primary" : "text-foreground"}`}>{g.cal}</div>
+                <div className="text-xs text-muted-foreground leading-tight mt-0.5">{g.label}</div>
+                {g.rate && <div className="text-[11px] text-primary/70 font-medium mt-1">{g.rate}</div>}
+              </button>
+            );
+          })}
         </div>
 
         {/* Custom calorie offset slider */}
@@ -155,17 +262,28 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
                 {goal === "cut" ? "-" : "+"}{calorieOffset} cal/day
               </span>
             </div>
-            <input
-              type="range"
-              min={100}
-              max={1000}
-              step={50}
-              value={calorieOffset}
-              onChange={(e) => setCalorieOffset(Number(e.target.value))}
-              className="w-full h-2 bg-muted rounded-full appearance-none cursor-pointer accent-primary [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
-            />
+            <div className="relative">
+              <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-2 bg-muted rounded-full pointer-events-none">
+                <div
+                  className="h-full bg-primary/20 rounded-full transition-all"
+                  style={{ width: `${sliderPercent}%` }}
+                />
+              </div>
+              <input
+                type="range"
+                min={100}
+                max={1000}
+                step={50}
+                value={calorieOffset}
+                onChange={(e) => setCalorieOffset(Number(e.target.value))}
+                className="relative w-full h-2 bg-transparent appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:bg-transparent"
+              />
+            </div>
             <div className="flex justify-between mt-1.5 text-[11px] text-muted-foreground/60">
               <span>100</span>
+              <span>250</span>
+              <span>500</span>
+              <span>750</span>
               <span>1000</span>
             </div>
           </div>
@@ -184,10 +302,14 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
           <div className="space-y-4">
             {MEAL_SPLIT.map((meal) => {
               const cal = Math.round(goalCal * (meal.percent / 100));
+              const MealIcon = MEAL_ICONS[meal.label];
               return (
                 <div key={meal.label}>
                   <div className="flex justify-between text-sm mb-1.5">
-                    <span className="font-medium text-foreground">{meal.label}</span>
+                    <span className="font-medium text-foreground inline-flex items-center gap-1.5">
+                      {MealIcon && <MealIcon className="w-3.5 h-3.5 text-muted-foreground/50" />}
+                      {meal.label}
+                    </span>
                     <span className="text-muted-foreground">{cal}</span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -199,6 +321,16 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
           </div>
         </motion.div>
       </div>
+
+      {/* Row 3b: AI Meal Plan */}
+      <motion.div variants={stagger(5.5)} initial="hidden" animate="visible">
+        <MealPlanCard
+          calories={goalCal}
+          protein={macros.protein}
+          carbs={macros.carbs}
+          fat={macros.fat}
+        />
+      </motion.div>
 
       {/* Row 4: Weight projection */}
       <motion.div variants={stagger(6)} initial="hidden" animate="visible" className="bg-white rounded-2xl border border-border px-6 py-5">
@@ -224,7 +356,7 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
           ].map((row) => {
             const tdee = Math.round(row.bmr * (results.tdee / results.bmr.mifflinStJeor));
             return (
-              <div key={row.name} className="flex items-center justify-between py-3 border-b border-border/50 last:border-0">
+              <div key={row.name} className={`flex items-center justify-between py-3 border-b border-border/50 last:border-0 ${row.primary ? "border-l-2 border-l-primary pl-3" : ""}`}>
                 <div className="flex items-center gap-2.5">
                   <span className="text-sm text-foreground">{row.name}</span>
                   {row.primary && (

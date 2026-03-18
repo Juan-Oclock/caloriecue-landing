@@ -206,6 +206,68 @@ const TDEE_FAQ = [
   },
 ];
 
+// --- Educational card config ---
+const EDU_CARDS = [
+  {
+    title: "What is TDEE?",
+    body: "Total Daily Energy Expenditure (TDEE) is the total number of calories you burn each day. It combines your Basal Metabolic Rate (BMR) \u2014 the energy your body uses at rest \u2014 with the calories burned through physical activity, digestion, and daily movement. Understanding your TDEE is the single most important step in building an effective nutrition plan.",
+    iconBg: "bg-primary-50",
+    iconColor: "text-primary",
+    borderColor: "border-t-primary",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2c.5 3.5 4 6 4 10a6 6 0 01-12 0c0-4 3.5-6.5 4-10 1 2 3 3 4 0z" />
+      </svg>
+    ),
+  },
+  {
+    title: "How to Calculate TDEE",
+    body: "Calculating your TDEE is a two-step process. First, estimate your BMR using a validated formula like the Mifflin-St Jeor equation, which uses your age, weight, height, and gender. Then multiply your BMR by an activity factor that reflects your lifestyle and exercise habits. The result is your estimated daily calorie burn.",
+    iconBg: "bg-blue-50",
+    iconColor: "text-blue-500",
+    borderColor: "border-t-blue-500",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="2" width="16" height="20" rx="2" />
+        <path d="M8 6h8" />
+        <path d="M8 10h8" />
+        <path d="M8 14h4" />
+        <circle cx="15" cy="17" r="2" />
+      </svg>
+    ),
+  },
+  {
+    title: "BMR vs TDEE",
+    body: "Your BMR is the number of calories your body needs to perform basic life-sustaining functions \u2014 breathing, blood circulation, cell production, and brain function. It typically accounts for 60-75% of your total daily calorie expenditure. Your TDEE adds physical activity and the thermic effect of food on top of your BMR, giving you a complete picture of your daily energy needs.",
+    iconBg: "bg-teal-50",
+    iconColor: "text-teal-500",
+    borderColor: "border-t-teal-500",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 20V10" />
+        <path d="M12 20V4" />
+        <path d="M6 20v-6" />
+      </svg>
+    ),
+  },
+  {
+    title: "Activity Level Guide",
+    body: "Choosing the right activity level is crucial for an accurate TDEE estimate. Sedentary means desk work with minimal movement. Lightly active includes 1-3 days of light exercise per week. Moderately active covers 3-5 days of moderate exercise. Very active means hard exercise 6-7 days per week. Extra active combines intense daily exercise with a physically demanding job. When in doubt, choose a lower level \u2014 it\u2019s better to underestimate and eat slightly more than to overestimate your activity.",
+    iconBg: "bg-amber-50",
+    iconColor: "text-amber-500",
+    borderColor: "border-t-amber-500",
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="14" cy="4" r="2" />
+        <path d="M4 17l3-3 3 1 4-4" />
+        <path d="M14 10l2-1 4 4" />
+        <path d="M10 15l-2 6" />
+        <path d="M14 10l-1 6h3" />
+      </svg>
+    ),
+  },
+];
+
 export default function TDEECalculatorClient() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
@@ -264,15 +326,38 @@ export default function TDEECalculatorClient() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Compact Hero */}
-      <section className="pt-20 pb-4 md:pt-28 md:pb-8 px-4 mesh-bg">
-        <div className="max-w-lg mx-auto text-center">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1.5">
+      {/* Enhanced Hero */}
+      <section className="relative overflow-hidden pt-24 pb-10 md:pt-32 md:pb-14 px-4 mesh-bg">
+        {/* Decorative blobs */}
+        <div aria-hidden="true" className="absolute top-10 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
+        <div aria-hidden="true" className="absolute bottom-0 right-1/4 w-64 h-64 bg-accent-blue/5 rounded-full blur-3xl" />
+
+        <div className="relative max-w-2xl mx-auto text-center">
+          {/* Fire icon */}
+          <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary-50 mb-4">
+            <svg className="w-5 h-5 text-primary animate-pulse-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2c.5 3.5 4 6 4 10a6 6 0 01-12 0c0-4 3.5-6.5 4-10 1 2 3 3 4 0z" />
+            </svg>
+          </div>
+
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
             TDEE <span className="text-gradient">Calculator</span>
           </h1>
-          <p className="text-muted-foreground text-sm md:text-base">
-            Find out how many calories you burn each day.
+          <p className="text-muted-foreground text-sm md:text-base max-w-lg mx-auto">
+            Calculate your Total Daily Energy Expenditure using science-backed formulas. Free, instant, and comprehensive.
           </p>
+
+          {/* Trust pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
+            {["Science-backed formulas", "Instant results", "100% free"].map((pill) => (
+              <span key={pill} className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-white/80 border border-border rounded-full px-3 py-1.5">
+                <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                {pill}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -406,25 +491,39 @@ export default function TDEECalculatorClient() {
             transition={{ duration: 0.5, delay: 0.6 }}
             className="px-4 pb-16 md:pb-20"
           >
-            <div className="max-w-3xl mx-auto bg-gradient-to-r from-primary to-primary-dark rounded-3xl p-8 md:p-10 text-center text-white shadow-glow">
-              <h2 className="text-2xl md:text-3xl font-bold mb-3">
-                You burn ~{state.results.tdee.toLocaleString()} calories/day
-              </h2>
-              <p className="text-white/80 mb-6 max-w-lg mx-auto">
-                Let CalorieCue track your intake automatically with AI-powered photo scanning.
-                Hit your calorie goals without the manual logging.
-              </p>
-              <a
-                href="https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-white text-primary font-semibold px-6 py-3 rounded-xl hover:bg-white/90 transition-colors shadow-soft"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-                </svg>
-                Download CalorieCue Free
-              </a>
+            <div className="relative overflow-hidden max-w-3xl mx-auto bg-gradient-to-r from-primary to-primary-dark rounded-3xl p-8 md:p-10 text-center text-white shadow-glow-lg">
+              {/* Decorative blobs */}
+              <div aria-hidden="true" className="absolute top-0 left-1/4 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
+              <div aria-hidden="true" className="absolute bottom-0 right-1/3 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
+
+              <div className="relative">
+                <h2 className="text-2xl md:text-3xl font-bold mb-3 inline-flex items-center gap-2 flex-wrap justify-center">
+                  You burn ~
+                  <span className="inline-flex items-center gap-1.5">
+                    <svg className="w-6 h-6 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2c.5 3.5 4 6 4 10a6 6 0 01-12 0c0-4 3.5-6.5 4-10 1 2 3 3 4 0z" />
+                    </svg>
+                    {state.results.tdee.toLocaleString()}
+                  </span>
+                  {" "}calories/day
+                </h2>
+                <p className="text-white/80 mb-2 max-w-lg mx-auto">
+                  Let CalorieCue track your intake automatically with AI-powered photo scanning.
+                  Hit your calorie goals without the manual logging.
+                </p>
+                <p className="text-white/60 text-sm mb-6">Trusted by 700+ users on iOS</p>
+                <a
+                  href="https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-white text-primary font-semibold px-6 py-3 rounded-xl hover:bg-white/90 transition-colors shadow-soft"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+                  </svg>
+                  Download CalorieCue Free
+                </a>
+              </div>
             </div>
           </motion.section>
         )}
@@ -440,54 +539,17 @@ export default function TDEECalculatorClient() {
           </FadeIn>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FadeIn>
-              <div className="bg-white rounded-2xl border border-border p-6 h-full">
-                <h3 className="text-base font-semibold text-foreground mb-2">What is TDEE?</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Total Daily Energy Expenditure (TDEE) is the total number of calories you burn each day. It combines your
-                  Basal Metabolic Rate (BMR) &mdash; the energy your body uses at rest &mdash; with the calories burned through physical
-                  activity, digestion, and daily movement. Understanding your TDEE is the single most important step in building
-                  an effective nutrition plan.
-                </p>
-              </div>
-            </FadeIn>
-
-            <FadeIn>
-              <div className="bg-white rounded-2xl border border-border p-6 h-full">
-                <h3 className="text-base font-semibold text-foreground mb-2">How to Calculate TDEE</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Calculating your TDEE is a two-step process. First, estimate your BMR using a validated formula like the
-                  Mifflin-St Jeor equation, which uses your age, weight, height, and gender. Then multiply your BMR by an
-                  activity factor that reflects your lifestyle and exercise habits. The result is your estimated daily calorie burn.
-                </p>
-              </div>
-            </FadeIn>
-
-            <FadeIn>
-              <div className="bg-white rounded-2xl border border-border p-6 h-full">
-                <h3 className="text-base font-semibold text-foreground mb-2">BMR vs TDEE</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Your BMR is the number of calories your body needs to perform basic life-sustaining functions &mdash; breathing,
-                  blood circulation, cell production, and brain function. It typically accounts for 60-75% of your total daily
-                  calorie expenditure. Your TDEE adds physical activity and the thermic effect of food on top of your BMR,
-                  giving you a complete picture of your daily energy needs.
-                </p>
-              </div>
-            </FadeIn>
-
-            <FadeIn>
-              <div className="bg-white rounded-2xl border border-border p-6 h-full">
-                <h3 className="text-base font-semibold text-foreground mb-2">Activity Level Guide</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Choosing the right activity level is crucial for an accurate TDEE estimate. <strong>Sedentary</strong> means
-                  desk work with minimal movement. <strong>Lightly active</strong> includes 1-3 days of light exercise per week.
-                  <strong> Moderately active</strong> covers 3-5 days of moderate exercise. <strong>Very active</strong> means
-                  hard exercise 6-7 days per week. <strong>Extra active</strong> combines intense daily exercise with a
-                  physically demanding job. When in doubt, choose a lower level &mdash; it&apos;s better to underestimate and eat slightly
-                  more than to overestimate your activity.
-                </p>
-              </div>
-            </FadeIn>
+            {EDU_CARDS.map((card) => (
+              <FadeIn key={card.title}>
+                <div className={`bg-white rounded-2xl border border-border border-t-2 ${card.borderColor} p-6 h-full hover:shadow-soft hover:border-primary/20 hover:-translate-y-0.5 transition-all duration-300`}>
+                  <div className={`w-10 h-10 rounded-xl ${card.iconBg} ${card.iconColor} flex items-center justify-center mb-3`}>
+                    {card.icon}
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-2">{card.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{card.body}</p>
+                </div>
+              </FadeIn>
+            ))}
           </div>
         </div>
       </section>
@@ -497,6 +559,7 @@ export default function TDEECalculatorClient() {
         <div className="max-w-3xl mx-auto">
           <FadeIn>
             <div className="text-center mb-10">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary-dark mb-2 block">FAQ</span>
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
                 Frequently Asked Questions
               </h2>
@@ -516,14 +579,23 @@ export default function TDEECalculatorClient() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-30px" }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
-                  className="bg-white rounded-3xl border border-border overflow-hidden"
+                  className={`bg-white rounded-3xl border overflow-hidden transition-all duration-300 ${
+                    isOpen ? "border-primary/20 shadow-soft" : "border-border"
+                  }`}
                 >
                   <button
                     onClick={() => setFaqOpen(isOpen ? null : index)}
                     aria-expanded={isOpen}
                     className="w-full flex items-center justify-between gap-4 p-6 text-left"
                   >
-                    <span className="text-base font-semibold text-foreground">{item.question}</span>
+                    <div className="flex items-center gap-3">
+                      <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-semibold transition-colors ${
+                        isOpen ? "bg-primary/10 text-primary" : "bg-primary/5 text-primary"
+                      }`}>
+                        {index + 1}
+                      </span>
+                      <span className="text-base font-semibold text-foreground">{item.question}</span>
+                    </div>
                     <div
                       className={`flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center transition-transform duration-300 ${
                         isOpen ? "rotate-45" : ""
@@ -543,7 +615,7 @@ export default function TDEECalculatorClient() {
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                         className="overflow-hidden"
                       >
-                        <p className="px-6 pb-6 text-muted-foreground leading-relaxed">{item.answer}</p>
+                        <p className="px-6 pb-6 pl-15 text-muted-foreground leading-relaxed">{item.answer}</p>
                       </motion.div>
                     )}
                   </AnimatePresence>
