@@ -11,25 +11,25 @@ export default function Footer() {
           <nav aria-label="Footer" className="flex items-center gap-6 text-sm">
             <Link
               href="/blog"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors underline decoration-muted-foreground/30 underline-offset-4"
             >
               Blog
             </Link>
             <Link
               href="/privacy"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors underline decoration-muted-foreground/30 underline-offset-4"
             >
               Privacy
             </Link>
             <Link
               href="/terms"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors underline decoration-muted-foreground/30 underline-offset-4"
             >
               Terms
             </Link>
             <Link
               href="/support"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors underline decoration-muted-foreground/30 underline-offset-4"
             >
               Support
             </Link>
@@ -45,7 +45,7 @@ export default function Footer() {
                 href="https://juan-oclock.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:underline"
+                className="text-primary-dark underline underline-offset-2 hover:text-primary-dark/80"
               >
                 Juan Oclock
               </a>

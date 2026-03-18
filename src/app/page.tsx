@@ -308,7 +308,7 @@ export default async function Home() {
 
         <div className="max-w-6xl mx-auto">
           <FadeInCSS className="text-center mb-16">
-            <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
+            <span className="inline-block text-primary-dark font-medium text-sm mb-3 uppercase tracking-wider">
               Features
             </span>
             <h2 className="text-display-mobile md:text-display text-foreground mb-4">
@@ -340,7 +340,7 @@ export default async function Home() {
 
               <div className="relative h-full flex flex-col">
                 {/* Badge */}
-                <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full w-fit mb-5">
+                <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary-dark text-xs font-semibold px-3 py-1 rounded-full w-fit mb-5">
                   <svg
                     className="w-3 h-3"
                     fill="currentColor"
@@ -405,7 +405,7 @@ export default async function Home() {
 
                     {/* Result chip */}
                     <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm border border-primary/20 rounded-full px-3.5 py-1 shadow-sm whitespace-nowrap">
-                      <span className="text-[11px] font-medium text-primary flex items-center gap-1">
+                      <span className="text-[11px] font-medium text-primary-dark flex items-center gap-1">
                         <svg
                           className="w-3 h-3"
                           fill="currentColor"
@@ -555,7 +555,7 @@ export default async function Home() {
       <section className="py-20 md:py-28 px-4 bg-background">
         <div className="max-w-4xl mx-auto">
           <FadeInCSS className="text-center mb-12">
-            <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
+            <span className="inline-block text-primary-dark font-medium text-sm mb-3 uppercase tracking-wider">
               Preview
             </span>
             <h2 className="text-display-mobile md:text-display text-foreground mb-4">
@@ -578,7 +578,7 @@ export default async function Home() {
       <section className="py-24 md:py-32 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
           <FadeInCSS className="text-center mb-16">
-            <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
+            <span className="inline-block text-primary-dark font-medium text-sm mb-3 uppercase tracking-wider">
               Reviews
             </span>
             <h2 className="text-display-mobile md:text-display text-foreground mb-4">
@@ -657,7 +657,7 @@ export default async function Home() {
       <section className="py-24 md:py-32 px-4 bg-background">
         <div className="max-w-5xl mx-auto">
           <FadeInCSS className="text-center mb-16 md:mb-20">
-            <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
+            <span className="inline-block text-primary-dark font-medium text-sm mb-3 uppercase tracking-wider">
               How It Works
             </span>
             <h2 className="text-display-mobile md:text-display text-foreground mb-4">
@@ -749,7 +749,7 @@ export default async function Home() {
                   </div>
                   {/* Step number badge */}
                   <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-white border-2 border-primary flex items-center justify-center shadow-sm">
-                    <span className="text-[10px] font-bold text-primary">
+                    <span className="text-[10px] font-bold text-primary-dark">
                       {item.step}
                     </span>
                   </div>
@@ -790,7 +790,7 @@ export default async function Home() {
 
         <div className="max-w-3xl mx-auto text-center">
           <FadeInCSS>
-            <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
+            <span className="inline-block text-primary-dark font-medium text-sm mb-3 uppercase tracking-wider">
               Get Started
             </span>
             <h2 className="text-display-mobile md:text-display text-foreground mb-4">

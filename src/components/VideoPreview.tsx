@@ -103,6 +103,7 @@ export default function VideoPreview({
       >
         {webmSrc && <source src={webmSrc} type="video/webm" />}
         <source src={mp4Src} type="video/mp4" />
+        <track kind="captions" src="/caloriecue-demo-captions.vtt" srcLang="en" label="English" default />
         Your browser does not support the video tag.
       </video>
 
