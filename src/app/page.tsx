@@ -4,10 +4,9 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import FeatureCard from "@/components/FeatureCard";
 import AppStoreButton from "@/components/AppStoreButton";
-import FadeIn from "@/components/FadeIn";
+import FadeInCSS from "@/components/FadeInCSS";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import ScanLineAnimation from "@/components/ScanLineAnimation";
-import WaitlistForm from "@/components/WaitlistForm";
 const PricingSection = dynamic(() => import("@/components/PricingSection"));
 const FAQSection = dynamic(() => import("@/components/FAQSection"));
 const VideoPreview = dynamic(() => import("@/components/VideoPreview"));
@@ -148,31 +147,29 @@ export default async function Home() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             {/* Left: Content */}
             <div className="text-center lg:text-left">
-              <FadeIn delay={0.1} trigger="onMount">
+              <div className="hero-fade-up animation-delay-100">
                 <h1 className="text-hero-mobile md:text-hero text-foreground mb-6">
                   Snap a Photo.
                   <br />
                   <span className="text-gradient">Know Your Calories.</span>
                 </h1>
-              </FadeIn>
+              </div>
 
-              <FadeIn delay={0.2} trigger="onMount">
+              <div className="hero-fade-up animation-delay-200">
                 <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
                   Point your camera at any meal — CalorieCue&apos;s AI identifies
                   your food and tracks nutrition in 3 seconds.
                 </p>
-              </FadeIn>
+              </div>
 
-              <FadeIn delay={0.3} trigger="onMount">
+              <div className="hero-fade-up animation-delay-300">
                 <div className="space-y-5">
                   <AppStoreButton variant="hero" hideTagline />
-
-                  {/* Waitlist divider */}
                 </div>
-              </FadeIn>
+              </div>
 
               {/* Trust indicators */}
-              <FadeIn delay={0.5} y={0} trigger="onMount">
+              <div className="hero-fade-in animation-delay-500">
                 <div className="mt-10 flex flex-wrap items-center gap-3 sm:gap-6 justify-center lg:justify-start text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <svg
@@ -220,11 +217,11 @@ export default async function Home() {
                     <span>Privacy first</span>
                   </div>
                 </div>
-              </FadeIn>
+              </div>
             </div>
 
             {/* Right: Hero Image */}
-            <FadeIn delay={0.2} y={40} duration={0.8} trigger="onMount" className="flex justify-center lg:justify-end">
+            <div className="flex justify-center lg:justify-end hero-image-enter">
               <div className="relative">
                 {/* Layer 1: Ambient shadow */}
                 <div
@@ -245,15 +242,16 @@ export default async function Home() {
                   aria-hidden="true"
                 />
                 <Image
-                  src="/mockup-caloriecue.png"
+                  src="/mockup-caloriecue.webp"
                   alt="CalorieCue AI scanning a meal"
                   width={340}
                   height={680}
                   priority
+                  sizes="(max-width: 768px) 260px, 340px"
                   className="relative z-10 w-[260px] md:w-[340px] h-auto"
                 />
               </div>
-            </FadeIn>
+            </div>
           </div>
         </div>
       </section>
@@ -262,41 +260,41 @@ export default async function Home() {
       <section className="py-14 md:py-16 px-4 bg-background border-y border-border">
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12 text-center">
-            <FadeIn>
+            <FadeInCSS>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
                 <AnimatedCounter target={stats.total_users} suffix="+" />
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 Active Users
               </p>
-            </FadeIn>
+            </FadeInCSS>
 
-            <FadeIn delay={0.1}>
+            <FadeInCSS delay={0.1}>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
                 <AnimatedCounter target={stats.meals_scanned} suffix="+" />
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 Meals Scanned
               </p>
-            </FadeIn>
+            </FadeInCSS>
 
-            <FadeIn delay={0.2}>
+            <FadeInCSS delay={0.2}>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
                 <AnimatedCounter target={stats.calories_logged} suffix="+" />
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 Calories Logged
               </p>
-            </FadeIn>
+            </FadeInCSS>
 
-            <FadeIn delay={0.3}>
+            <FadeInCSS delay={0.3}>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
                 {Number(stats.app_store_rating).toFixed(1)}
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 App Store Rating
               </p>
-            </FadeIn>
+            </FadeInCSS>
           </div>
         </div>
       </section>
@@ -309,7 +307,7 @@ export default async function Home() {
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-blue/5 rounded-full blur-[100px] -z-10" />
 
         <div className="max-w-6xl mx-auto">
-          <FadeIn className="text-center mb-16">
+          <FadeInCSS className="text-center mb-16">
             <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
               Features
             </span>
@@ -320,12 +318,12 @@ export default async function Home() {
               Everything you need to take control of your nutrition with
               intelligent assistance.
             </p>
-          </FadeIn>
+          </FadeInCSS>
 
           {/* Bento Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 lg:[grid-auto-rows:minmax(200px,auto)]">
             {/* Hero Card: AI Meal Scanning - spans 2 cols, 2 rows on lg */}
-            <FadeIn
+            <FadeInCSS
               y={30}
               viewportMargin="-50px"
               className="md:col-span-2 lg:col-span-2 lg:row-span-2 group relative bg-gradient-to-br from-primary-50 via-white to-orange-50/30 rounded-3xl border border-primary-100/60 p-7 md:p-8 overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/10"
@@ -425,7 +423,7 @@ export default async function Home() {
                   </div>
                 </div>
               </div>
-            </FadeIn>
+            </FadeInCSS>
 
             {/* AI Coach - spans 2 cols on lg */}
             <FeatureCard
@@ -556,7 +554,7 @@ export default async function Home() {
       {/* App Preview Section */}
       <section className="py-20 md:py-28 px-4 bg-background">
         <div className="max-w-4xl mx-auto">
-          <FadeIn className="text-center mb-12">
+          <FadeInCSS className="text-center mb-12">
             <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
               Preview
             </span>
@@ -566,7 +564,7 @@ export default async function Home() {
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Watch how easy it is to track your nutrition with CalorieCue.
             </p>
-          </FadeIn>
+          </FadeInCSS>
 
           {/* Video */}
           <VideoPreview
@@ -579,7 +577,7 @@ export default async function Home() {
       {/* Testimonials Section */}
       <section className="py-24 md:py-32 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <FadeIn className="text-center mb-16">
+          <FadeInCSS className="text-center mb-16">
             <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
               Reviews
             </span>
@@ -589,7 +587,7 @@ export default async function Home() {
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               See what people are saying on the App Store.
             </p>
-          </FadeIn>
+          </FadeInCSS>
 
           <div className="grid md:grid-cols-3 gap-5 lg:gap-6">
             {[
@@ -609,7 +607,7 @@ export default async function Home() {
                 text: "I really like this app because it\u2019s very easy to navigate and user-friendly. Logging food is much easier, especially with the photo feature where the AI scans the food and automatically calculates the calories.",
               },
             ].map((review, index) => (
-              <FadeIn
+              <FadeInCSS
                 key={index}
                 y={30}
                 delay={index * 0.1}
@@ -649,7 +647,7 @@ export default async function Home() {
                     </p>
                   </div>
                 </div>
-              </FadeIn>
+              </FadeInCSS>
             ))}
           </div>
         </div>
@@ -658,7 +656,7 @@ export default async function Home() {
       {/* How It Works Section */}
       <section className="py-24 md:py-32 px-4 bg-background">
         <div className="max-w-5xl mx-auto">
-          <FadeIn className="text-center mb-16 md:mb-20">
+          <FadeInCSS className="text-center mb-16 md:mb-20">
             <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
               How It Works
             </span>
@@ -668,7 +666,7 @@ export default async function Home() {
             <p className="text-muted-foreground text-lg">
               Begin your journey to better nutrition in minutes.
             </p>
-          </FadeIn>
+          </FadeInCSS>
 
           <div className="grid md:grid-cols-3 gap-10 md:gap-6 lg:gap-10">
             {[
@@ -737,7 +735,7 @@ export default async function Home() {
                 ),
               },
             ].map((item, index) => (
-              <FadeIn
+              <FadeInCSS
                 key={item.step}
                 y={30}
                 delay={index * 0.15}
@@ -769,7 +767,7 @@ export default async function Home() {
                 {index < 2 && (
                   <div className="hidden md:block absolute top-8 left-[58%] w-[84%] border-t-2 border-dashed border-primary/20" />
                 )}
-              </FadeIn>
+              </FadeInCSS>
             ))}
           </div>
         </div>
@@ -791,7 +789,7 @@ export default async function Home() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[150px] -z-10" />
 
         <div className="max-w-3xl mx-auto text-center">
-          <FadeIn>
+          <FadeInCSS>
             <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
               Get Started
             </span>
@@ -803,7 +801,7 @@ export default async function Home() {
             </p>
 
             <AppStoreButton variant="hero" centered />
-          </FadeIn>
+          </FadeInCSS>
         </div>
       </section>
 

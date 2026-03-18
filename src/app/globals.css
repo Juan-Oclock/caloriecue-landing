@@ -265,3 +265,79 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Hero section CSS animations */
+@keyframes heroImageEnter {
+  from { transform: translateY(40px); }
+  to { transform: translateY(0); }
+}
+
+@keyframes floatParticle {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  40% { transform: translateY(-80px) scale(1); opacity: 1; }
+  100% { transform: translateY(-120px) scale(0.5); opacity: 0; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.08); opacity: 0.1; }
+}
+
+@keyframes glowPulseOuter {
+  0%, 100% { transform: scale(1); opacity: 0.2; }
+  50% { transform: scale(1.12); opacity: 0.05; }
+}
+
+@keyframes scanLine {
+  0%, 100% { top: 15%; }
+  50% { top: 85%; }
+}
+
+.hero-image-enter {
+  animation: heroImageEnter 0.8s ease-out 0.2s both;
+}
+
+.hero-fade-up {
+  animation: fadeUp 0.6s ease-out both;
+}
+
+.hero-fade-in {
+  animation: fadeIn 0.6s ease-out both;
+}
+
+.animation-delay-100 { animation-delay: 100ms; }
+.animation-delay-200 { animation-delay: 200ms; }
+.animation-delay-300 { animation-delay: 300ms; }
+.animation-delay-400 { animation-delay: 400ms; }
+.animation-delay-500 { animation-delay: 500ms; }
+
+.animate-float-particle {
+  animation: floatParticle 2.5s ease-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.animate-glow-pulse-outer {
+  animation: glowPulseOuter 2s ease-in-out infinite 0.3s;
+}
+
+.scan-line {
+  animation: scanLine 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-image-enter,
+  .hero-fade-up,
+  .hero-fade-in {
+    animation: none;
+  }
+
+  .animate-float-particle,
+  .animate-glow-pulse,
+  .animate-glow-pulse-outer,
+  .scan-line {
+    display: none;
+  }
+}

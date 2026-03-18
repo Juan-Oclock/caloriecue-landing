@@ -55,7 +55,6 @@ export const metadata: Metadata = {
 };
 
 const webAppJsonLd = {
-  "@context": "https://schema.org",
   "@type": "WebApplication",
   name: "CalorieCue TDEE Calculator",
   applicationCategory: "HealthApplication",
@@ -71,7 +70,6 @@ const webAppJsonLd = {
 };
 
 const faqJsonLd = {
-  "@context": "https://schema.org",
   "@type": "FAQPage",
   mainEntity: [
     {
@@ -118,7 +116,6 @@ const faqJsonLd = {
 };
 
 const breadcrumbJsonLd = {
-  "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: [
     {
@@ -137,7 +134,6 @@ const breadcrumbJsonLd = {
 };
 
 const howToJsonLd = {
-  "@context": "https://schema.org",
   "@type": "HowTo",
   name: "How to Calculate Your TDEE",
   description:
@@ -180,19 +176,12 @@ export default function TDEECalculatorPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [webAppJsonLd, faqJsonLd, breadcrumbJsonLd, howToJsonLd],
+          }),
+        }}
       />
       <Navigation />
       <main>

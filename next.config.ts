@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   // Normalize trailing slashes - prevents duplicate URL issues for SEO
   trailingSlash: false,
 
+  // Serve optimized image formats
+  images: {
+    formats: ['image/avif', 'image/webp'],
+  },
+
   async headers() {
     return [
       {
