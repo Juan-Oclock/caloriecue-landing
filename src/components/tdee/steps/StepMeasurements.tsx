@@ -102,40 +102,38 @@ export default function StepMeasurements({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-            <ClockIcon />Age
+      <div>
+        <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+          <ClockIcon />Age
+        </label>
+        <InputWithUnit
+          value={age}
+          onChange={(v) => onFieldChange("age", v)}
+          placeholder="28"
+          unit="yrs"
+          min="1"
+          max="120"
+        />
+      </div>
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="text-xs font-medium text-muted-foreground">
+            <ScaleIcon />Weight
           </label>
-          <InputWithUnit
-            value={age}
-            onChange={(v) => onFieldChange("age", v)}
-            placeholder="28"
-            unit="yrs"
-            min="1"
-            max="120"
+          <UnitPill
+            options={["lbs", "kg"]}
+            active={isImperial ? 0 : 1}
+            onChange={toggle}
           />
         </div>
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="text-xs font-medium text-muted-foreground">
-              <ScaleIcon />Weight
-            </label>
-            <UnitPill
-              options={["lbs", "kg"]}
-              active={isImperial ? 0 : 1}
-              onChange={toggle}
-            />
-          </div>
-          <InputWithUnit
-            value={isImperial ? weightLbs : weightKg}
-            onChange={(v) => onFieldChange(isImperial ? "weightLbs" : "weightKg", v)}
-            placeholder={isImperial ? "180" : "82"}
-            unit={isImperial ? "lbs" : "kg"}
-            min="1"
-            step="0.1"
-          />
-        </div>
+        <InputWithUnit
+          value={isImperial ? weightLbs : weightKg}
+          onChange={(v) => onFieldChange(isImperial ? "weightLbs" : "weightKg", v)}
+          placeholder={isImperial ? "180" : "82"}
+          unit={isImperial ? "lbs" : "kg"}
+          min="1"
+          step="0.1"
+        />
       </div>
 
       <div>
