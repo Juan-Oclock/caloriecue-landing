@@ -36,7 +36,7 @@ export default function ShareButtons({ title, slug }: ShareButtonsProps) {
 
       {/* Facebook */}
       <a
-        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}
+        href={`https://www.facebook.com/share.php?u=${encodeURIComponent(url)}`}
         target="_blank"
         rel="noopener noreferrer"
         className="btn-ghost !p-2 !rounded-lg"
