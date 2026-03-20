@@ -163,9 +163,33 @@ export default async function Home() {
               </div>
 
               <div className="hero-fade-up animation-delay-300">
-                <div className="space-y-5">
-                  <AppStoreButton variant="hero" hideTagline />
+                <div className="grid grid-cols-1 sm:flex sm:flex-row items-center lg:items-start gap-4 mx-auto lg:mx-0">
+                  <AppStoreButton variant="hero" hideTagline className="w-full sm:w-auto [&>div]:w-full [&>div]:sm:w-auto" />
+                  <a
+                    href="/tdee-calculator"
+                    className="group flex items-center justify-center gap-3.5 px-6 py-3.5 rounded-xl border border-primary/20 bg-gradient-to-b from-white to-primary-50/30 hover:border-primary/40 hover:shadow-md hover:shadow-primary/10 transition-all duration-200 w-full sm:w-auto"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-primary-dark leading-none opacity-90">
+                        Free TDEE Calculator
+                      </span>
+                      <span className="text-xl font-semibold text-foreground leading-tight -mt-0.5">
+                        Calculate Now
+                      </span>
+                    </div>
+                    <svg className="w-4 h-4 text-primary/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                  </a>
                 </div>
+                <p className="mt-3 text-xs text-muted-foreground/70 text-center lg:text-left">
+                  Find your daily calories — with personalized meal planning.
+                </p>
               </div>
 
               {/* Trust indicators */}

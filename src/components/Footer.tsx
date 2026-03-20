@@ -10,6 +10,12 @@ export default function Footer() {
           {/* Links */}
           <nav aria-label="Footer" className="flex items-center gap-6 text-sm">
             <Link
+              href="/tdee-calculator"
+              className="text-muted-foreground hover:text-foreground transition-colors underline decoration-muted-foreground/30 underline-offset-4"
+            >
+              TDEE Calculator
+            </Link>
+            <Link
               href="/blog"
               className="text-muted-foreground hover:text-foreground transition-colors underline decoration-muted-foreground/30 underline-offset-4"
             >

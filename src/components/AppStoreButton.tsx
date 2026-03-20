@@ -59,7 +59,7 @@ export default function AppStoreButton({ variant = "hero", centered = false, hid
           rel="noopener noreferrer"
           className="relative block hover:scale-[1.03] active:scale-[0.98] transition-transform"
         >
-          <div className="relative bg-black text-white px-6 py-3.5 rounded-xl flex items-center gap-3 shadow-lg hover:shadow-xl transition-shadow group">
+          <div className="relative bg-black text-white px-6 py-3.5 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-shadow group">
             <div className="absolute inset-0 rounded-xl bg-primary/0 group-hover:bg-primary/10 transition-colors duration-300" />
             <AppleLogo className="w-8 h-8 relative z-10" />
             <div className="relative z-10 flex flex-col">
