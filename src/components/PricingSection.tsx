@@ -19,8 +19,7 @@ const PRICING = {
 };
 
 const FREE_FEATURES = [
-  { text: "5 barcode scans per day", included: true },
-  { text: "3 photo scans per day", included: true },
+  { text: "Unlimited scans for 3 days", included: true },
   { text: "3 AI Coach messages per day", included: true },
   { text: "3 days of diary history", included: true },
   { text: "Limited insights access", included: true },
