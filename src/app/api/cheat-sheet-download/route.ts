@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
         audienceId: AUDIENCE_ID,
       }),
       resend.emails.send({
-        from: "CalorieCue <hello@caloriecue.app>",
+        from: "CalorieCue <hello@track.caloriecue.app>",
         to: normalizedEmail,
         subject: "Your Calorie Counting Cheat Sheet",
         html: getCheatSheetEmailHtml(printUrl),
