@@ -37,3 +37,6 @@ next-env.d.ts
 # Planning docs
 BLOG_IMPLEMENTATION_PLAN.md
 
+# Claude Code
+.claude/
+
