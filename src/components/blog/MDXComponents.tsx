@@ -3,6 +3,7 @@ import Link from "next/link";
 import { slugify } from "@/lib/blog";
 import type { MDXComponents as MDXComponentsType } from "mdx/types";
 import React, { type ReactNode } from "react";
+import CheatSheetForm from "./CheatSheetForm";
 
 function getTextContent(children: ReactNode): string {
   if (typeof children === "string") return children;
@@ -174,5 +175,6 @@ export function getMDXComponents(): MDXComponentsType {
     ),
     Callout,
     AppStoreLink,
+    CheatSheetForm,
   };
 }
