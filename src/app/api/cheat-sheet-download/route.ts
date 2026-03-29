@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 const AUDIENCE_ID = "511ab1c1-5a5c-4b58-9d22-8bf8aaf2e912";
 
@@ -83,6 +85,8 @@ export async function POST(req: NextRequest) {
 
     const normalizedEmail = email.toLowerCase().trim();
     const printUrl = `https://caloriecue.app/cheat-sheet/print`;
+
+    const resend = getResend();
 
     // Add contact to Blog Leads audience and send email in parallel
     const [, sendResult] = await Promise.all([
