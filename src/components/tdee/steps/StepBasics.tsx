@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import type { Gender } from "@/lib/tdee/types";
 
 interface StepBasicsProps {
@@ -48,12 +47,11 @@ export default function StepBasics({ gender, onGenderChange }: StepBasicsProps) 
             const isActive = gender === key;
             const Icon = key === "male" ? MaleIcon : FemaleIcon;
             return (
-              <motion.button
+              <button
                 key={key}
                 type="button"
-                whileTap={{ scale: 0.97 }}
                 onClick={() => onGenderChange(key)}
-                className={`flex flex-col items-center gap-3 rounded-2xl py-5 px-4 border transition-all ${
+                className={`flex flex-col items-center gap-3 rounded-2xl py-5 px-4 border transition-all active:scale-[0.97] ${
                   isActive
                     ? "bg-primary-50 border-primary/30 shadow-soft"
                     : "bg-muted/30 border-border hover:bg-muted/50"
@@ -77,11 +75,11 @@ export default function StepBasics({ gender, onGenderChange }: StepBasicsProps) 
                 >
                   {label}
                 </span>
-              </motion.button>
+              </button>
             );
           })}
         </div>
-        <p className="text-[11px] text-muted-foreground/60 mt-3 text-center">
+        <p className="text-[11px] text-muted-foreground mt-3 text-center">
           Used to calibrate BMR formulas that differ by biological sex.
         </p>
       </div>

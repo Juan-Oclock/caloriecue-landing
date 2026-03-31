@@ -212,7 +212,7 @@ export default function Navigation() {
                   { value: "Free", label: "To get started" },
                 ].map((stat) => (
                   <div key={stat.label} className="bg-muted/60 rounded-xl px-3 py-2.5 text-center">
-                    <span className="block text-sm font-bold text-primary">{stat.value}</span>
+                    <span className="block text-sm font-bold text-primary-dark">{stat.value}</span>
                     <span className="block text-[11px] text-muted-foreground mt-0.5">{stat.label}</span>
                   </div>
                 ))}

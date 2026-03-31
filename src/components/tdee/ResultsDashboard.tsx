@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import AnimatedCounter from "@/components/AnimatedCounter";
@@ -119,6 +119,7 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
   const [macroPlan, setMacroPlan] = useState<MacroPlan>("balanced");
   const [goal, setGoal] = useState<"cut" | "maintain" | "bulk">("cut");
   const [calorieOffset, setCalorieOffset] = useState(500);
+  const rafRef = useRef(0);
 
   const goalCal =
     goal === "cut"
@@ -127,11 +128,11 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
         ? results.tdee + calorieOffset
         : results.tdee;
 
-  const macros = calculateMacros(goalCal, macroPlan);
-  const projection = calculateWeeklyProjection(weightKg, results.tdee, goalCal, 12);
-  const bmiInfo = getBMICategory(results.bmi);
-  const idealWeight = calculateIdealWeight(heightCm, gender);
-  const activityBreakdown = calculateActivityBreakdown(results.bmr.mifflinStJeor, activityLevel);
+  const macros = useMemo(() => calculateMacros(goalCal, macroPlan), [goalCal, macroPlan]);
+  const projection = useMemo(() => calculateWeeklyProjection(weightKg, results.tdee, goalCal, 12), [weightKg, results.tdee, goalCal]);
+  const bmiInfo = useMemo(() => getBMICategory(results.bmi), [results.bmi]);
+  const idealWeight = useMemo(() => calculateIdealWeight(heightCm, gender), [heightCm, gender]);
+  const activityBreakdown = useMemo(() => calculateActivityBreakdown(results.bmr.mifflinStJeor, activityLevel), [results.bmr.mifflinStJeor, activityLevel]);
 
   // 1 lb ≈ 3500 cal → weekly change = offset / 500 lbs/wk
   const weeklyLbs = Math.round((calorieOffset / 500) * 10) / 10;
@@ -196,7 +197,7 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
           {/* BMI visual scale */}
           <div className="mt-3">
             {/* Category labels */}
-            <div className="flex text-[10px] text-muted-foreground/60 mb-1">
+            <div className="flex text-[10px] text-muted-foreground mb-1">
               <span className="flex-[18.5] text-center">Underweight</span>
               <span className="flex-[6.5] text-center">Normal</span>
               <span className="flex-[5] text-center">Over</span>
@@ -216,7 +217,7 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
                 <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-b-[6px] border-transparent border-b-primary mx-auto" />
               </div>
             </div>
-            <div className="flex justify-between text-[11px] text-muted-foreground/60 -mt-0.5">
+            <div className="flex justify-between text-[11px] text-muted-foreground -mt-0.5">
               <span>18.5</span>
               <span>25</span>
               <span>30</span>
@@ -275,11 +276,15 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
                 max={1000}
                 step={50}
                 value={calorieOffset}
-                onChange={(e) => setCalorieOffset(Number(e.target.value))}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  cancelAnimationFrame(rafRef.current);
+                  rafRef.current = requestAnimationFrame(() => setCalorieOffset(val));
+                }}
                 className="relative w-full h-2 bg-transparent appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:bg-transparent"
               />
             </div>
-            <div className="flex justify-between mt-1.5 text-[11px] text-muted-foreground/60">
+            <div className="flex justify-between mt-1.5 text-[11px] text-muted-foreground">
               <span>100</span>
               <span>250</span>
               <span>500</span>
@@ -372,7 +377,7 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
           })}
         </div>
         {results.bmr.katchMcArdle === null && (
-          <p className="text-[11px] text-muted-foreground/60 mt-3">Add body fat % for Katch-McArdle</p>
+          <p className="text-[11px] text-muted-foreground mt-3">Add body fat % for Katch-McArdle</p>
         )}
       </motion.div>
 
@@ -389,7 +394,7 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
                 <div key={iw.formula} className="flex items-center justify-between py-2.5 border-b border-border/50 last:border-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-foreground">{iw.formula}</span>
-                    <span className="text-[10px] text-muted-foreground/60">{iw.year}</span>
+                    <span className="text-[10px] text-muted-foreground">{iw.year}</span>
                   </div>
                   <span className="text-sm font-semibold text-foreground">{displayWeight}</span>
                 </div>
@@ -412,7 +417,7 @@ export default function ResultsDashboard({ results, weightKg, heightCm, gender, 
             return (
               <div className="mt-3 pt-3 border-t border-border/50">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-muted-foreground/60">
+                  <span className="text-[11px] text-muted-foreground">
                     Ideal range: {formatWeight(minIdeal)}–{formatWeight(maxIdeal)}
                   </span>
                   {isAbove && (

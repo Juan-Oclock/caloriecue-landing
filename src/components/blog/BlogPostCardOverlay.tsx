@@ -63,9 +63,10 @@ export default function BlogPostCardOverlay({
               </div>
               <div className="flex items-center gap-3 text-white/60 text-xs">
                 <time dateTime={post.date}>
-                  {new Date(post.date).toLocaleDateString("en-US", {
+                  {new Date(post.date + "T00:00:00Z").toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
+                    timeZone: "UTC",
                   })}
                 </time>
                 <span>{post.readingTime} min</span>

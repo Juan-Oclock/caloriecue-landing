@@ -73,10 +73,11 @@ export default function BlogPostCard({ post, delay = 0 }: BlogPostCardProps) {
             {/* Meta */}
             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-auto pt-2">
               <time dateTime={post.date}>
-                {new Date(post.date).toLocaleDateString("en-US", {
+                {new Date(post.date + "T00:00:00Z").toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
                   year: "numeric",
+                  timeZone: "UTC",
                 })}
               </time>
               <span aria-hidden="true">&middot;</span>

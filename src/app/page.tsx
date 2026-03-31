@@ -187,7 +187,7 @@ export default async function Home() {
                     </svg>
                   </a>
                 </div>
-                <p className="mt-3 text-xs text-muted-foreground/70 text-center lg:text-left">
+                <p className="mt-3 text-xs text-muted-foreground text-center lg:text-left">
                   Find your daily calories — with personalized meal planning.
                 </p>
               </div>

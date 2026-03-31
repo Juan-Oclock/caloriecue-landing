@@ -56,10 +56,11 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
               </span>
             )}
             <span className="text-muted-foreground">
-              {new Date(post.date).toLocaleDateString("en-US", {
+              {new Date(post.date + "T00:00:00Z").toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
                 year: "numeric",
+                timeZone: "UTC",
               })}
             </span>
             <span className="text-muted-foreground" aria-hidden="true">

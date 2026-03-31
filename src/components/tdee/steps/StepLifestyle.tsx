@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import type { ActivityLevel } from "@/lib/tdee/types";
 import { ACTIVITY_LABELS } from "@/lib/tdee/constants";
 import InputWithUnit from "../InputWithUnit";
@@ -96,7 +95,7 @@ export default function StepLifestyle({
       {/* Body Fat % */}
       <div>
         <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-          Body Fat <span className="font-normal text-muted-foreground/60">(optional)</span>
+          Body Fat <span className="font-normal text-muted-foreground">(optional)</span>
         </label>
         <div className="max-w-[160px]">
           <InputWithUnit
@@ -120,12 +119,11 @@ export default function StepLifestyle({
             const isActive = activityLevel === key;
             const Icon = ACTIVITY_ICONS[key];
             return (
-              <motion.button
+              <button
                 key={key}
                 type="button"
-                whileTap={{ scale: 0.98 }}
                 onClick={() => onActivityChange(key)}
-                className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all text-left ${
+                className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all active:scale-[0.98] text-left ${
                   isActive
                     ? "bg-primary-50 ring-1 ring-primary/30"
                     : "hover:bg-muted/50"
@@ -146,11 +144,11 @@ export default function StepLifestyle({
                 </div>
                 {/* Multiplier */}
                 <span className={`flex-shrink-0 text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded ${
-                  isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground/70"
+                  isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                 }`}>
                   {multiplier}
                 </span>
-              </motion.button>
+              </button>
             );
           })}
         </div>

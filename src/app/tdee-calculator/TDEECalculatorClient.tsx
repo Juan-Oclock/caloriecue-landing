@@ -379,7 +379,7 @@ export default function TDEECalculatorClient() {
                     initial="enter"
                     animate="center"
                     exit="exit"
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    transition={{ duration: 0.15, ease: "easeInOut" }}
                   >
                     {/* Step Header */}
                     <div className="mt-6 mb-5">
@@ -606,19 +606,17 @@ export default function TDEECalculatorClient() {
                       </svg>
                     </div>
                   </button>
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="overflow-hidden"
-                      >
-                        <p className="px-6 pb-6 pl-15 text-muted-foreground leading-relaxed">{item.answer}</p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  <div
+                    className="grid transition-[grid-template-rows,opacity] duration-300 ease-in-out"
+                    style={{
+                      gridTemplateRows: isOpen ? "1fr" : "0fr",
+                      opacity: isOpen ? 1 : 0,
+                    }}
+                  >
+                    <div className="overflow-hidden">
+                      <p className="px-6 pb-6 pl-15 text-muted-foreground leading-relaxed">{item.answer}</p>
+                    </div>
+                  </div>
                 </motion.div>
               );
             })}

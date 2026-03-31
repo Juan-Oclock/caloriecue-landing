@@ -11,7 +11,6 @@ export default function AnimatedCounter({
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [isInView, setIsInView] = useState(false);
-  const [count, setCount] = useState(0);
 
   useEffect(() => {
     const el = ref.current;
@@ -27,27 +26,28 @@ export default function AnimatedCounter({
   }, []);
 
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView || !ref.current) return;
+    const el = ref.current;
     const duration = 1500;
-    const steps = 40;
-    const increment = target / steps;
-    let current = 0;
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= target) {
-        setCount(target);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(current));
+    const start = performance.now();
+
+    function tick(now: number) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - (1 - progress) * (1 - progress);
+      const current = Math.floor(eased * target);
+      el.textContent = current.toLocaleString("en-US") + suffix;
+      if (progress < 1) {
+        requestAnimationFrame(tick);
       }
-    }, duration / steps);
-    return () => clearInterval(timer);
-  }, [isInView, target]);
+    }
+
+    requestAnimationFrame(tick);
+  }, [isInView, target, suffix]);
 
   return (
-    <span ref={ref}>
-      {count.toLocaleString()}
-      {suffix}
+    <span ref={ref} suppressHydrationWarning>
+      0{suffix}
     </span>
   );
 }
