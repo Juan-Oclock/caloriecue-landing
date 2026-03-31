@@ -3,10 +3,12 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 const CANONICAL_HOST = 'caloriecue.app';
 
+const isDev = process.env.NODE_ENV === 'development';
+
 function buildCsp(nonce: string) {
   return [
     "default-src 'self'",
-    `script-src 'nonce-${nonce}' 'strict-dynamic'`,
+    `script-src 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ''}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self'",
@@ -16,7 +18,7 @@ function buildCsp(nonce: string) {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    "trusted-types default",
+    `trusted-types default${isDev ? ' nextjs#bundler' : ''}`,
     "require-trusted-types-for 'script'",
   ].join('; ');
 }

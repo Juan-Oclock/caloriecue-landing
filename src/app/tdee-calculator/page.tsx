@@ -179,7 +179,16 @@ export default function TDEECalculatorPage() {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@graph": [webAppJsonLd, faqJsonLd, breadcrumbJsonLd, howToJsonLd],
+            "@graph": [webAppJsonLd, breadcrumbJsonLd, howToJsonLd],
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            ...faqJsonLd,
           }),
         }}
       />
