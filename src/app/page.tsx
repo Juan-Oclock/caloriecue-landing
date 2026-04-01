@@ -324,7 +324,7 @@ export default async function Home() {
       </section>
 
       {/* Features Section - Bento Grid */}
-      <section className="relative py-24 md:py-32 px-4 overflow-hidden">
+      <section id="features" className="relative py-24 md:py-32 px-4 overflow-hidden">
         {/* Background mesh gradient */}
         <div className="absolute inset-0 mesh-bg -z-10" />
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -z-10" />

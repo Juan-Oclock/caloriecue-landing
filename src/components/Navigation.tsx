@@ -183,22 +183,26 @@ export default function Navigation() {
         {/* Nav links */}
         <div className="flex-1 overflow-y-auto px-3 py-4">
           <div className="space-y-1">
-            {mobileLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="flex items-start gap-3 px-3 py-3 rounded-xl hover:bg-muted transition-colors group"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-primary/15 transition-colors">
-                  {link.icon}
-                </div>
-                <div>
-                  <span className="block text-sm font-medium text-foreground">{link.label}</span>
-                  <span className="block text-xs text-muted-foreground mt-0.5">{link.description}</span>
-                </div>
-              </Link>
-            ))}
+            {mobileLinks.map((link) => {
+              const isHash = link.href.includes("#");
+              const Tag = isHash ? "a" : Link;
+              return (
+                <Tag
+                  key={link.href}
+                  href={link.href}
+                  className="flex items-start gap-3 px-3 py-3 rounded-xl hover:bg-muted transition-colors group"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-primary/15 transition-colors">
+                    {link.icon}
+                  </div>
+                  <div>
+                    <span className="block text-sm font-medium text-foreground">{link.label}</span>
+                    <span className="block text-xs text-muted-foreground mt-0.5">{link.description}</span>
+                  </div>
+                </Tag>
+              );
+            })}
           </div>
 
           {/* Divider */}
