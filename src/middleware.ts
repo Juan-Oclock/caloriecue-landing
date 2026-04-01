@@ -18,7 +18,7 @@ function buildCsp(nonce: string) {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    `trusted-types default${isDev ? ' nextjs#bundler' : ''}`,
+    `trusted-types default nextjs#bundler`,
     "require-trusted-types-for 'script'",
   ].join('; ');
 }
