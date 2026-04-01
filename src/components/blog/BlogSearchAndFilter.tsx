@@ -43,30 +43,34 @@ export default function BlogSearchAndFilter({
 
       {/* Tag filter pills */}
       {tags.length > 0 && (
-        <div className="flex flex-wrap justify-center gap-2">
-          <button
-            onClick={() => onTagChange("")}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-              activeTag === ""
-                ? "bg-primary text-white shadow-sm"
-                : "bg-white border border-border text-muted-foreground hover:border-gray-300 hover:text-foreground"
-            }`}
-          >
-            All
-          </button>
-          {tags.map((tag) => (
+        <div className="relative">
+          {/* Fade hint on right edge (mobile only) */}
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent md:hidden z-10" />
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0 md:flex-wrap md:justify-center md:overflow-visible scrollbar-hide">
             <button
-              key={tag}
-              onClick={() => onTagChange(tag)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                activeTag === tag
+              onClick={() => onTagChange("")}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap shrink-0 ${
+                activeTag === ""
                   ? "bg-primary text-white shadow-sm"
                   : "bg-white border border-border text-muted-foreground hover:border-gray-300 hover:text-foreground"
               }`}
             >
-              {tag}
+              All
             </button>
-          ))}
+            {tags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => onTagChange(tag)}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap shrink-0 ${
+                  activeTag === tag
+                    ? "bg-primary text-white shadow-sm"
+                    : "bg-white border border-border text-muted-foreground hover:border-gray-300 hover:text-foreground"
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
