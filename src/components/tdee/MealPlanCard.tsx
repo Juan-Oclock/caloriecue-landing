@@ -288,14 +288,14 @@ export default function MealPlanCard({ calories, protein, carbs, fat }: MealPlan
             {/* CTA */}
             <div className="text-center pt-2 pb-1">
               <p className="text-xs text-muted-foreground/60">
-                Want a fresh plan every day?{" "}
+                Track your real meals in{" "}
                 <a
                   href="https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary font-medium hover:text-primary-dark transition-colors"
                 >
-                  Try CalorieCue
+                  CalorieCue
                 </a>
               </p>
             </div>
