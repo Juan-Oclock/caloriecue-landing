@@ -6,6 +6,7 @@ export interface BlogPostMeta {
   dateModified?: string;
   author: string;
   coverImage?: string;
+  coverImageMobile?: string;
   imageCredit?: string;
   imageCreditUrl?: string;
   imagePosition?: "top" | "center" | "bottom";

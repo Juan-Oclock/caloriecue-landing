@@ -83,10 +83,22 @@ function AppStoreLink() {
 }
 
 export function getMDXComponents(): MDXComponentsType {
+  const seenIds = new Map<string, number>();
+
+  function uniqueId(text: string): string {
+    let id = slugify(text);
+    const count = seenIds.get(id) || 0;
+    seenIds.set(id, count + 1);
+    if (count > 0) {
+      id = `${id}-${count}`;
+    }
+    return id;
+  }
+
   return {
     h2: ({ children }) => {
       const text = getTextContent(children);
-      const id = slugify(text);
+      const id = uniqueId(text);
       return (
         <h2 id={id} className="text-2xl font-semibold text-foreground mb-4 mt-10 scroll-mt-28">
           {children}
@@ -95,7 +107,7 @@ export function getMDXComponents(): MDXComponentsType {
     },
     h3: ({ children }) => {
       const text = getTextContent(children);
-      const id = slugify(text);
+      const id = uniqueId(text);
       return (
         <h3 id={id} className="text-xl font-semibold text-foreground mb-3 mt-8 scroll-mt-28">
           {children}

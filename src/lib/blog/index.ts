@@ -36,6 +36,7 @@ export function getAllPosts(): BlogPostMeta[] {
         dateModified: data.dateModified,
         author: data.author ?? "CalorieCue Team",
         coverImage: data.coverImage,
+        coverImageMobile: data.coverImageMobile,
         imageCredit: data.imageCredit,
         imageCreditUrl: data.imageCreditUrl,
         imagePosition: data.imagePosition,
@@ -68,6 +69,7 @@ export function getPostBySlug(slug: string): BlogPost | null {
     dateModified: data.dateModified,
     author: data.author ?? "CalorieCue Team",
     coverImage: data.coverImage,
+    coverImageMobile: data.coverImageMobile,
     imageCredit: data.imageCredit,
     imageCreditUrl: data.imageCreditUrl,
     imagePosition: data.imagePosition,
@@ -108,13 +110,20 @@ export function getAllTags(): string[] {
 export function extractHeadings(content: string): Heading[] {
   const headingRegex = /^(#{2,3})\s+(.+)$/gm;
   const headings: Heading[] = [];
+  const seenIds = new Map<string, number>();
   let match;
 
   while ((match = headingRegex.exec(content)) !== null) {
+    let id = slugify(match[2].trim());
+    const count = seenIds.get(id) || 0;
+    seenIds.set(id, count + 1);
+    if (count > 0) {
+      id = `${id}-${count}`;
+    }
     headings.push({
       level: match[1].length as 2 | 3,
       text: match[2].trim(),
-      id: slugify(match[2].trim()),
+      id,
     });
   }
 

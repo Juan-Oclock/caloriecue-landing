@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { compileMDX } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
+import remarkUnwrapImages from "remark-unwrap-images";
 import { Navigation, Footer, FadeIn } from "@/components";
 import { TableOfContents, ShareButtons, RelatedPosts, NewsletterSection, getMDXComponents } from "@/components/blog";
 import { getAllPosts, getPostBySlug, extractHeadings } from "@/lib/blog";
@@ -72,7 +73,7 @@ export default async function BlogPostPage({
   const { content } = await compileMDX({
     source: post.content,
     components: getMDXComponents(),
-    options: { mdxOptions: { remarkPlugins: [remarkGfm] } },
+    options: { mdxOptions: { remarkPlugins: [remarkGfm, remarkUnwrapImages] } },
   });
 
   const jsonLd = {
@@ -173,15 +174,28 @@ export default async function BlogPostPage({
       {/* Hero Image Section */}
       <div className="relative w-full h-[350px] md:h-[450px] lg:h-[500px] mt-16 md:mt-20">
         {post.coverImage ? (
-          <Image
-            src={post.coverImage}
-            alt={post.title}
-            fill
-            priority
-            sizes="100vw"
-            quality={85}
-            className={`object-cover ${post.imagePosition === "top" ? "object-top" : post.imagePosition === "bottom" ? "object-bottom" : "object-center"}`}
-          />
+          <>
+            <Image
+              src={post.coverImage}
+              alt={post.title}
+              fill
+              priority
+              sizes="100vw"
+              quality={85}
+              className={`object-cover ${post.coverImageMobile ? "hidden md:block" : ""} ${post.imagePosition === "top" ? "object-top" : post.imagePosition === "bottom" ? "object-bottom" : "object-center"}`}
+            />
+            {post.coverImageMobile && (
+              <Image
+                src={post.coverImageMobile}
+                alt={post.title}
+                fill
+                priority
+                sizes="100vw"
+                quality={85}
+                className={`object-cover md:hidden ${post.imagePosition === "top" ? "object-top" : post.imagePosition === "bottom" ? "object-bottom" : "object-center"}`}
+              />
+            )}
+          </>
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/70 to-orange-900" />
         )}
