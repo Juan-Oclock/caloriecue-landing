@@ -4,7 +4,7 @@ export const metadata = {
   title: "Terms of Service - CalorieCue",
   description: "CalorieCue Terms of Service - Terms and conditions for using our app.",
   alternates: {
-    canonical: "/terms",
+    canonical: "https://caloriecue.app/terms",
   },
   openGraph: {
     title: "Terms of Service | CalorieCue",

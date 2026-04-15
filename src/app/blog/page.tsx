@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     "diet and nutrition",
   ],
   alternates: {
-    canonical: "/blog",
+    canonical: "https://caloriecue.app/blog",
   },
   openGraph: {
     title: "Blog | CalorieCue",
