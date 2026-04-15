@@ -172,16 +172,16 @@ export function getMDXComponents(): MDXComponentsType {
     ),
     table: ({ children }) => (
       <div className="overflow-x-auto my-6">
-        <table className="w-full text-sm border-collapse">{children}</table>
+        <table className="text-sm border-collapse w-max">{children}</table>
       </div>
     ),
     th: ({ children }) => (
-      <th className="border border-border bg-muted px-4 py-2 text-left font-semibold text-foreground">
+      <th className="border border-border bg-muted px-4 py-2 text-left font-semibold text-foreground" style={{ whiteSpace: 'nowrap' }}>
         {children}
       </th>
     ),
     td: ({ children }) => (
-      <td className="border border-border px-4 py-2 text-foreground/90">
+      <td className="border border-border px-4 py-2 text-foreground/90" style={{ whiteSpace: 'nowrap' }}>
         {children}
       </td>
     ),
