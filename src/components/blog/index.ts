@@ -9,3 +9,4 @@ export { default as BlogSearchAndFilter } from "./BlogSearchAndFilter";
 export { default as FeaturedPost } from "./FeaturedPost";
 export { default as BlogPostCardOverlay } from "./BlogPostCardOverlay";
 export { default as NewsletterSection } from "./NewsletterSection";
+export { default as BlogTldr } from "./BlogTldr";

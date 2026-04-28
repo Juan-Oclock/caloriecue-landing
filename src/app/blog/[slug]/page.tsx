@@ -6,7 +6,7 @@ import { compileMDX } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import remarkUnwrapImages from "remark-unwrap-images";
 import { Navigation, Footer, FadeIn } from "@/components";
-import { TableOfContents, ShareButtons, RelatedPosts, NewsletterSection, getMDXComponents } from "@/components/blog";
+import { TableOfContents, ShareButtons, RelatedPosts, NewsletterSection, BlogTldr, getMDXComponents } from "@/components/blog";
 import { getAllPosts, getPostBySlug, extractHeadings } from "@/lib/blog";
 
 export async function generateStaticParams() {
@@ -277,6 +277,7 @@ export default async function BlogPostPage({
           <div className="grid lg:grid-cols-12 gap-10">
             {/* Content */}
             <div className="lg:col-span-8 min-w-0">
+              <BlogTldr body={post.tldr ?? post.description} utmContent={post.slug} />
               <TableOfContents headings={headings} variant="mobile" />
               <div className="prose-custom">{content}</div>
 

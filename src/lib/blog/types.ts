@@ -14,6 +14,7 @@ export interface BlogPostMeta {
   published: boolean;
   readingTime: number;
   faq?: Array<{ question: string; answer: string }>;
+  tldr?: string;
 }
 
 export interface BlogPost extends BlogPostMeta {
