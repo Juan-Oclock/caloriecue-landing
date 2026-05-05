@@ -69,7 +69,7 @@ function Callout({
 function AppStoreLink() {
   return (
     <a
-      href="https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503"
+      href="https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503?utm_source=blog&utm_medium=inline_cta&utm_content=app_store_link"
       target="_blank"
       rel="noopener noreferrer"
       className="inline-flex items-center gap-2 btn-primary !text-white text-sm py-2.5 px-5 !no-underline my-4"
