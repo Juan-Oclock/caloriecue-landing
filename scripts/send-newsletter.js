@@ -27,10 +27,20 @@ if (fs.existsSync(envPath)) {
 }
 
 // ─── Arg validation ────────────────────────────────────────────────────────
-const slug = process.argv[2];
+const args = process.argv.slice(2);
+const testIndex = args.indexOf("--test");
+const testEmail = testIndex !== -1 ? args[testIndex + 1] : null;
+const slug = args.find((a) => !a.startsWith("--") && a !== testEmail);
+
 if (!slug) {
-  console.error("Usage: node scripts/send-newsletter.js <slug>");
+  console.error("Usage: node scripts/send-newsletter.js <slug> [--test <email>]");
   console.error("Example: node scripts/send-newsletter.js how-to-eat-more-protein");
+  console.error("Example: node scripts/send-newsletter.js how-to-eat-more-protein --test you@gmail.com");
+  process.exit(1);
+}
+
+if (testIndex !== -1 && !testEmail) {
+  console.error("Error: --test requires an email address.");
   process.exit(1);
 }
 
@@ -130,7 +140,7 @@ function buildEmailHtml(post, relatedPosts) {
     </div>
 
     <!-- Footer -->
-    <div style="background-color:#f9f9f9;padding:16px 24px;text-align:center;">
+    <div style="background-color:#f9f9f9;padding:16px 24px 80px 24px;text-align:center;">
       <p style="font-size:11px;color:#999;margin:0 0 8px 0;">CalorieCue — AI Photo Calorie Tracker &bull; caloriecue.app</p>
       <p style="font-size:11px;color:#999;margin:0;"><a href="{{unsubscribe_url}}" style="color:#999;text-decoration:underline;">Unsubscribe</a></p>
     </div>
@@ -153,7 +163,8 @@ async function main() {
 
   const relatedPosts = getRelatedPosts(slug, allPosts);
   const html = buildEmailHtml(post, relatedPosts);
-  const subject = `New article: ${post.title}`;
+  const fullSubject = `New article: ${post.title}`;
+  const subject = fullSubject.length > 70 ? fullSubject.slice(0, 67) + "..." : fullSubject;
 
   console.log(`\nCreating Resend Broadcast draft for: "${post.title}"`);
   console.log(`  Subject: ${subject}`);
@@ -161,11 +172,28 @@ async function main() {
 
   const resend = new Resend(process.env.RESEND_API_KEY);
 
+  if (testEmail) {
+    console.log(`\nSending test email to ${testEmail}...`);
+    const { error } = await resend.emails.send({
+      from: "CalorieCue <hello@track.caloriecue.app>",
+      replyTo: "support@caloriecue.app",
+      to: testEmail,
+      subject: `[TEST] ${subject}`,
+      html,
+    });
+    if (error) {
+      console.error("\nResend API error:", error);
+      process.exit(1);
+    }
+    console.log(`✓ Test email sent to ${testEmail}`);
+    return;
+  }
+
   const { data, error } = await resend.broadcasts.create({
     audienceId: AUDIENCE_ID,
     from: "CalorieCue <hello@track.caloriecue.app>",
     replyTo: "support@caloriecue.app",
-    name: post.title,
+    name: post.title.length > 70 ? post.title.slice(0, 67) + "..." : post.title,
     subject,
     html,
   });
