@@ -9,6 +9,16 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'],
   },
 
+  async redirects() {
+    return [
+      {
+        source: '/blog/why-am-i-not-losing-weight',
+        destination: '/blog/why-calorie-deficit-isnt-working',
+        statusCode: 301,
+      },
+    ];
+  },
+
   async headers() {
     // CSP is set dynamically in middleware.ts (nonce-based).
     // Only static security headers go here.
