@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import { Navigation, Footer } from "@/components";
 import { BlogListingClient } from "@/components/blog";
-import { getAllPosts, getAllTags } from "@/lib/blog";
+import { getAllPosts, getAllTags, getPostsBySlugs } from "@/lib/blog";
+
+const FEATURED_GUIDE_SLUGS = [
+  "high-protein-low-calorie-foods",
+  "how-to-track-calories",
+  "best-calorie-tracker-app",
+  "calories-in-food-list",
+];
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -38,6 +45,7 @@ export const metadata: Metadata = {
 export default function BlogPage() {
   const allPosts = getAllPosts();
   const tags = getAllTags();
+  const featuredGuides = getPostsBySlugs(FEATURED_GUIDE_SLUGS);
 
   const collectionJsonLd = {
     "@context": "https://schema.org",
@@ -67,7 +75,11 @@ export default function BlogPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
       />
-      <BlogListingClient posts={allPosts} tags={tags} />
+      <BlogListingClient
+        posts={allPosts}
+        tags={tags}
+        featuredGuides={featuredGuides}
+      />
       <Footer />
     </main>
   );
