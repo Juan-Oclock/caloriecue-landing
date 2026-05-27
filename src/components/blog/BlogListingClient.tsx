@@ -99,7 +99,7 @@ export default function BlogListingClient({
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-primary-50/80 via-white to-background px-4 pb-12 pt-28 md:pb-16 md:pt-36">
+      <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-primary-50/80 via-white to-background px-4 pb-8 pt-28 md:pb-10 md:pt-36">
         <div className="mx-auto max-w-6xl">
           <FadeIn className="mb-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
             <div>
@@ -139,7 +139,7 @@ export default function BlogListingClient({
         </div>
       </section>
 
-      <section className="px-4 py-14 md:py-20">
+      <section className="px-4 pb-14 pt-8 md:pb-20 md:pt-10">
         <div className="mx-auto max-w-6xl">
           {showFeaturedGuides && (
             <FadeIn className="mb-12 md:mb-14">
