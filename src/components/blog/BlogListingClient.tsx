@@ -4,11 +4,21 @@ import { useState, useMemo, useCallback } from "react";
 import FadeIn from "@/components/FadeIn";
 import BlogSearchAndFilter from "./BlogSearchAndFilter";
 import FeaturedPost from "./FeaturedPost";
-import BlogPostCardOverlay from "./BlogPostCardOverlay";
+import BlogPostCardEditorial from "./BlogPostCardEditorial";
 import NewsletterSection from "./NewsletterSection";
 import type { BlogPostMeta } from "@/lib/blog/types";
 
 const POSTS_PER_PAGE = 10;
+const CURATED_TOPICS = [
+  "protein",
+  "weight-loss",
+  "calorie-tracking",
+  "nutrition",
+  "ozempic",
+  "grocery-list",
+  "meal-prep",
+  "tools",
+];
 
 interface BlogListingClientProps {
   posts: BlogPostMeta[];
@@ -22,6 +32,11 @@ export default function BlogListingClient({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTag, setActiveTag] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const visibleTags = useMemo(
+    () => CURATED_TOPICS.filter((topic) => tags.includes(topic)),
+    [tags]
+  );
 
   const filteredPosts = useMemo(() => {
     let result = posts;
@@ -77,38 +92,48 @@ export default function BlogListingClient({
 
   return (
     <>
-      {/* Hero section */}
-      <section className="pt-28 pb-12 md:pt-40 md:pb-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <FadeIn className="text-center mb-10">
-            <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
-              Blog
-            </span>
-            <h1 className="text-display-mobile md:text-display text-foreground mb-4">
-              Latest from the Blog
-            </h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Tips, guides, and insights to help you eat smarter and track
-              better.
-            </p>
+      <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-primary-50/80 via-white to-background px-4 pb-12 pt-28 md:pb-16 md:pt-36">
+        <div className="mx-auto max-w-6xl">
+          <FadeIn className="mb-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
+            <div>
+              <span className="mb-4 inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold uppercase text-primary shadow-sm ring-1 ring-primary/10">
+                Blog
+              </span>
+              <h1 className="max-w-3xl text-display-mobile text-foreground md:text-display">
+                Latest from the Blog
+              </h1>
+              <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+                Evidence-led guides for choosing better meals, hitting protein
+                goals, and making calorie tracking feel less like homework.
+              </p>
+            </div>
+            <div className="rounded-lg border border-border/70 bg-white/80 p-5 shadow-card backdrop-blur">
+              <p className="text-sm font-semibold text-foreground">
+                High-signal nutrition topics.
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Protein, calorie tracking, GLP-1 meals, grocery lists, and
+                practical food rankings in one focused index.
+              </p>
+            </div>
           </FadeIn>
 
-          {/* Search and filter */}
           <FadeIn delay={0.1}>
             <BlogSearchAndFilter
               tags={tags}
+              visibleTags={visibleTags}
               activeTag={activeTag}
               onTagChange={handleTagChange}
               searchQuery={searchQuery}
               onSearchChange={handleSearchChange}
+              resultCount={filteredPosts.length}
             />
           </FadeIn>
         </div>
       </section>
 
-      {/* Posts section */}
-      <section className="pb-20 md:pb-28 px-4">
-        <div className="max-w-6xl mx-auto">
+      <section className="px-4 py-14 md:py-20">
+        <div className="mx-auto max-w-6xl">
           {filteredPosts.length === 0 ? (
             <FadeIn className="text-center py-16">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
@@ -143,19 +168,17 @@ export default function BlogListingClient({
               </button>
             </FadeIn>
           ) : (
-            <div className="space-y-12">
-              {/* Featured post */}
+            <div className="space-y-12 md:space-y-14">
               {featuredPost && (
                 <FadeIn delay={0.15}>
                   <FeaturedPost post={featuredPost} />
                 </FadeIn>
               )}
 
-              {/* Grid of overlay cards */}
               {gridPosts.length > 0 && (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {gridPosts.map((post, i) => (
-                    <BlogPostCardOverlay
+                    <BlogPostCardEditorial
                       key={post.slug}
                       post={post}
                       delay={i * 0.08}
@@ -169,12 +192,12 @@ export default function BlogListingClient({
                 <FadeIn>
                   <nav
                     aria-label="Blog pagination"
-                    className="flex items-center justify-center gap-2 pt-4"
+                    className="flex flex-wrap items-center justify-center gap-2 pt-2"
                   >
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="px-4 py-2 text-sm font-medium rounded-lg border border-border text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       Previous
                     </button>
@@ -184,10 +207,10 @@ export default function BlogListingClient({
                         <button
                           key={page}
                           onClick={() => handlePageChange(page)}
-                          className={`w-10 h-10 text-sm font-medium rounded-lg transition-colors ${
+                          className={`h-10 w-10 rounded-full text-sm font-semibold transition-colors ${
                             page === currentPage
-                              ? "bg-primary text-white"
-                              : "border border-border text-foreground hover:bg-muted"
+                              ? "bg-primary text-white shadow-sm"
+                              : "border border-border bg-white text-foreground hover:bg-muted"
                           }`}
                         >
                           {page}
@@ -198,7 +221,7 @@ export default function BlogListingClient({
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 text-sm font-medium rounded-lg border border-border text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       Next
                     </button>

@@ -8,12 +8,20 @@ interface FeaturedPostProps {
   post: BlogPostMeta;
 }
 
+function formatLongDate(date: string) {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export default function FeaturedPost({ post }: FeaturedPostProps) {
   return (
     <Link href={`/blog/${post.slug}`} className="group block">
-      <article className="grid md:grid-cols-2 rounded-2xl overflow-hidden border border-border bg-white transition-shadow duration-300 hover:shadow-soft-lg">
-        {/* Cover image */}
-        <div className="relative h-64 md:h-full min-h-[280px] overflow-hidden">
+      <article className="grid overflow-hidden rounded-lg border border-border/80 bg-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-card-hover lg:grid-cols-[1.12fr_0.88fr]">
+        <div className="relative min-h-[260px] overflow-hidden bg-muted md:min-h-[360px]">
           {post.coverImage ? (
             <Image
               src={post.coverImage}
@@ -40,59 +48,60 @@ export default function FeaturedPost({ post }: FeaturedPostProps) {
               </svg>
             </div>
           )}
-          {/* FEATURED badge */}
-          <span className="absolute top-4 left-4 px-3 py-1 bg-primary text-white text-xs font-bold uppercase tracking-wider rounded-full">
+          <span className="absolute left-5 top-5 rounded-full bg-primary px-3 py-1 text-xs font-bold uppercase text-white shadow-sm">
             Featured
           </span>
         </div>
 
-        {/* Content */}
-        <div className="p-6 md:p-8 flex flex-col justify-center gap-4">
-          {/* Meta row */}
-          <div className="flex flex-wrap items-center gap-2 text-sm">
+        <div className="flex flex-col justify-center p-6 md:p-8 lg:p-10">
+          <div className="mb-5 flex flex-wrap items-center gap-2 text-sm">
             {post.tags[0] && (
-              <span className="px-2.5 py-0.5 rounded-full bg-primary/8 text-primary text-xs font-medium">
+              <span className="rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary">
                 {post.tags[0]}
               </span>
             )}
-            <span className="text-muted-foreground">
-              {new Date(post.date + "T00:00:00Z").toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-                timeZone: "UTC",
-              })}
-            </span>
+            <span className="text-muted-foreground">{formatLongDate(post.date)}</span>
             <span className="text-muted-foreground" aria-hidden="true">
-              &middot;
+              /
             </span>
             <span className="text-muted-foreground">
               {post.readingTime} min read
             </span>
           </div>
 
-          {/* Title */}
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground leading-tight group-hover:text-primary transition-colors">
+          <h2 className="text-3xl font-semibold leading-tight text-foreground transition-colors group-hover:text-primary md:text-4xl">
             {post.title}
           </h2>
 
-          {/* Description */}
-          <p className="text-muted-foreground leading-relaxed line-clamp-3">
+          <p className="mt-4 max-w-prose text-base leading-relaxed text-muted-foreground line-clamp-3">
             {post.description}
           </p>
 
-          {/* Author + CTA */}
-          <div className="flex items-center justify-between mt-2">
+          <div className="mt-8 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-primary/10 text-primary font-semibold text-sm flex items-center justify-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-sm font-semibold text-primary">
                 {post.author.charAt(0).toUpperCase()}
               </div>
               <span className="text-sm font-medium text-foreground">
                 {post.author}
               </span>
             </div>
-            <span className="text-primary font-medium text-sm group-hover:underline">
-              Read Article &rarr;
+            <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-primary transition-transform duration-300 group-hover:translate-x-1">
+              Read Article
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                />
+              </svg>
             </span>
           </div>
         </div>

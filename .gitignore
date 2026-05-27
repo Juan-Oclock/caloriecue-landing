@@ -40,3 +40,8 @@ BLOG_IMPLEMENTATION_PLAN.md
 # Claude Code
 .claude/
 
+# Agent/local workflow artifacts
+.agents/
+.codex/
+.superpowers/
+docs/superpowers/

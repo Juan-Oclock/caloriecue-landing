@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 interface FadeInProps {
   children: ReactNode;
@@ -22,6 +22,16 @@ export default function FadeIn({
   className,
   viewportMargin,
 }: FadeInProps) {
+  const [canAnimate, setCanAnimate] = useState(false);
+
+  useEffect(() => {
+    setCanAnimate(true);
+  }, []);
+
+  if (!canAnimate) {
+    return <div className={className}>{children}</div>;
+  }
+
   if (trigger === "onMount") {
     return (
       <motion.div
