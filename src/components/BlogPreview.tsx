@@ -1,10 +1,17 @@
 import Link from "next/link";
 import { FadeIn } from "@/components";
 import { BlogPostCard } from "@/components/blog";
-import { getAllPosts } from "@/lib/blog";
+import { getPostsBySlugs } from "@/lib/blog";
+
+const POPULAR_GUIDE_SLUGS = [
+  "high-protein-low-calorie-foods",
+  "how-to-track-calories",
+  "best-calorie-tracker-app",
+  "calories-in-food-list",
+];
 
 export default function BlogPreview() {
-  const posts = getAllPosts().slice(0, 3);
+  const posts = getPostsBySlugs(POPULAR_GUIDE_SLUGS);
 
   if (posts.length === 0) return null;
 
@@ -16,14 +23,15 @@ export default function BlogPreview() {
             Blog
           </span>
           <h2 className="text-display-mobile md:text-display text-foreground mb-4">
-            Latest from the Blog
+            Popular calorie tracking guides
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Tips and insights to help you eat smarter and track better.
+            Start with the practical guides people are already finding in
+            Google.
           </p>
         </FadeIn>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {posts.map((post, i) => (
             <BlogPostCard key={post.slug} post={post} delay={i * 0.1} />
           ))}

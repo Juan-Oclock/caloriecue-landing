@@ -53,6 +53,14 @@ export function getAllPosts(): BlogPostMeta[] {
   return posts;
 }
 
+export function getPostsBySlugs(slugs: string[]): BlogPostMeta[] {
+  const postsBySlug = new Map(getAllPosts().map((post) => [post.slug, post]));
+  return slugs.flatMap((slug) => {
+    const post = postsBySlug.get(slug);
+    return post ? [post] : [];
+  });
+}
+
 export function getPostBySlug(slug: string): BlogPost | null {
   const filePath = path.join(BLOG_DIR, `${slug}.mdx`);
   if (!fs.existsSync(filePath)) return null;

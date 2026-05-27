@@ -23,11 +23,13 @@ const CURATED_TOPICS = [
 interface BlogListingClientProps {
   posts: BlogPostMeta[];
   tags: string[];
+  featuredGuides: BlogPostMeta[];
 }
 
 export default function BlogListingClient({
   posts,
   tags,
+  featuredGuides,
 }: BlogListingClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTag, setActiveTag] = useState("");
@@ -72,6 +74,11 @@ export default function BlogListingClient({
   const paginatedPosts = filteredPosts.slice(startIndex, startIndex + pageSize);
 
   const showFeatured = currentPage === 1;
+  const showFeaturedGuides =
+    currentPage === 1 &&
+    !activeTag &&
+    !searchQuery.trim() &&
+    featuredGuides.length > 0;
   const featuredPost = showFeatured ? paginatedPosts[0] : null;
   const gridPosts = showFeatured ? paginatedPosts.slice(1) : paginatedPosts;
 
@@ -134,6 +141,36 @@ export default function BlogListingClient({
 
       <section className="px-4 py-14 md:py-20">
         <div className="mx-auto max-w-6xl">
+          {showFeaturedGuides && (
+            <FadeIn className="mb-12 md:mb-14">
+              <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <span className="text-xs font-bold uppercase text-primary">
+                    Popular guides
+                  </span>
+                  <h2 className="mt-2 text-2xl font-bold text-foreground md:text-3xl">
+                    Start with these guides
+                  </h2>
+                </div>
+                <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-right">
+                  These pages are already earning search impressions. They cover
+                  the fastest paths into calorie tracking, food calories,
+                  protein choices, and app comparison.
+                </p>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                {featuredGuides.map((post, i) => (
+                  <BlogPostCardEditorial
+                    key={post.slug}
+                    post={post}
+                    delay={i * 0.08}
+                  />
+                ))}
+              </div>
+            </FadeIn>
+          )}
+
           {filteredPosts.length === 0 ? (
             <FadeIn className="text-center py-16">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
