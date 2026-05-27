@@ -23,7 +23,7 @@ export default function BlogPreview() {
             Blog
           </span>
           <h2 className="text-display-mobile md:text-display text-foreground mb-4">
-            Popular calorie tracking guides
+            Popular Calorie Tracking Guides
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Start with the practical guides people are already finding in
