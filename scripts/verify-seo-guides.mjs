@@ -85,7 +85,7 @@ assert(
   "BlogPreview should define curated popular guide slugs"
 );
 assert(
-  homepagePreview.includes("Popular calorie tracking guides"),
+  homepagePreview.includes("Popular Calorie Tracking Guides"),
   "BlogPreview should render the curated guide section heading"
 );
 
