@@ -3,7 +3,16 @@ import {
   calculateBMR_MifflinStJeor,
   calculateTDEE,
   calculateProteinRangeGrams,
+  lbsToKg as tdeeLbsToKg,
+  kgToLbs as tdeeKgToLbs,
 } from '@/lib/tdee/formulas';
+
+/** Re-exported unit converters so landing components don't reach into
+ *  @/lib/tdee directly. Implementation is shared with /tdee-calculator. */
+export const lbsToKg = tdeeLbsToKg;
+export const kgToLbs = tdeeKgToLbs;
+export const inchesToCm = (inches: number): number => inches * 2.54;
+export const cmToInches = (cm: number): number => cm / 2.54;
 
 export type Goal = 'lose-weight' | 'build-muscle' | 'maintain' | 'gain-weight';
 
