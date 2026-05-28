@@ -11,6 +11,7 @@ const FAQSection = dynamic(() => import("@/components/FAQSection"));
 const VideoPreview = dynamic(() => import("@/components/VideoPreview"));
 import { GoalPathways } from "@/components/landing/GoalPathways";
 import { HeroAndCalculatorFlow } from "@/components/landing/HeroAndCalculatorFlow";
+import { Method } from "@/components/landing/Method";
 
 const softwareAppJsonLd = {
   "@context": "https://schema.org",
@@ -198,6 +199,12 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* The Method — educational block (Guardrail 3 bridge moment in step 2) */}
+      <Method />
+
+      {/* Goal Pathways — guides curated per goal */}
+      <GoalPathways />
 
       {/* Features Section - Bento Grid */}
       <section id="features" className="relative py-24 md:py-32 px-4 overflow-hidden">
@@ -553,135 +560,12 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="py-24 md:py-32 px-4 bg-background">
-        <div className="max-w-5xl mx-auto">
-          <FadeInCSS className="text-center mb-16 md:mb-20">
-            <span className="inline-block text-primary-dark font-medium text-sm mb-3 uppercase tracking-wider">
-              How It Works
-            </span>
-            <h2 className="text-display-mobile md:text-display text-foreground mb-4">
-              How to actually hit your number
-            </h2>
-            <p className="text-muted-foreground text-lg">
-              Begin your journey to better nutrition in minutes.
-            </p>
-          </FadeInCSS>
-
-          <div className="grid md:grid-cols-3 gap-10 md:gap-6 lg:gap-10">
-            {[
-              {
-                step: "01",
-                title: "Download & Open",
-                description:
-                  "Get CalorieCue free from the App Store and open the camera.",
-                icon: (
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    />
-                  </svg>
-                ),
-              },
-              {
-                step: "02",
-                title: "Scan Your Meal",
-                description:
-                  "Point your camera at any food — AI identifies it and estimates nutrition in 3 seconds.",
-                icon: (
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                    />
-                    <circle cx="12" cy="13" r="3" />
-                  </svg>
-                ),
-              },
-              {
-                step: "03",
-                title: "Get Smart Insights",
-                description:
-                  "See calories, macros, and personalized coaching from your AI nutrition assistant.",
-                icon: (
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                    />
-                  </svg>
-                ),
-              },
-            ].map((item, index) => (
-              <FadeInCSS
-                key={item.step}
-                y={30}
-                delay={index * 0.15}
-                viewportMargin="-50px"
-                className="relative text-center"
-              >
-                {/* Icon with step number badge */}
-                <div className="relative inline-flex flex-col items-center mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                    {item.icon}
-                  </div>
-                  {/* Step number badge */}
-                  <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-white border-2 border-primary flex items-center justify-center shadow-sm">
-                    <span className="text-[10px] font-bold text-primary-dark">
-                      {item.step}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <h3 className="text-xl font-semibold text-foreground mb-3">
-                  {item.title}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed max-w-xs mx-auto">
-                  {item.description}
-                </p>
-
-                {/* Connector line (hidden on last item and mobile) */}
-                {index < 2 && (
-                  <div className="hidden md:block absolute top-8 left-[58%] w-[84%] border-t-2 border-dashed border-primary/20" />
-                )}
-              </FadeInCSS>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Pricing Section */}
       <PricingSection />
 
       {/* FAQ Section */}
       <FAQSection />
-
-      {/* Goal Pathways — replaces old "Popular Calorie Tracking Guides" section.
-          Final position will be set in Feature 5 (Method + page reorder). */}
-      <GoalPathways />
 
       {/* CTA Section */}
       <section className="py-24 md:py-32 px-4 relative overflow-hidden">
