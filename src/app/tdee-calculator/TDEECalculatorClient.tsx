@@ -483,7 +483,7 @@ export default function TDEECalculatorClient() {
       </AnimatePresence>
 
       {/* Educational Content */}
-      <section className="px-4 pb-16 md:pb-20">
+      <section id="methodology" className="scroll-mt-24 px-4 pb-16 md:pb-20">
         <div className="max-w-3xl mx-auto">
           <FadeIn>
             <div className="text-center mb-10">
