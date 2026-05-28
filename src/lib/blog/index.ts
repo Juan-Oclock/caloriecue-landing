@@ -110,6 +110,40 @@ export function getRelatedPosts(
     .map((item) => item.post);
 }
 
+/**
+ * Goal-aligned tag slugs that drive the homepage goal pathways
+ * section. Distinct from the broader content tag taxonomy
+ * (`nutrition`, `protein`, `weight-loss`, etc.) — goal tags are
+ * additive and posts may carry both.
+ */
+export type GoalTag = "lose-weight" | "build-muscle" | "maintain" | "gain-weight";
+
+export const GOAL_TAGS: GoalTag[] = [
+  "lose-weight",
+  "build-muscle",
+  "maintain",
+  "gain-weight",
+];
+
+/**
+ * Returns all published posts that include `tag` in their tags
+ * array, sorted by date descending (most recent first), optionally
+ * limited to the first N.
+ */
+export function getPostsByTag(tag: string, limit?: number): BlogPostMeta[] {
+  const matches = getAllPosts().filter((post) => post.tags.includes(tag));
+  return typeof limit === "number" ? matches.slice(0, limit) : matches;
+}
+
+/**
+ * Curated pathway for a single goal: most recent N posts tagged
+ * with that goal. Wraps `getPostsByTag` and constrains the tag
+ * to the goal-tag union so callers can't pass arbitrary strings.
+ */
+export function getGoalPathway(goal: GoalTag, limit: number = 3): BlogPostMeta[] {
+  return getPostsByTag(goal, limit);
+}
+
 export function getAllTags(): string[] {
   const posts = getAllPosts();
   const tagSet = new Set<string>();
