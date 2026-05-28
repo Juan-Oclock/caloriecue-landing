@@ -84,12 +84,7 @@ describe('Homepage copy (Feature 1)', () => {
     });
   });
 
-  describe('Hero H1 still owned by Feature 3 (not changed in this PR)', () => {
-    it('the Feature-3 H1 has NOT yet shipped (preserves current H1 for now)', () => {
-      // The new H1 "Track calories for the goal you're working toward."
-      // belongs to Feature 3 (Hero Goal Selector). This PR must not
-      // change it.
-      expect(source).not.toContain("Track calories for the goal you're working toward");
-    });
-  });
+  // Note: the Feature-3 H1 cross-PR guard was removed once Feature 3
+  // shipped. The new H1 now lives in Hero.tsx (asserted in Hero.test.tsx),
+  // not in page.tsx, so the guard would always pass trivially.
 });

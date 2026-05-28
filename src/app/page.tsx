@@ -1,4 +1,3 @@
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -11,6 +10,7 @@ const PricingSection = dynamic(() => import("@/components/PricingSection"));
 const FAQSection = dynamic(() => import("@/components/FAQSection"));
 const VideoPreview = dynamic(() => import("@/components/VideoPreview"));
 import { GoalPathways } from "@/components/landing/GoalPathways";
+import { HeroAndCalculatorFlow } from "@/components/landing/HeroAndCalculatorFlow";
 
 const softwareAppJsonLd = {
   "@context": "https://schema.org",
@@ -141,144 +141,8 @@ export default async function Home() {
       />
       <Navigation />
 
-      {/* Hero Section */}
-      <section className="relative pt-28 pb-20 md:pt-40 md:pb-32 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-            {/* Left: Content */}
-            <div className="text-center lg:text-left">
-              <div className="hero-fade-up animation-delay-100">
-                <h1 className="text-hero-mobile md:text-hero text-foreground mb-6">
-                  Snap a Photo.
-                  <br />
-                  <span className="text-gradient">Know Your Calories.</span>
-                </h1>
-              </div>
-
-              <div className="hero-fade-up animation-delay-200">
-                <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                  Point your camera at any meal — CalorieCue&apos;s AI identifies
-                  your food and tracks nutrition in 3 seconds.
-                </p>
-              </div>
-
-              <div className="hero-fade-up animation-delay-300">
-                <div className="grid grid-cols-1 sm:flex sm:flex-row items-center lg:items-start gap-4 mx-auto lg:mx-0">
-                  <AppStoreButton variant="hero" hideTagline className="w-full sm:w-auto [&>div]:w-full [&>div]:sm:w-auto" />
-                  <a
-                    href="/tdee-calculator"
-                    className="group flex items-center justify-center gap-3.5 px-6 py-3.5 rounded-xl border border-primary/20 bg-gradient-to-b from-white to-primary-50/30 hover:border-primary/40 hover:shadow-md hover:shadow-primary/10 transition-all duration-200 w-full sm:w-auto"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-primary-dark leading-none opacity-90">
-                        Free TDEE Calculator
-                      </span>
-                      <span className="text-xl font-semibold text-foreground leading-tight -mt-0.5">
-                        Calculate Now
-                      </span>
-                    </div>
-                    <svg className="w-4 h-4 text-primary/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                    </svg>
-                  </a>
-                </div>
-                <p className="mt-3 text-xs text-muted-foreground text-center lg:text-left">
-                  Find your daily calories — with personalized meal planning.
-                </p>
-              </div>
-
-              {/* Trust indicators */}
-              <div className="hero-fade-in animation-delay-500">
-                <div className="mt-10 flex flex-wrap items-center gap-3 sm:gap-6 justify-center lg:justify-start text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <svg
-                      className="w-5 h-5 text-primary"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span>Free to use</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <svg
-                      className="w-5 h-5 text-primary"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span>No ads</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <svg
-                      className="w-5 h-5 text-primary"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span>Privacy first</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Hero Image */}
-            <div className="flex justify-center lg:justify-end hero-image-enter">
-              <div className="relative">
-                {/* Layer 1: Ambient shadow */}
-                <div
-                  className="absolute inset-0 translate-x-4 translate-y-8 md:translate-x-10 md:translate-y-20 bg-black/10 blur-[30px] md:blur-[50px] rounded-[2.5rem]"
-                  style={{ zIndex: 1 }}
-                  aria-hidden="true"
-                />
-                {/* Layer 2: Mid shadow */}
-                <div
-                  className="absolute inset-0 translate-x-3 translate-y-6 md:translate-x-7 md:translate-y-14 bg-black/15 blur-[20px] md:blur-[35px] rounded-[2.5rem]"
-                  style={{ zIndex: 2 }}
-                  aria-hidden="true"
-                />
-                {/* Layer 3: Contact shadow */}
-                <div
-                  className="absolute inset-0 translate-x-2 translate-y-4 md:translate-x-4 md:translate-y-8 bg-black/20 blur-[12px] md:blur-[20px] rounded-[2.5rem]"
-                  style={{ zIndex: 3 }}
-                  aria-hidden="true"
-                />
-                <Image
-                  src="/mockup-caloriecue.webp"
-                  alt="CalorieCue AI scanning a meal"
-                  width={340}
-                  height={680}
-                  priority
-                  sizes="(max-width: 768px) 260px, 340px"
-                  className="relative z-10 w-[260px] md:w-[340px] h-auto"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero (Goal Selector) + Inline Calculator placeholder */}
+      <HeroAndCalculatorFlow stats={stats} />
 
       {/* Social Proof Section */}
       <section className="py-14 md:py-16 px-4 bg-background border-y border-border">
