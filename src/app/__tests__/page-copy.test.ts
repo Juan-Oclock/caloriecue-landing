@@ -19,6 +19,8 @@ const PAGE_PATH = path.join(process.cwd(), 'src/app/page.tsx');
 // content-presence assertions can use plain ASCII strings.
 const source = fs.readFileSync(PAGE_PATH, 'utf-8').replace(/&apos;/g, "'");
 
+// Note: "How to actually hit your number" moved to Method.tsx in
+// Feature 5 — its presence is now asserted by Method.test.tsx.
 const NEW_HEADERS = [
   'Everything you need to actually hit your goal',
   'No more guessing portion sizes',
@@ -27,7 +29,6 @@ const NEW_HEADERS = [
   'Stay on track even when eating out',
   'A nutritionist in your pocket for the tricky decisions',
   'Packaged foods, one-tap accurate',
-  'How to actually hit your number',
   'What a normal day of tracking looks like',
   'Real people, real results',
   "Pick your goal. We'll handle the math.",
