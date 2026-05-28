@@ -348,7 +348,7 @@ export default async function Home() {
               Features
             </span>
             <h2 className="text-display-mobile md:text-display text-foreground mb-4">
-              Smart Features for Smart Tracking
+              Everything you need to actually hit your goal
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Everything you need to take control of your nutrition with
@@ -358,7 +358,7 @@ export default async function Home() {
 
           {/* Bento Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 lg:[grid-auto-rows:minmax(200px,auto)]">
-            {/* Hero Card: AI Meal Scanning - spans 2 cols, 2 rows on lg */}
+            {/* Hero Card: No more guessing portion sizes - spans 2 cols, 2 rows on lg */}
             <FadeInCSS
               y={30}
               viewportMargin="-50px"
@@ -411,11 +411,11 @@ export default async function Home() {
 
                 {/* Text */}
                 <h3 className="text-xl md:text-2xl font-bold text-foreground mb-3">
-                  AI Meal Scanning
+                  No more guessing portion sizes
                 </h3>
                 <p className="text-muted-foreground leading-relaxed text-sm md:text-base max-w-sm">
-                  Point, snap, done. AI identifies your food and tracks calories
-                  in 3 seconds. Works on any cuisine — from sushi to sinigang.
+                  Snap a photo. Our AI identifies your food and tracks nutrition
+                  in 3 seconds — so logging never feels like work.
                 </p>
 
                 {/* Camera viewfinder illustration */}
@@ -482,11 +482,11 @@ export default async function Home() {
                   />
                 </svg>
               }
-              title="AI Coach (Cue)"
+              title="A nutritionist in your pocket for the tricky decisions"
               description="Get personalized nutrition advice and meal suggestions from your AI coach, always available to help."
             />
 
-            {/* Barcode Scanner - 1x1 */}
+            {/* Packaged foods, one-tap accurate - 1x1 */}
             <FeatureCard
               delay={0.2}
               iconBg="bg-teal-50"
@@ -506,11 +506,11 @@ export default async function Home() {
                   />
                 </svg>
               }
-              title="Barcode Scanner"
+              title="Packaged foods, one-tap accurate"
               description="Scan barcodes for instant nutrition data from our comprehensive food database."
             />
 
-            {/* Smart Notifications - 1x1 */}
+            {/* Stay on track even when eating out - 1x1 */}
             <FeatureCard
               delay={0.3}
               iconBg="bg-amber-50"
@@ -530,11 +530,11 @@ export default async function Home() {
                   />
                 </svg>
               }
-              title="Smart Notifications"
+              title="Stay on track even when eating out"
               description="Gentle reminders to log meals and stay on track throughout the day."
             />
 
-            {/* Progress Tracking - spans 2 cols on lg */}
+            {/* Understand why your weight is changing - spans 2 cols on lg */}
             <FeatureCard
               delay={0.4}
               className="lg:col-span-2"
@@ -555,11 +555,11 @@ export default async function Home() {
                   />
                 </svg>
               }
-              title="Progress Tracking"
+              title="Understand why your weight is changing"
               description="Track your calories, macros, weight, and see your progress over time with beautiful visualizations."
             />
 
-            {/* Quick Logging - spans 2 cols on lg */}
+            {/* Log meals before you forget - spans 2 cols on lg */}
             <FeatureCard
               delay={0.5}
               className="lg:col-span-2"
@@ -580,7 +580,7 @@ export default async function Home() {
                   />
                 </svg>
               }
-              title="Quick Logging"
+              title="Log meals before you forget"
               description="Log meals in seconds with natural language input. Just type what you ate and we'll handle the rest."
             />
           </div>
@@ -595,7 +595,7 @@ export default async function Home() {
               Preview
             </span>
             <h2 className="text-display-mobile md:text-display text-foreground mb-4">
-              See It in Action
+              What a normal day of tracking looks like
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Watch how easy it is to track your nutrition with CalorieCue.
@@ -618,7 +618,7 @@ export default async function Home() {
               Reviews
             </span>
             <h2 className="text-display-mobile md:text-display text-foreground mb-4">
-              Loved by Our Users
+              Real people, real results
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               See what people are saying on the App Store.
@@ -697,7 +697,7 @@ export default async function Home() {
               How It Works
             </span>
             <h2 className="text-display-mobile md:text-display text-foreground mb-4">
-              Start in Three Steps
+              How to actually hit your number
             </h2>
             <p className="text-muted-foreground text-lg">
               Begin your journey to better nutrition in minutes.
@@ -830,7 +830,7 @@ export default async function Home() {
               Get Started
             </span>
             <h2 className="text-display-mobile md:text-display text-foreground mb-4">
-              Ready to Take Control?
+              Pick your goal. We&apos;ll handle the math.
             </h2>
             <p className="text-muted-foreground text-lg mb-10 max-w-xl mx-auto">
               Download now and start your journey to better nutrition today.
