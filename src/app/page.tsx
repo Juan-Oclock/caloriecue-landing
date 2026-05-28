@@ -10,7 +10,7 @@ import ScanLineAnimation from "@/components/ScanLineAnimation";
 const PricingSection = dynamic(() => import("@/components/PricingSection"));
 const FAQSection = dynamic(() => import("@/components/FAQSection"));
 const VideoPreview = dynamic(() => import("@/components/VideoPreview"));
-const BlogPreview = dynamic(() => import("@/components/BlogPreview"));
+import { GoalPathways } from "@/components/landing/GoalPathways";
 
 const softwareAppJsonLd = {
   "@context": "https://schema.org",
@@ -815,8 +815,9 @@ export default async function Home() {
       {/* FAQ Section */}
       <FAQSection />
 
-      {/* Blog Preview */}
-      <BlogPreview />
+      {/* Goal Pathways — replaces old "Popular Calorie Tracking Guides" section.
+          Final position will be set in Feature 5 (Method + page reorder). */}
+      <GoalPathways />
 
       {/* CTA Section */}
       <section className="py-24 md:py-32 px-4 relative overflow-hidden">
