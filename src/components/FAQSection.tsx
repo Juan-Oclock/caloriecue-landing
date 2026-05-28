@@ -2,44 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const FAQ_ITEMS = [
-  {
-    question: "How accurate is the AI calorie estimation?",
-    answer:
-      "Our AI estimates are typically within 10\u201315% of actual values, and you can always adjust portion sizes for better accuracy. For packaged foods, our barcode scanner pulls exact nutrition data from verified databases.",
-  },
-  {
-    question: "Is CalorieCue really free?",
-    answer:
-      "Yes! The free tier includes unlimited photo and barcode scans for your first 3 days, plus 3 AI Coach messages per day. For unlimited access to all features, CalorieCue Premium is $3.99/month (or $19.99/year) with a 7-day free trial.",
-  },
-  {
-    question: "What types of food can CalorieCue recognize?",
-    answer:
-      "CalorieCue works with virtually any food \u2014 home-cooked meals, restaurant dishes, mixed plates, single items, and any cuisine from sushi to sinigang. You can also scan barcodes on packaged foods or log meals manually with natural language.",
-  },
-  {
-    question: "How is this different from MyFitnessPal or Lose It?",
-    answer:
-      "CalorieCue is photo-first \u2014 just snap a picture instead of searching through endless food databases. Our AI Coach (Cue) provides personalized nutrition advice on demand, and the interface is designed for speed: log a meal in 3 seconds, not 30.",
-  },
-  {
-    question: "Is my data private and secure?",
-    answer:
-      "Absolutely. We never sell your data or show ads. Apple Health data stays on your device. Your meal photos are processed securely and are not used to train AI models. Read our full privacy policy for details.",
-  },
-  {
-    question: "Does CalorieCue work offline?",
-    answer:
-      "AI photo scanning and the AI Coach require an internet connection. However, manual food logging and viewing your diary history work offline \u2014 data syncs automatically when you\u2019re back online.",
-  },
-  {
-    question: "Is CalorieCue available on Android?",
-    answer:
-      "CalorieCue is currently iOS-only. We\u2019re working on an Android version \u2014 join our waitlist to get notified the moment it launches!",
-  },
-];
+import { FAQ_ITEMS } from "@/lib/faq-data";
 
 export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);

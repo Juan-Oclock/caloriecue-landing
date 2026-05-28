@@ -12,6 +12,8 @@ const VideoPreview = dynamic(() => import("@/components/VideoPreview"));
 import { GoalPathways } from "@/components/landing/GoalPathways";
 import { HeroAndCalculatorFlow } from "@/components/landing/HeroAndCalculatorFlow";
 import { Method } from "@/components/landing/Method";
+import { ResultsAndAuthority } from "@/components/landing/ResultsAndAuthority";
+import { buildFaqPageJsonLd } from "@/lib/faq-data";
 
 const softwareAppJsonLd = {
   "@context": "https://schema.org",
@@ -29,7 +31,7 @@ const softwareAppJsonLd = {
   aggregateRating: {
     "@type": "AggregateRating",
     ratingValue: 5.0,
-    reviewCount: 3,
+    reviewCount: 4,
     bestRating: 5,
     worstRating: 1,
   },
@@ -37,70 +39,37 @@ const softwareAppJsonLd = {
     "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503",
 };
 
-const faqJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: [
-    {
-      "@type": "Question",
-      name: "How accurate is the AI calorie estimation?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Our AI estimates are typically within 10\u201315% of actual values, and you can always adjust portion sizes for better accuracy. For packaged foods, our barcode scanner pulls exact nutrition data from verified databases.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Is CalorieCue really free?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Yes! The free tier includes unlimited photo and barcode scans for your first 3 days, plus 3 AI Coach messages per day. For unlimited access to all features, CalorieCue Premium is $3.99/month (or $19.99/year) with a 7-day free trial.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "What types of food can CalorieCue recognize?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "CalorieCue works with virtually any food \u2014 home-cooked meals, restaurant dishes, mixed plates, single items, and any cuisine from sushi to sinigang. You can also scan barcodes on packaged foods or log meals manually with natural language.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "How is this different from MyFitnessPal or Lose It?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "CalorieCue is photo-first \u2014 just snap a picture instead of searching through endless food databases. Our AI Coach (Cue) provides personalized nutrition advice on demand, and the interface is designed for speed: log a meal in 3 seconds, not 30.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Is my data private and secure?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Absolutely. We never sell your data or show ads. Apple Health data stays on your device. Your meal photos are processed securely and are not used to train AI models.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Does CalorieCue work offline?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "AI photo scanning and the AI Coach require an internet connection. However, manual food logging and viewing your diary history work offline \u2014 data syncs automatically when you\u2019re back online.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Is CalorieCue available on Android?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "CalorieCue is currently iOS-only. We\u2019re working on an Android version \u2014 join our waitlist to get notified the moment it launches!",
-      },
-    },
-  ],
-};
+// FAQ structured data is derived from the single shared FAQ source
+// (src/lib/faq-data.ts) so the visible accordion and the SEO schema can
+// never drift apart.
+const faqJsonLd = buildFaqPageJsonLd();
 
 export const revalidate = 3600; // Revalidate stats every hour
+
+// Verbatim App Store reviews. Keep in sync with aggregateRating.reviewCount
+// in softwareAppJsonLd above.
+const APP_STORE_REVIEWS = [
+  {
+    author: "BiggiAgile123",
+    text: "I like that it’s connected with Apple Health.",
+    source: "App Store Review",
+  },
+  {
+    author: "Sol Maraiah",
+    text: "Very seamless to use, friendly user and it only takes few seconds to load. No lag, app is way better than those in the market right now. Actual weight and est weight of the AI is pretty accurate.",
+    source: "App Store Review",
+  },
+  {
+    author: "App Store User",
+    text: "I really like this app because it’s very easy to navigate and user-friendly. Logging food is much easier, especially with the photo feature where the AI scans the food and automatically calculates the calories.",
+    source: "App Store Review",
+  },
+  {
+    author: "D.mercer",
+    text: "works exactly how i expected and is good with weight loss goals",
+    source: "App Store Review",
+  },
+];
 
 const FALLBACK_STATS = { total_users: 2990, meals_scanned: 17314, calories_logged: 2875630, app_store_rating: 4.9 };
 
@@ -481,84 +450,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-24 md:py-32 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <FadeInCSS className="text-center mb-16">
-            <span className="inline-block text-primary-dark font-medium text-sm mb-3 uppercase tracking-wider">
-              Reviews
-            </span>
-            <h2 className="text-display-mobile md:text-display text-foreground mb-4">
-              Real people, real results
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              See what people are saying on the App Store.
-            </p>
-          </FadeInCSS>
-
-          <div className="grid md:grid-cols-3 gap-5 lg:gap-6">
-            {[
-              {
-                title: "Great app!",
-                author: "BiggiAgile123",
-                text: "I like that it\u2019s connected with Apple Health.",
-              },
-              {
-                title: "I love it!",
-                author: "Sol Maraiah",
-                text: "Very seamless to use, friendly user and it only takes few seconds to load. No lag, app is way better than those in the market right now. Actual weight and est weight of the AI is pretty accurate.",
-              },
-              {
-                title: "Simple and Convenient Food Tracker",
-                author: "App Store User",
-                text: "I really like this app because it\u2019s very easy to navigate and user-friendly. Logging food is much easier, especially with the photo feature where the AI scans the food and automatically calculates the calories.",
-              },
-            ].map((review, index) => (
-              <FadeInCSS
-                key={index}
-                y={30}
-                delay={index * 0.1}
-                viewportMargin="-50px"
-                className="bg-background rounded-2xl border border-border p-6 md:p-7 flex flex-col"
-              >
-                {/* Stars */}
-                <div className="flex gap-[2px] mb-5">
-                  {[...Array(5)].map((_, i) => (
-                    <svg
-                      key={i}
-                      className="w-3.5 h-3.5 text-amber-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-
-                {/* Text */}
-                <p className="text-sm text-muted-foreground leading-relaxed flex-1">
-                  {review.text}
-                </p>
-
-                {/* Author — bottom left */}
-                <div className="flex items-center gap-3 mt-6">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white text-xs font-bold shrink-0">
-                    {review.author.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground leading-tight">
-                      {review.author}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      App Store Review
-                    </p>
-                  </div>
-                </div>
-              </FadeInCSS>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Results + Authority Section */}
+      <ResultsAndAuthority reviews={APP_STORE_REVIEWS} />
 
 
       {/* Pricing Section */}
@@ -585,7 +478,21 @@ export default async function Home() {
               Download now and start your journey to better nutrition today.
             </p>
 
-            <AppStoreButton variant="hero" centered />
+            {/* Two paths in v1 — download or read the guides.
+                TODO (v1.1): reintroduce a third path (deliver a
+                personalized plan) once that flow is built. */}
+            <div className="flex flex-col sm:flex-row sm:items-stretch justify-center gap-3 max-w-xl mx-auto">
+              <AppStoreButton variant="hero" centered hideTagline className="w-full sm:w-auto [&>div]:w-full [&>div]:sm:w-auto [&>div]:h-full [&_a]:h-full [&_a>div]:h-full" />
+              <a
+                href="/blog"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-border bg-white text-foreground text-lg font-semibold hover:border-primary/40 hover:text-primary-dark transition-colors w-full sm:w-auto"
+              >
+                Browse the guides
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
           </FadeInCSS>
         </div>
       </section>

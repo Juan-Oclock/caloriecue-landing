@@ -30,7 +30,8 @@ const NEW_HEADERS = [
   'A nutritionist in your pocket for the tricky decisions',
   'Packaged foods, one-tap accurate',
   'What a normal day of tracking looks like',
-  'Real people, real results',
+  // Note: "Real people, real results" moved to ResultsAndAuthority.tsx in
+  // Feature 6 — its presence is now asserted by ResultsAndAuthority.test.tsx.
   "Pick your goal. We'll handle the math.",
 ];
 
