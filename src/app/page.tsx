@@ -101,7 +101,7 @@ const faqJsonLd = {
 
 export const revalidate = 3600; // Revalidate stats every hour
 
-const FALLBACK_STATS = { total_users: 700, meals_scanned: 2800, calories_logged: 480000, app_store_rating: 4.9 };
+const FALLBACK_STATS = { total_users: 2990, meals_scanned: 17314, calories_logged: 2875630, app_store_rating: 4.9 };
 
 async function getLandingStats() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -286,7 +286,11 @@ export default async function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12 text-center">
             <FadeInCSS>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
-                <AnimatedCounter target={stats.total_users} suffix="+" />
+                <AnimatedCounter
+                  target={stats.total_users}
+                  suffix="+"
+                  ariaLabel={`${stats.total_users.toLocaleString("en-US")}+ active users`}
+                />
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 Active Users
@@ -295,7 +299,11 @@ export default async function Home() {
 
             <FadeInCSS delay={0.1}>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
-                <AnimatedCounter target={stats.meals_scanned} suffix="+" />
+                <AnimatedCounter
+                  target={stats.meals_scanned}
+                  suffix="+"
+                  ariaLabel={`${stats.meals_scanned.toLocaleString("en-US")}+ meals scanned`}
+                />
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 Meals Scanned
@@ -304,7 +312,11 @@ export default async function Home() {
 
             <FadeInCSS delay={0.2}>
               <div className="text-3xl md:text-4xl font-bold text-foreground">
-                <AnimatedCounter target={stats.calories_logged} suffix="+" />
+                <AnimatedCounter
+                  target={stats.calories_logged}
+                  suffix="+"
+                  ariaLabel={`${stats.calories_logged.toLocaleString("en-US")}+ calories logged`}
+                />
               </div>
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 Calories Logged
