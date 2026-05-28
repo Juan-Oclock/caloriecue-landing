@@ -208,11 +208,12 @@ export function InlineCalculator({
   return (
     <section
       id="calculator"
-      className="scroll-mt-24 px-4 py-20 md:py-28 bg-background"
+      className="scroll-mt-24 px-4 py-20 md:py-28 bg-gradient-to-b from-background via-primary-50/20 to-background"
     >
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-10">
-          <span className="inline-block text-primary-dark font-medium text-sm mb-3 uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary-dark px-3 py-1 text-xs font-semibold uppercase tracking-wider mb-4">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" aria-hidden="true" />
             Calculator
           </span>
           <h2 className="text-display-mobile md:text-display text-foreground mb-4">
@@ -223,7 +224,7 @@ export function InlineCalculator({
           </p>
         </div>
 
-        <div className="rounded-3xl border border-border bg-white p-6 md:p-8 shadow-sm">
+        <div className="rounded-3xl border border-border/60 bg-white p-6 md:p-8 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] ring-1 ring-black/[0.02]">
           {view === "input" ? (
             <InputView
               inputs={inputs}
@@ -269,67 +270,72 @@ function InputView({
   onSubmit,
 }: InputViewProps) {
   return (
-    <form onSubmit={onSubmit} className="space-y-6" noValidate>
-      {/* Gender */}
-      <div>
-        <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-          Gender
-        </span>
-        <div className="grid grid-cols-2 gap-2" role="group" aria-label="Gender">
-          {(["male", "female"] as Gender[]).map((g) => {
-            const active = inputs.gender === g;
-            return (
-              <button
-                key={g}
-                type="button"
-                aria-pressed={active}
-                onClick={() => setField("gender", g)}
-                className={`rounded-xl border py-3 text-sm font-semibold transition-colors ${
-                  active
-                    ? "border-primary bg-primary/10 text-primary-dark"
-                    : "border-border bg-white text-foreground hover:border-primary/30"
-                }`}
-              >
-                {g === "male" ? "Male" : "Female"}
-              </button>
-            );
-          })}
+    <form onSubmit={onSubmit} className="space-y-5" noValidate>
+      {/* Gender + Age — two-column row to reduce vertical length */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <span className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            Gender
+          </span>
+          <div className="grid grid-cols-2 gap-2" role="group" aria-label="Gender">
+            {(["male", "female"] as Gender[]).map((g) => {
+              const active = inputs.gender === g;
+              return (
+                <button
+                  key={g}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => setField("gender", g)}
+                  className={`rounded-xl border-2 py-2.5 text-sm font-semibold transition-all ${
+                    active
+                      ? "border-primary bg-primary/10 text-primary-dark shadow-sm"
+                      : "border-border bg-white text-foreground hover:border-primary/40 hover:bg-primary/[0.03]"
+                  }`}
+                >
+                  {g === "male" ? "Male" : "Female"}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Age */}
-      <div>
-        <label
-          htmlFor="calc-age"
-          className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
-        >
-          Age
-        </label>
-        <input
-          id="calc-age"
-          type="number"
-          inputMode="numeric"
-          min={1}
-          max={120}
-          value={inputs.age}
-          onChange={(e) => setField("age", e.target.value)}
-          aria-invalid={Boolean(errors.age)}
-          aria-describedby={errors.age ? "calc-age-error" : undefined}
-          className="w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          placeholder="e.g. 30"
-        />
-        {errors.age && (
-          <p id="calc-age-error" className="mt-1.5 text-xs text-red-600">
-            {errors.age}
-          </p>
-        )}
+        <div>
+          <label
+            htmlFor="calc-age"
+            className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2"
+          >
+            Age
+          </label>
+          <input
+            id="calc-age"
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={120}
+            value={inputs.age}
+            onChange={(e) => setField("age", e.target.value)}
+            aria-invalid={Boolean(errors.age)}
+            aria-describedby={errors.age ? "calc-age-error" : undefined}
+            className={`w-full rounded-xl border-2 bg-white px-4 py-2.5 text-base text-foreground placeholder:text-muted-foreground/50 transition-all focus:outline-none focus:ring-4 ${
+              errors.age
+                ? "border-red-300 focus:border-red-500 focus:ring-red-500/15"
+                : "border-border focus:border-primary focus:ring-primary/15"
+            }`}
+            placeholder="30"
+          />
+          {errors.age && (
+            <p id="calc-age-error" className="mt-1.5 text-xs text-red-600">
+              {errors.age}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Weight + unit */}
       <div>
         <label
           htmlFor="calc-weight"
-          className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
+          className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2"
         >
           Weight
         </label>
@@ -344,8 +350,12 @@ function InputView({
             onChange={(e) => setField("weightValue", e.target.value)}
             aria-invalid={Boolean(errors.weight)}
             aria-describedby={errors.weight ? "calc-weight-error" : undefined}
-            className="flex-1 rounded-xl border border-border bg-white px-4 py-3 text-base text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-            placeholder={inputs.weightUnit === "kg" ? "e.g. 75" : "e.g. 165"}
+            className={`flex-1 rounded-xl border-2 bg-white px-4 py-2.5 text-base text-foreground placeholder:text-muted-foreground/50 transition-all focus:outline-none focus:ring-4 ${
+              errors.weight
+                ? "border-red-300 focus:border-red-500 focus:ring-red-500/15"
+                : "border-border focus:border-primary focus:ring-primary/15"
+            }`}
+            placeholder={inputs.weightUnit === "kg" ? "75" : "165"}
           />
           <UnitToggle
             label="Weight unit"
@@ -365,7 +375,7 @@ function InputView({
       <div>
         <label
           htmlFor="calc-height"
-          className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
+          className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2"
         >
           Height
         </label>
@@ -380,8 +390,12 @@ function InputView({
             onChange={(e) => setField("heightValue", e.target.value)}
             aria-invalid={Boolean(errors.height)}
             aria-describedby={errors.height ? "calc-height-error" : undefined}
-            className="flex-1 rounded-xl border border-border bg-white px-4 py-3 text-base text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-            placeholder={inputs.heightUnit === "cm" ? "e.g. 175" : "e.g. 69"}
+            className={`flex-1 rounded-xl border-2 bg-white px-4 py-2.5 text-base text-foreground placeholder:text-muted-foreground/50 transition-all focus:outline-none focus:ring-4 ${
+              errors.height
+                ? "border-red-300 focus:border-red-500 focus:ring-red-500/15"
+                : "border-border focus:border-primary focus:ring-primary/15"
+            }`}
+            placeholder={inputs.heightUnit === "cm" ? "175" : "69"}
           />
           <UnitToggle
             label="Height unit"
@@ -401,31 +415,43 @@ function InputView({
       <div>
         <label
           htmlFor="calc-activity"
-          className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
+          className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2"
         >
           Activity level
         </label>
-        <select
-          id="calc-activity"
-          value={inputs.activityLevel}
-          onChange={(e) => setField("activityLevel", e.target.value as ActivityLevel)}
-          className="w-full appearance-none rounded-xl border border-border bg-white px-4 py-3 text-base text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-        >
-          {ACTIVITY_OPTIONS.map((level) => (
-            <option key={level} value={level}>
-              {ACTIVITY_LABELS[level].title} — {ACTIVITY_LABELS[level].description}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <select
+            id="calc-activity"
+            value={inputs.activityLevel}
+            onChange={(e) => setField("activityLevel", e.target.value as ActivityLevel)}
+            className="w-full appearance-none rounded-xl border-2 border-border bg-white px-4 py-2.5 pr-10 text-base text-foreground transition-all focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+          >
+            {ACTIVITY_OPTIONS.map((level) => (
+              <option key={level} value={level}>
+                {ACTIVITY_LABELS[level].title} — {ACTIVITY_LABELS[level].description}
+              </option>
+            ))}
+          </select>
+          <svg
+            className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
 
       {/* Goal */}
       <div>
-        <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+        <span className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
           Goal
         </span>
         <div
-          className="grid grid-cols-2 gap-2"
+          className="grid grid-cols-2 gap-2.5"
           role="group"
           aria-label="Goal"
         >
@@ -437,14 +463,16 @@ function InputView({
                 type="button"
                 aria-pressed={active}
                 onClick={() => setField("goal", goal)}
-                className={`flex items-center justify-center gap-2 rounded-xl border py-3 text-sm font-semibold transition-colors ${
+                className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border-2 py-3.5 text-sm font-semibold transition-all ${
                   active
-                    ? "border-primary bg-primary/10 text-primary-dark"
-                    : "border-border bg-white text-foreground hover:border-primary/30"
+                    ? "border-primary bg-primary/10 text-primary-dark shadow-sm"
+                    : "border-border bg-white text-foreground hover:border-primary/40 hover:bg-primary/[0.03]"
                 }`}
               >
-                <span aria-hidden="true">{emoji}</span>
-                {label}
+                <span className="text-2xl leading-none" aria-hidden="true">
+                  {emoji}
+                </span>
+                <span className="leading-tight">{label}</span>
               </button>
             );
           })}
@@ -454,9 +482,19 @@ function InputView({
       {/* Submit */}
       <button
         type="submit"
-        className="w-full rounded-xl bg-primary py-4 text-base font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark"
+        className="group relative mt-2 inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-primary py-4 text-base font-semibold text-white shadow-md transition-all hover:bg-primary-dark hover:shadow-lg active:scale-[0.99]"
       >
         Find My Number
+        <svg
+          className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
       </button>
     </form>
   );
@@ -510,47 +548,76 @@ interface ResultViewProps {
 function ResultView({ result, ctas, onRecalculate, onCtaClick }: ResultViewProps) {
   const [proteinLow, proteinHigh] = result.proteinRangeGrams;
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
+      {/* Hero number */}
       <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary-dark mb-2">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-primary-dark mb-3">
           Your target
         </p>
-        <p className="text-3xl md:text-4xl font-bold text-foreground">
-          about {result.dailyCalories.toLocaleString("en-US")} calories/day
+        <p
+          className="text-sm font-medium text-muted-foreground mb-1"
+          aria-hidden="true"
+        >
+          about
         </p>
+        <p className="leading-none">
+          <span className="bg-gradient-to-br from-primary to-primary-dark bg-clip-text text-6xl md:text-7xl font-bold text-transparent tabular-nums">
+            {result.dailyCalories.toLocaleString("en-US")}
+          </span>
+        </p>
+        <p className="mt-2 text-sm font-medium text-muted-foreground">
+          calories/day
+        </p>
+        <span className="sr-only">
+          Your target: about {result.dailyCalories.toLocaleString("en-US")} calories per day
+        </span>
       </div>
 
-      <dl className="rounded-2xl bg-muted/30 px-5 py-4 space-y-3">
-        <div className="flex items-baseline justify-between gap-4">
-          <dt className="text-sm text-muted-foreground">Protein</dt>
-          <dd className="text-sm font-semibold text-foreground">
-            {proteinLow}–{proteinHigh}g/day
-          </dd>
-        </div>
-        <div className="flex items-baseline justify-between gap-4">
-          <dt className="text-sm text-muted-foreground">Goal pace</dt>
-          <dd className="text-sm font-semibold text-foreground">
-            {result.goalPaceLabel}
-          </dd>
-        </div>
-        <div className="flex items-baseline justify-between gap-4">
-          <dt className="text-sm text-muted-foreground">Maintenance estimate</dt>
-          <dd className="text-sm font-semibold text-foreground">
-            ~{result.maintenanceCalories.toLocaleString("en-US")} cal/day
-          </dd>
-        </div>
-      </dl>
-
-      <div className="rounded-2xl border border-primary/15 bg-primary/[0.04] px-5 py-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary-dark mb-1.5">
-          Best next step
-        </p>
-        <p className="text-sm text-foreground leading-relaxed">
-          {result.nextStepText}
-        </p>
+      {/* Metric cards row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <MetricCard
+          label="Protein"
+          value={`${proteinLow}–${proteinHigh}`}
+          unit="g/day"
+        />
+        <MetricCard
+          label="Pace"
+          value={result.goalPaceLabel.split(" ")[0]}
+          unit={result.goalPaceLabel.split(" ").slice(1).join(" ")}
+        />
+        <MetricCard
+          label="Maintenance"
+          value={`~${result.maintenanceCalories.toLocaleString("en-US")}`}
+          unit="cal/day"
+        />
       </div>
 
-      <div className="flex flex-col gap-3">
+      {/* Next step callout */}
+      <div className="flex items-start gap-3 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.06] to-primary/[0.02] px-5 py-4">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15">
+          <svg
+            className="h-4 w-4 text-primary-dark"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-primary-dark mb-1">
+            Best next step
+          </p>
+          <p className="text-sm text-foreground leading-relaxed">
+            {result.nextStepText}
+          </p>
+        </div>
+      </div>
+
+      {/* CTAs */}
+      <div className="flex flex-col gap-2.5">
         {ctas.map((cta) => (
           <a
             key={cta.label}
@@ -558,47 +625,85 @@ function ResultView({ result, ctas, onRecalculate, onCtaClick }: ResultViewProps
             onClick={() => onCtaClick(cta.analyticsId)}
             className={
               cta.variant === "primary"
-                ? "inline-flex items-center justify-center rounded-xl bg-primary py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark"
-                : "inline-flex items-center justify-center rounded-xl border border-primary/30 bg-white py-3.5 text-base font-semibold text-primary-dark transition-colors hover:border-primary/60 hover:bg-primary/5"
+                ? "group inline-flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-base font-semibold text-white shadow-md transition-all hover:bg-primary-dark hover:shadow-lg active:scale-[0.99]"
+                : "group inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary/25 bg-white py-3.5 text-base font-semibold text-primary-dark transition-all hover:border-primary/50 hover:bg-primary/[0.04]"
             }
           >
             {cta.label}
+            <svg
+              className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
           </a>
         ))}
       </div>
 
-      <p className="text-xs text-muted-foreground leading-relaxed text-center">
-        Based on standard TDEE formulas (Mifflin-St Jeor) and adjustable
-        activity estimates. Your target is a starting point, not medical
-        advice.{" "}
-        <a
-          href="/tdee-calculator#methodology"
-          className="underline underline-offset-2 hover:text-foreground"
-        >
-          See full methodology
-        </a>
-        .
-      </p>
+      {/* Trust + power-user lines + recalculate */}
+      <div className="space-y-3 border-t border-border/60 pt-5">
+        <p className="text-xs text-muted-foreground leading-relaxed text-center">
+          Based on standard TDEE formulas (Mifflin-St Jeor) and adjustable
+          activity estimates. Your target is a starting point, not medical
+          advice.{" "}
+          <a
+            href="/tdee-calculator#methodology"
+            className="font-medium text-foreground underline underline-offset-2 decoration-foreground/30 hover:decoration-foreground"
+          >
+            See full methodology
+          </a>
+          .
+        </p>
 
-      <p className="text-xs text-muted-foreground text-center">
-        Want the detailed breakdown with multiple formulas?{" "}
-        <a
-          href="/tdee-calculator"
-          className="underline underline-offset-2 hover:text-foreground"
-        >
-          See the full TDEE calculator →
-        </a>
-      </p>
-
-      <div className="text-center pt-2">
-        <button
-          type="button"
-          onClick={onRecalculate}
-          className="text-sm font-medium text-muted-foreground hover:text-foreground underline underline-offset-2"
-        >
-          Recalculate
-        </button>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-xs text-muted-foreground">
+          <a
+            href="/tdee-calculator"
+            className="inline-flex items-center gap-1 font-medium text-foreground/80 hover:text-foreground"
+          >
+            <span>Full TDEE calculator</span>
+            <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+          <span className="hidden sm:inline opacity-40" aria-hidden="true">·</span>
+          <button
+            type="button"
+            onClick={onRecalculate}
+            className="inline-flex items-center gap-1 font-medium text-foreground/80 hover:text-foreground"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Recalculate
+          </button>
+        </div>
       </div>
+    </div>
+  );
+}
+
+interface MetricCardProps {
+  label: string;
+  value: string;
+  unit: string;
+}
+
+function MetricCard({ label, value, unit }: MetricCardProps) {
+  return (
+    <div className="rounded-2xl border border-border/60 bg-muted/20 px-4 py-3.5 text-center">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+        {label}
+      </p>
+      <p className="text-lg font-bold text-foreground tabular-nums leading-tight">
+        {value}
+      </p>
+      <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+        {unit}
+      </p>
     </div>
   );
 }

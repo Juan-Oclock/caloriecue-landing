@@ -81,19 +81,30 @@ describe('InlineCalculator — result state', () => {
   });
 
   it('result includes "about" prefix on the calorie number (no false precision)', async () => {
-    setup();
+    const { container } = setup();
     await fillValidInputsAndSubmit();
     await screen.findByText('Your target', { exact: true });
-    expect(screen.getByText(/about\s+[\d,]+\s+calories\/day/i)).toBeInTheDocument();
+    // The hero number splits "about" + "<N>" + "calories/day" across
+    // separate elements for visual hierarchy. A purpose-built sr-only
+    // span renders the complete sentence for screen readers — assert
+    // against that whitespace-normalized text.
+    const text = (container.textContent ?? '').replace(/\s+/g, ' ');
+    expect(text).toMatch(/about\s+[\d,]+\s+calories\s+per\s+day/i);
   });
 
   it('protein is rendered as a range with an en-dash, never a single number', async () => {
     setup();
     await fillValidInputsAndSubmit();
     await screen.findByText('Your target', { exact: true });
-    // The protein value lives in the <dd> next to the <dt>Protein</dt>.
-    // Match "low–high" pattern (en-dash 2013 or ASCII hyphen as fallback).
-    expect(screen.getByText(/\d+\s*[–-]\s*\d+\s*g\/day/i)).toBeInTheDocument();
+    // The protein MetricCard splits the value ("120–165") and unit ("g/day")
+    // into separate paragraphs. Find the Protein label, then walk to the
+    // nearest enclosing card and assert the range pattern is present.
+    const proteinLabel = screen.getByText('Protein', { exact: true });
+    const card = proteinLabel.closest('div');
+    expect(card).not.toBeNull();
+    const cardText = (card!.textContent ?? '').replace(/\s+/g, ' ');
+    expect(cardText).toMatch(/\d+\s*[–-]\s*\d+/);
+    expect(cardText).toMatch(/g\/day/i);
   });
 
   it('does NOT display carbs or fats (regression guard against scope creep)', async () => {
