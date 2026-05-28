@@ -23,6 +23,18 @@ export function cmToFeetInches(cm: number): { feet: number; inches: number } {
 }
 
 // --- BMR formulas ---
+/**
+ * Mifflin-St Jeor basal metabolic rate (kcal/day).
+ *
+ * Source: Mifflin MD, St Jeor ST, Hill LA, Scott BJ, Daugherty SA, Koh YO.
+ * "A new predictive equation for resting energy expenditure in healthy individuals."
+ * Am J Clin Nutr. 1990 Feb;51(2):241-7.
+ *
+ * Considered the most accurate BMR predictor for healthy adults in modern
+ * clinical use. Returns unrounded kcal/day.
+ *
+ * Caller must pass positive finite numbers; no input validation here.
+ */
 export function calculateBMR_MifflinStJeor(
   weightKg: number,
   heightCm: number,
@@ -54,8 +66,26 @@ export function calculateBMR_KatchMcArdle(
 }
 
 // --- TDEE ---
+/**
+ * Total Daily Energy Expenditure: BMR scaled by an activity multiplier,
+ * rounded to the nearest kcal. Multipliers from `ACTIVITY_MULTIPLIERS`
+ * (Harris-Benedict / Mifflin-St Jeor convention: 1.2 sedentary →
+ * 1.9 extreme).
+ */
 export function calculateTDEE(bmr: number, activityLevel: ActivityLevel): number {
   return Math.round(bmr * ACTIVITY_MULTIPLIERS[activityLevel]);
+}
+
+/**
+ * Protein intake range in grams/day for a given bodyweight, based on the
+ * 1.6–2.2 g/kg evidence range commonly cited for active adults
+ * (Morton et al., 2018, Br J Sports Med; Phillips & Van Loon, 2011,
+ * J Sports Sci). Returns rounded integers.
+ *
+ * Caller must pass a positive finite weight; no input validation here.
+ */
+export function calculateProteinRangeGrams(weightKg: number): [number, number] {
+  return [Math.round(1.6 * weightKg), Math.round(2.2 * weightKg)];
 }
 
 // --- BMI ---
