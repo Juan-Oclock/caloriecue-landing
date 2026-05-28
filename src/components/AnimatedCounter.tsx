@@ -5,9 +5,11 @@ import { useRef, useEffect, useState } from "react";
 export default function AnimatedCounter({
   target,
   suffix = "",
+  ariaLabel,
 }: {
   target: number;
   suffix?: string;
+  ariaLabel?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [isInView, setIsInView] = useState(false);
@@ -28,6 +30,7 @@ export default function AnimatedCounter({
   useEffect(() => {
     if (!isInView || !ref.current) return;
     const el = ref.current;
+    const startValue = Math.floor(target * 0.7);
     const duration = 1500;
     const start = performance.now();
 
@@ -35,7 +38,7 @@ export default function AnimatedCounter({
       const elapsed = now - start;
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - (1 - progress) * (1 - progress);
-      const current = Math.floor(eased * target);
+      const current = Math.floor(startValue + (target - startValue) * eased);
       el.textContent = current.toLocaleString("en-US") + suffix;
       if (progress < 1) {
         requestAnimationFrame(tick);
@@ -46,8 +49,9 @@ export default function AnimatedCounter({
   }, [isInView, target, suffix]);
 
   return (
-    <span ref={ref} suppressHydrationWarning>
-      0{suffix}
+    <span ref={ref} aria-label={ariaLabel}>
+      {target.toLocaleString("en-US")}
+      {suffix}
     </span>
   );
 }
