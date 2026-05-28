@@ -154,19 +154,21 @@ export function Hero({ selectedGoal, onGoalSelect, stats }: HeroProps) {
               </div>
             )}
 
-            {/* CTAs */}
-            <div className="grid grid-cols-1 sm:flex sm:flex-row items-center lg:items-start gap-3 max-w-xl mx-auto lg:mx-0">
+            {/* CTAs — sm:items-stretch ensures both buttons match the
+                taller AppStoreButton's height (its 2-line text stack
+                makes it taller than a single-line CTA). */}
+            <div className="grid grid-cols-1 sm:flex sm:flex-row sm:items-stretch gap-3 max-w-xl mx-auto lg:mx-0">
               <a
                 href="#calculator"
                 onClick={handleStartClick}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-colors shadow-sm w-full sm:w-auto"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-white text-lg font-semibold hover:bg-primary-dark transition-colors shadow-sm w-full sm:w-auto"
               >
                 Start With My Goal
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
               </a>
-              <AppStoreButton variant="hero" hideTagline className="w-full sm:w-auto [&>div]:w-full [&>div]:sm:w-auto" />
+              <AppStoreButton variant="hero" hideTagline className="w-full sm:w-auto [&>div]:w-full [&>div]:sm:w-auto [&>div]:h-full [&_a]:h-full [&_a>div]:h-full" />
             </div>
 
             {/* Trust strip */}
