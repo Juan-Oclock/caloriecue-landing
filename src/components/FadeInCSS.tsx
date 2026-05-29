@@ -1,6 +1,14 @@
 "use client";
 
-import { useRef, useEffect, useState, ReactNode } from "react";
+import {
+  useRef,
+  useEffect,
+  useState,
+  ReactNode,
+  ElementType,
+  Ref,
+  type TransitionEvent as ReactTransitionEvent,
+} from "react";
 
 interface FadeInCSSProps {
   children: ReactNode;
@@ -8,6 +16,9 @@ interface FadeInCSSProps {
   y?: number;
   className?: string;
   viewportMargin?: string;
+  /** Element to render. Defaults to "div"; pass e.g. "li" to keep valid
+   *  list semantics when fading list items. */
+  as?: ElementType;
 }
 
 export default function FadeInCSS({
@@ -16,8 +27,9 @@ export default function FadeInCSS({
   y = 20,
   className = "",
   viewportMargin = "0px",
+  as: Tag = "div",
 }: FadeInCSSProps) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [hasTransitioned, setHasTransitioned] = useState(false);
 
@@ -38,8 +50,8 @@ export default function FadeInCSS({
   }, [viewportMargin]);
 
   return (
-    <div
-      ref={ref}
+    <Tag
+      ref={ref as Ref<HTMLElement>}
       className={className}
       style={
         hasTransitioned
@@ -50,11 +62,11 @@ export default function FadeInCSS({
               transition: `opacity 0.5s ease-out ${delay}s, transform 0.5s ease-out ${delay}s`,
             }
       }
-      onTransitionEnd={(e) => {
+      onTransitionEnd={(e: ReactTransitionEvent) => {
         if (e.target === e.currentTarget) setHasTransitioned(true);
       }}
     >
       {children}
-    </div>
+    </Tag>
   );
 }

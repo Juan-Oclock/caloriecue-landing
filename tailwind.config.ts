@@ -12,13 +12,17 @@ const config: Config = {
         // Primary coral/orange theme - slightly refined for light mode
         primary: {
           DEFAULT: "#E05A3A",
-          dark: "#C74B2E",
+          // `dark` is the accessible coral used for text + button fills:
+          // clears WCAG AA 4.5:1 against white and light backgrounds. The
+          // vibrant DEFAULT stays for gradients, tints, and icon accents.
+          dark: "#BC4527",
           light: "#FF7F5C",
           50: "#FFF5F2",
           100: "#FFE8E2",
           200: "#FFD1C5",
           500: "#E05A3A",
-          600: "#C74B2E",
+          600: "#BC4527",
+          700: "#9E3A20",
         },
         // Light theme colors
         background: "#FAFAFA",
