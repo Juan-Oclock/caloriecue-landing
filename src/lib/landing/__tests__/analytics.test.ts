@@ -3,6 +3,8 @@ import {
   trackCalculatorStarted,
   trackCalculatorCompleted,
   trackCalculatorCtaClicked,
+  trackAppStoreClick,
+  trackHeroGoalSelected,
   type AnalyticsAdapter,
 } from '@/lib/landing/analytics';
 
@@ -39,5 +41,23 @@ describe('analytics helpers', () => {
       which: 'app',
       goal: 'maintain',
     });
+  });
+
+  it('trackAppStoreClick fires with ONLY a location (no health data)', () => {
+    const { track, adapter } = stubAdapter();
+    trackAppStoreClick({ location: 'final_cta' }, adapter);
+    expect(track).toHaveBeenCalledTimes(1);
+    const [eventName, payload] = track.mock.calls[0];
+    expect(eventName).toBe('app_store_click');
+    expect(payload).toEqual({ location: 'final_cta' });
+  });
+
+  it('trackHeroGoalSelected fires with ONLY the goal (no health data)', () => {
+    const { track, adapter } = stubAdapter();
+    trackHeroGoalSelected({ goal: 'build-muscle' }, adapter);
+    expect(track).toHaveBeenCalledTimes(1);
+    const [eventName, payload] = track.mock.calls[0];
+    expect(eventName).toBe('hero_goal_selected');
+    expect(payload).toEqual({ goal: 'build-muscle' });
   });
 });

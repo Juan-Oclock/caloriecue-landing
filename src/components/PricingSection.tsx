@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { trackAppStoreClick } from "@/lib/landing/analytics";
 
 // Pricing data
 const PRICING = {
@@ -121,6 +122,7 @@ export default function PricingSection() {
               href="https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackAppStoreClick({ location: "pricing" })}
               className="flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl border-2 border-border text-foreground font-semibold text-center hover:bg-muted/50 transition-colors"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -218,6 +220,7 @@ export default function PricingSection() {
               href="https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackAppStoreClick({ location: "pricing" })}
               className="group relative flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl bg-primary-dark text-white font-semibold text-center hover:bg-primary-700 transition-colors shadow-soft overflow-hidden"
             >
               {/* Shimmer effect on hover */}

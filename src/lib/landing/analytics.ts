@@ -63,3 +63,25 @@ export function trackCalculatorCtaClicked(
     goal: payload.goal,
   });
 }
+
+/** Where on the page an App Store download was initiated. */
+export type AppStoreClickLocation =
+  | "hero"
+  | "final_cta"
+  | "nav"
+  | "pricing"
+  | "calculator";
+
+export function trackAppStoreClick(
+  payload: { location: AppStoreClickLocation },
+  adapter: AnalyticsAdapter = browserAnalytics,
+): void {
+  adapter.track("app_store_click", { location: payload.location });
+}
+
+export function trackHeroGoalSelected(
+  payload: { goal: Goal },
+  adapter: AnalyticsAdapter = browserAnalytics,
+): void {
+  adapter.track("hero_goal_selected", { goal: payload.goal });
+}

@@ -441,7 +441,7 @@ export default async function Home() {
                 TODO (v1.1): reintroduce a third path (deliver a
                 personalized plan) once that flow is built. */}
             <div className="flex flex-col sm:flex-row sm:items-stretch justify-center gap-3 max-w-xl mx-auto">
-              <AppStoreButton variant="hero" centered hideTagline className="w-full sm:w-auto [&>div]:w-full [&>div]:sm:w-auto [&>div]:h-full [&_a]:h-full [&_a>div]:h-full" />
+              <AppStoreButton variant="hero" centered hideTagline location="final_cta" className="w-full sm:w-auto [&>div]:w-full [&>div]:sm:w-auto [&>div]:h-full [&_a]:h-full [&_a>div]:h-full" />
               <a
                 href="/blog"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-border bg-white text-foreground text-lg font-semibold hover:border-primary/40 hover:text-primary-dark transition-colors w-full sm:w-auto"
