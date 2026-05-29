@@ -66,6 +66,38 @@ function Callout({
   );
 }
 
+function BlogImage({
+  src,
+  alt,
+  caption,
+  width = 1376,
+  height = 768,
+}: {
+  src: string;
+  alt: string;
+  caption?: string;
+  width?: number;
+  height?: number;
+}) {
+  return (
+    <figure className="my-8">
+      <Image
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 720px, 800px"
+        className="rounded-xl w-full h-auto"
+      />
+      {caption && (
+        <figcaption className="text-center text-sm text-muted-foreground mt-2">
+          {caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
 function AppStoreLink() {
   return (
     <a
@@ -187,6 +219,7 @@ export function getMDXComponents(): MDXComponentsType {
     ),
     Callout,
     AppStoreLink,
+    BlogImage,
     CheatSheetForm,
   };
 }
