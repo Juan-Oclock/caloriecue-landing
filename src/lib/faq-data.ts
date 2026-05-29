@@ -15,7 +15,7 @@ export const FAQ_ITEMS: FAQItem[] = [
   {
     question: "How accurate is the AI calorie estimation?",
     answer:
-      "Our AI estimates are typically within 10–15% of actual values, and you can always adjust portion sizes for better accuracy. For packaged foods, our barcode scanner pulls exact nutrition data from verified databases.",
+      "Our AI recognizes foods and estimates their nutrition with high accuracy, and it keeps getting better. If a result ever looks off, just re-analyze the photo or adjust the portions in a tap. For packaged foods, our barcode scanner pulls exact nutrition data from verified databases.",
   },
   {
     question: "Is CalorieCue really free?",
@@ -45,7 +45,7 @@ export const FAQ_ITEMS: FAQItem[] = [
   {
     question: "What if I eat out a lot?",
     answer:
-      "CalorieCue's photo scanning works on restaurant meals too. For chains, the barcode scanner pulls verified data. Estimates may be less precise for unique restaurant dishes — that's normal for any tracker.",
+      "Eating out is easy. Photo-scan your plate, or scan your receipt to capture everything you ordered in one go. For chains, the barcode scanner pulls verified data. Estimates can be slightly less precise for unique restaurant dishes — that's normal for any tracker, and you can always re-analyze a result.",
   },
   {
     question: "How many calories should I eat to lose 1 lb per week?",
