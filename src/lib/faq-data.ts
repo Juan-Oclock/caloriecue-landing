@@ -20,7 +20,7 @@ export const FAQ_ITEMS: FAQItem[] = [
   {
     question: "Is CalorieCue really free?",
     answer:
-      "Yes! The free tier includes unlimited photo and barcode scans for your first 3 days, plus 3 AI Coach messages per day. For unlimited access to all features, CalorieCue Premium is $3.99/month (or $19.99/year) with a 7-day free trial.",
+      "Yes! The free tier includes 3 meal scans per day plus 3 AI Coach messages per day. For unlimited scans and all features, CalorieCue Premium is $3.99/month (or $19.99/year) with a 7-day free trial.",
   },
   {
     question: "What types of food can CalorieCue recognize?",
