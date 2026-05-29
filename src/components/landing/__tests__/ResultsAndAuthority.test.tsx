@@ -23,21 +23,12 @@ describe('ResultsAndAuthority', () => {
     }
   });
 
-  it('renders the "Built on validated science" authority block', () => {
+  it('no longer renders the authority block (moved beside the calculator)', () => {
     render(<ResultsAndAuthority reviews={REVIEWS} />);
     expect(
-      screen.getByRole('heading', { name: /built on validated science/i }),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/mifflin-st jeor/i)).toBeInTheDocument();
-  });
-
-  it('links to the methodology anchor', () => {
-    render(<ResultsAndAuthority reviews={REVIEWS} />);
-    const link = screen
-      .getAllByRole('link')
-      .find((a) => a.getAttribute('href') === '/tdee-calculator#methodology');
-    expect(link).toBeDefined();
-    expect(link!.textContent?.toLowerCase()).toContain('methodology');
+      screen.queryByRole('heading', { name: /built on validated science/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/mifflin-st jeor/i)).not.toBeInTheDocument();
   });
 
   it('does NOT contain fake RD credentials (guardrail)', () => {

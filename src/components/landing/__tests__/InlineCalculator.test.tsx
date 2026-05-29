@@ -225,3 +225,25 @@ describe('InlineCalculator — architectural guarantees', () => {
     expect(source).toMatch(/ctas\??\s*:\s*CalculatorCTA\[\]/);
   });
 });
+
+describe('InlineCalculator — authority panel beside the calculator', () => {
+  it('renders the "Built on validated science" panel in the calculator section', () => {
+    setup();
+    expect(
+      screen.getByRole('heading', { name: /built on validated science/i }),
+    ).toBeInTheDocument();
+    const link = screen
+      .getAllByRole('link')
+      .find((a) => a.getAttribute('href') === '/tdee-calculator#methodology');
+    expect(link).toBeDefined();
+  });
+
+  it('does not repeat "Mifflin-St Jeor" in the result trust line (panel carries it)', async () => {
+    setup();
+    await fillValidInputsAndSubmit();
+    // Mifflin-St Jeor should appear exactly once on screen (in the panel),
+    // not also duplicated in the result-view inline trust line.
+    const matches = screen.getAllByText(/mifflin-st jeor/i);
+    expect(matches).toHaveLength(1);
+  });
+});

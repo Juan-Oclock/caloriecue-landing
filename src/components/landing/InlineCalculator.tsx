@@ -18,6 +18,7 @@ import {
   trackCalculatorCtaClicked,
   type AnalyticsAdapter,
 } from "@/lib/landing/analytics";
+import { AuthorityPanel } from "./AuthorityPanel";
 
 const APP_STORE_URL =
   "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
@@ -210,7 +211,7 @@ export function InlineCalculator({
       id="calculator"
       className="scroll-mt-24 px-4 py-20 md:py-28 bg-gradient-to-b from-background via-primary-50/20 to-background"
     >
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary-dark px-3 py-1 text-xs font-semibold uppercase tracking-wider mb-4">
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" aria-hidden="true" />
@@ -224,26 +225,33 @@ export function InlineCalculator({
           </p>
         </div>
 
-        <div className="rounded-3xl border border-border/60 bg-white p-6 md:p-8 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] ring-1 ring-black/[0.02]">
-          {view === "input" ? (
-            <InputView
-              inputs={inputs}
-              errors={errors}
-              setField={setField}
-              toggleWeightUnit={toggleWeightUnit}
-              toggleHeightUnit={toggleHeightUnit}
-              onSubmit={handleSubmit}
-            />
-          ) : (
-            <ResultView
-              result={result!}
-              ctas={effectiveCtas}
-              onRecalculate={handleRecalculate}
-              onCtaClick={(which) =>
+        {/* Calculator + credibility panel side by side on desktop; the
+            panel answers "can I trust this number?" right where the
+            number appears. Stacks on mobile. */}
+        <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr] lg:gap-8 lg:items-start">
+          <div className="rounded-3xl border border-border/60 bg-white p-6 md:p-8 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] ring-1 ring-black/[0.02]">
+            {view === "input" ? (
+              <InputView
+                inputs={inputs}
+                errors={errors}
+                setField={setField}
+                toggleWeightUnit={toggleWeightUnit}
+                toggleHeightUnit={toggleHeightUnit}
+                onSubmit={handleSubmit}
+              />
+            ) : (
+              <ResultView
+                result={result!}
+                ctas={effectiveCtas}
+                onRecalculate={handleRecalculate}
+                onCtaClick={(which) =>
                 trackCalculatorCtaClicked({ which, goal: inputs.goal }, analytics)
               }
-            />
-          )}
+              />
+            )}
+          </div>
+
+          <AuthorityPanel />
         </div>
       </div>
     </section>
@@ -647,16 +655,7 @@ function ResultView({ result, ctas, onRecalculate, onCtaClick }: ResultViewProps
       {/* Trust + power-user lines + recalculate */}
       <div className="space-y-3 border-t border-border/60 pt-5">
         <p className="text-xs text-muted-foreground leading-relaxed text-center">
-          Based on standard TDEE formulas (Mifflin-St Jeor) and adjustable
-          activity estimates. Your target is a starting point, not medical
-          advice.{" "}
-          <a
-            href="/tdee-calculator#methodology"
-            className="font-medium text-foreground underline underline-offset-2 decoration-foreground/30 hover:decoration-foreground"
-          >
-            See full methodology
-          </a>
-          .
+          Your target is a starting point, not medical advice.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-xs text-muted-foreground">
