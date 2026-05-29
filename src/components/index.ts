@@ -6,7 +6,6 @@ export { default as PricingSection } from "./PricingSection";
 export { default as AppStoreButton } from "./AppStoreButton";
 export { default as FadeIn } from "./FadeIn";
 export { default as AnimatedCounter } from "./AnimatedCounter";
-export { default as ScanLineAnimation } from "./ScanLineAnimation";
 export { default as VideoPreview } from "./VideoPreview";
 export { default as FAQSection } from "./FAQSection";
 export { default as WaitlistForm } from "./WaitlistForm";
