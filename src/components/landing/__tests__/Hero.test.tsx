@@ -95,7 +95,7 @@ describe('Hero', () => {
 
   it('hero image (CalorieCue mockup) is rendered (Guardrail 2 — trust moment 1)', () => {
     render(<Hero selectedGoal={null} onGoalSelect={() => {}} stats={STATS} />);
-    const img = screen.getByAltText(/CalorieCue AI scanning a meal/i);
+    const img = screen.getByAltText(/CalorieCue calorie tracking app on iPhone/i);
     expect(img).toBeInTheDocument();
   });
 

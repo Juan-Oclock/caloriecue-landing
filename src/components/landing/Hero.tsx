@@ -198,10 +198,10 @@ export function Hero({ selectedGoal, onGoalSelect, stats }: HeroProps) {
                 aria-hidden="true"
               />
               <Image
-                src="/mockup-caloriecue.webp"
-                alt="CalorieCue AI scanning a meal"
+                src="/caloriecue-app-home.webp"
+                alt="CalorieCue calorie tracking app on iPhone showing the daily dashboard: calories remaining with a progress ring, protein, carbs and fat macros, and one-tap photo, scan, search and voice food logging"
                 width={340}
-                height={680}
+                height={694}
                 priority
                 sizes="(max-width: 768px) 260px, 340px"
                 className="relative z-10 w-[260px] md:w-[340px] h-auto"
