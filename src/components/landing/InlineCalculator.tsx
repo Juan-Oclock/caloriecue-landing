@@ -228,7 +228,7 @@ export function InlineCalculator({
         {/* Calculator + credibility panel side by side on desktop; the
             panel answers "can I trust this number?" right where the
             number appears. Stacks on mobile. */}
-        <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr] lg:gap-8 lg:items-start">
+        <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr] lg:gap-8 lg:items-stretch">
           <div className="rounded-3xl border border-border/60 bg-white p-6 md:p-8 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] ring-1 ring-black/[0.02]">
             {view === "input" ? (
               <InputView
