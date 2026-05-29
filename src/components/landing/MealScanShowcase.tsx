@@ -134,7 +134,7 @@ export function MealScanShowcase() {
           !reduced && !showing ? "opacity-100" : "opacity-0"
         }`}
       >
-        <div className="scan-line absolute left-2 right-2 h-[3px] rounded-full bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_16px_3px_rgba(224,90,58,0.6)]" />
+        <div className="scan-line absolute left-1 right-1 h-1 rounded-full bg-gradient-to-r from-primary/0 via-white to-primary/0 shadow-[0_0_20px_6px_rgba(224,90,58,0.9),0_0_3px_1px_rgba(0,0,0,0.35)]" />
       </div>
 
       {/* Calorie + macro bubbles, popping in after each scan */}
