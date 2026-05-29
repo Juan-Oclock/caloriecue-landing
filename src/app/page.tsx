@@ -5,7 +5,7 @@ import FeatureCard from "@/components/FeatureCard";
 import AppStoreButton from "@/components/AppStoreButton";
 import FadeInCSS from "@/components/FadeInCSS";
 import AnimatedCounter from "@/components/AnimatedCounter";
-import ScanLineAnimation from "@/components/ScanLineAnimation";
+import { MealScanShowcase } from "@/components/landing/MealScanShowcase";
 const PricingSection = dynamic(() => import("@/components/PricingSection"));
 const FAQSection = dynamic(() => import("@/components/FAQSection"));
 const VideoPreview = dynamic(() => import("@/components/VideoPreview"));
@@ -253,45 +253,9 @@ export default async function Home() {
                   in 3 seconds — so logging never feels like work.
                 </p>
 
-                {/* Camera viewfinder illustration */}
-                <div className="flex-1 hidden lg:flex items-end justify-center pt-5">
-                  <div className="relative w-44 h-36">
-                    {/* Viewfinder corners */}
-                    <div className="absolute inset-0">
-                      <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary/30 rounded-tl-lg" />
-                      <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary/30 rounded-tr-lg" />
-                      <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary/30 rounded-bl-lg" />
-                      <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary/30 rounded-br-lg" />
-                    </div>
-
-                    {/* Center focus circle */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-primary/40" />
-                      </div>
-                    </div>
-
-                    {/* Animated scan line */}
-                    <ScanLineAnimation />
-
-                    {/* Result chip */}
-                    <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm border border-primary/20 rounded-full px-3.5 py-1 shadow-sm whitespace-nowrap">
-                      <span className="text-[11px] font-medium text-primary-dark flex items-center gap-1">
-                        <svg
-                          className="w-3 h-3"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        350 cal detected
-                      </span>
-                    </div>
-                  </div>
+                {/* Real meal scan: photo + sweeping scan line + macro bubbles */}
+                <div className="flex-1 flex items-end justify-center pt-8 pb-1">
+                  <MealScanShowcase />
                 </div>
               </div>
             </FadeInCSS>
