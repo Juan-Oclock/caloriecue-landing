@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import ScanLineAnimation from "@/components/ScanLineAnimation";
 
 interface Bubble {
   label: string;
@@ -13,7 +12,7 @@ interface Bubble {
   position: string;
   /** Bigger treatment for the headline Calories bubble. */
   primary?: boolean;
-  /** Stagger order for the pop-in (ms). */
+  /** Stagger order for the pop-in (ms), applied after the scan finishes. */
   delay: number;
 }
 
@@ -26,7 +25,7 @@ const BUBBLES: Bubble[] = [
     emoji: "🔥",
     position: "top-1 left-1/2 -translate-x-1/2",
     primary: true,
-    delay: 120,
+    delay: 0,
   },
   {
     label: "Protein",
@@ -34,7 +33,7 @@ const BUBBLES: Bubble[] = [
     unit: "g",
     emoji: "💪",
     position: "top-[38%] right-1",
-    delay: 260,
+    delay: 140,
   },
   {
     label: "Carbs",
@@ -42,7 +41,7 @@ const BUBBLES: Bubble[] = [
     unit: "g",
     emoji: "🌾",
     position: "bottom-2 left-1/2 -translate-x-1/2",
-    delay: 400,
+    delay: 280,
   },
   {
     label: "Fat",
@@ -50,40 +49,54 @@ const BUBBLES: Bubble[] = [
     unit: "g",
     emoji: "🥑",
     position: "top-[38%] left-1",
-    delay: 540,
+    delay: 420,
   },
 ];
+
+/** How long the scan line sweeps before the bubbles take over. */
+const SCAN_MS = 2000;
 
 /**
  * Core Feature visual: the real meal photo with the scan line sweeping over
  * it, then calorie + macro bubbles popping in — mirroring what the app shows
- * after a scan. Bubbles reveal once when the card scrolls into view (and
- * appear instantly, no motion, when prefers-reduced-motion is set).
+ * after a scan.
+ *
+ * Sequence (once the card scrolls into view):
+ *   1. ~2s: a prominent scan line sweeps across the plate (bubbles hidden).
+ *   2. The line fades out and the bubbles pop in, staggered.
+ *
+ * prefers-reduced-motion skips the sequence and shows the bubbles instantly.
  */
 export function MealScanShowcase() {
   const ref = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [revealed, setRevealed] = useState(false);
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setReduced(true);
-      setActive(true);
+      setRevealed(true); // show bubbles immediately, no scan
       return;
     }
     const el = ref.current;
     if (!el) return;
+    let timer: ReturnType<typeof setTimeout>;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setActive(true);
           io.disconnect();
+          setScanning(true);
+          timer = setTimeout(() => setRevealed(true), SCAN_MS);
         }
       },
       { rootMargin: "-10% 0px" },
     );
     io.observe(el);
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      clearTimeout(timer);
+    };
   }, []);
 
   return (
@@ -105,10 +118,16 @@ export function MealScanShowcase() {
         <div className="absolute bottom-2 right-2 h-7 w-7 rounded-br-lg border-b-2 border-r-2 border-primary" />
       </div>
 
-      {/* Sweeping scan line (the original animation) */}
-      <ScanLineAnimation />
+      {/* Prominent sweeping scan line — visible only while scanning */}
+      <div
+        className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ${
+          scanning && !revealed ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <div className="scan-line absolute left-2 right-2 h-[3px] rounded-full bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_16px_3px_rgba(224,90,58,0.6)]" />
+      </div>
 
-      {/* Calorie + macro bubbles, popping in on reveal */}
+      {/* Calorie + macro bubbles, popping in after the scan */}
       {BUBBLES.map((b) => (
         <div
           key={b.label}
@@ -116,7 +135,7 @@ export function MealScanShowcase() {
           className={`absolute ${b.position} flex flex-col items-center justify-center rounded-full bg-white text-center shadow-lg shadow-black/10 ring-1 ring-black/[0.04] ${
             b.primary ? "h-[4.5rem] w-[4.5rem]" : "h-16 w-16"
           } ${reduced ? "" : "transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"} ${
-            active ? "scale-100 opacity-100" : "scale-50 opacity-0"
+            revealed ? "scale-100 opacity-100" : "scale-50 opacity-0"
           }`}
         >
           <span className="text-sm leading-none" aria-hidden="true">
