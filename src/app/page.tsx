@@ -95,7 +95,7 @@ async function getLandingStats() {
 export default async function Home() {
   const stats = await getLandingStats();
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background overflow-x-clip">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppJsonLd) }}
