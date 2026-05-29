@@ -5,7 +5,7 @@ import FeatureCard from "@/components/FeatureCard";
 import AppStoreButton from "@/components/AppStoreButton";
 import FadeInCSS from "@/components/FadeInCSS";
 import AnimatedCounter from "@/components/AnimatedCounter";
-import { ScanVideo } from "@/components/landing/ScanVideo";
+import { MealScanShowcase } from "@/components/landing/MealScanShowcase";
 const PricingSection = dynamic(() => import("@/components/PricingSection"));
 const FAQSection = dynamic(() => import("@/components/FAQSection"));
 const VideoPreview = dynamic(() => import("@/components/VideoPreview"));
@@ -253,11 +253,9 @@ export default async function Home() {
                   in 3 seconds — so logging never feels like work.
                 </p>
 
-                {/* Real AI meal-scan, looping in a phone frame */}
-                <div className="flex-1 flex items-end justify-center pt-6">
-                  <div className="relative w-[168px] md:w-[188px] overflow-hidden rounded-[1.75rem] border-[5px] border-neutral-900 bg-neutral-900 shadow-xl shadow-black/20">
-                    <ScanVideo className="block w-full aspect-[9/16] object-cover" />
-                  </div>
+                {/* Real meal scan: photo + sweeping scan line + macro bubbles */}
+                <div className="flex-1 flex items-end justify-center pt-8 pb-1">
+                  <MealScanShowcase />
                 </div>
               </div>
             </FadeInCSS>
