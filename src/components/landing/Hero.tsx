@@ -156,8 +156,11 @@ export function Hero({ selectedGoal, onGoalSelect, stats }: HeroProps) {
 
             {/* CTAs — sm:items-stretch ensures both buttons match the
                 taller AppStoreButton's height (its 2-line text stack
-                makes it taller than a single-line CTA). */}
-            <div className="grid grid-cols-1 sm:flex sm:flex-row sm:items-stretch gap-3 max-w-xl mx-auto lg:mx-0">
+                makes it taller than a single-line CTA). sm:justify-center
+                keeps the auto-width buttons centered under the centered
+                content on tablet; lg:justify-start re-anchors them left
+                once the column switches to left-aligned text. */}
+            <div className="grid grid-cols-1 sm:flex sm:flex-row sm:items-stretch sm:justify-center lg:justify-start gap-3 max-w-xl mx-auto lg:mx-0">
               <a
                 href="#calculator"
                 onClick={handleStartClick}
