@@ -41,7 +41,7 @@ export async function generateMetadata({
           url: post.coverImage ?? `/blog/${post.slug}/opengraph-image`,
           width: 1200,
           height: 630,
-          alt: post.title,
+          alt: post.coverImageAlt ?? post.title,
         },
       ],
     },
@@ -52,7 +52,7 @@ export async function generateMetadata({
       images: [
         {
           url: post.coverImage ?? `/blog/${post.slug}/opengraph-image`,
-          alt: post.title,
+          alt: post.coverImageAlt ?? post.title,
         },
       ],
     },
@@ -177,7 +177,7 @@ export default async function BlogPostPage({
           <>
             <Image
               src={post.coverImage}
-              alt={post.title}
+              alt={post.coverImageAlt ?? post.title}
               fill
               priority
               sizes="100vw"
@@ -187,7 +187,7 @@ export default async function BlogPostPage({
             {post.coverImageMobile && (
               <Image
                 src={post.coverImageMobile}
-                alt={post.title}
+                alt={post.coverImageAlt ?? post.title}
                 fill
                 priority
                 sizes="100vw"
