@@ -184,7 +184,7 @@ export default function PricingSection() {
           >
             {/* Most Popular Badge */}
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-              <span className="bg-primary text-white px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap">
+              <span className="bg-primary-dark text-white px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap">
                 Most Popular
               </span>
             </div>
@@ -218,7 +218,7 @@ export default function PricingSection() {
               href="https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl bg-primary text-white font-semibold text-center hover:bg-primary/90 transition-colors shadow-soft overflow-hidden"
+              className="group relative flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl bg-primary-dark text-white font-semibold text-center hover:bg-primary-700 transition-colors shadow-soft overflow-hidden"
             >
               {/* Shimmer effect on hover */}
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />

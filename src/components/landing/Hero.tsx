@@ -161,7 +161,7 @@ export function Hero({ selectedGoal, onGoalSelect, stats }: HeroProps) {
               <a
                 href="#calculator"
                 onClick={handleStartClick}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-white text-lg font-semibold hover:bg-primary-dark transition-colors shadow-sm w-full sm:w-auto"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-primary-dark text-white text-lg font-semibold hover:bg-primary-700 transition-colors shadow-sm w-full sm:w-auto"
               >
                 Start With My Goal
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">

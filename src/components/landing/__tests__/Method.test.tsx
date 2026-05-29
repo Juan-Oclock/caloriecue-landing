@@ -20,7 +20,7 @@ describe('Method', () => {
 
   it('every step has a non-empty title and body', () => {
     const { container } = render(<Method />);
-    const items = container.querySelectorAll('ol > div > li');
+    const items = container.querySelectorAll('ol > li');
     expect(items.length).toBe(4);
     for (const item of Array.from(items)) {
       const h3 = item.querySelector('h3');

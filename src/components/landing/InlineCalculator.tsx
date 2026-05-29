@@ -490,7 +490,7 @@ function InputView({
       {/* Submit */}
       <button
         type="submit"
-        className="group relative mt-2 inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-primary py-4 text-base font-semibold text-white shadow-md transition-all hover:bg-primary-dark hover:shadow-lg active:scale-[0.99]"
+        className="group relative mt-2 inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-primary-dark py-4 text-base font-semibold text-white shadow-md transition-all hover:bg-primary-700 hover:shadow-lg active:scale-[0.99]"
       >
         Find My Number
         <svg
@@ -633,7 +633,7 @@ function ResultView({ result, ctas, onRecalculate, onCtaClick }: ResultViewProps
             onClick={() => onCtaClick(cta.analyticsId)}
             className={
               cta.variant === "primary"
-                ? "group inline-flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-base font-semibold text-white shadow-md transition-all hover:bg-primary-dark hover:shadow-lg active:scale-[0.99]"
+                ? "group inline-flex items-center justify-center gap-2 rounded-xl bg-primary-dark py-3.5 text-base font-semibold text-white shadow-md transition-all hover:bg-primary-700 hover:shadow-lg active:scale-[0.99]"
                 : "group inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary/25 bg-white py-3.5 text-base font-semibold text-primary-dark transition-all hover:border-primary/50 hover:bg-primary/[0.04]"
             }
           >

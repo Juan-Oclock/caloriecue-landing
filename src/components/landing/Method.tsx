@@ -52,37 +52,33 @@ export function Method() {
           {METHOD_STEPS.map((step, i) => (
             <FadeInCSS
               key={step.title}
+              as="li"
               y={20}
               viewportMargin="-50px"
-              className="block"
+              className={`relative flex gap-5 rounded-2xl border p-5 md:p-6 transition-colors ${
+                step.bridge
+                  ? "border-primary/25 bg-gradient-to-br from-primary/[0.06] to-primary/[0.02] shadow-sm"
+                  : "border-border/60 bg-white hover:border-primary/20"
+              }`}
             >
-              <li
-                className={`relative flex gap-5 rounded-2xl border p-5 md:p-6 transition-colors ${
+              <div
+                className={`flex h-10 w-10 md:h-11 md:w-11 shrink-0 items-center justify-center rounded-xl text-base font-bold tabular-nums ${
                   step.bridge
-                    ? "border-primary/25 bg-gradient-to-br from-primary/[0.06] to-primary/[0.02] shadow-sm"
-                    : "border-border/60 bg-white hover:border-primary/20"
+                    ? "bg-primary-dark text-white shadow-md shadow-primary/25"
+                    : "bg-primary/10 text-primary-dark"
                 }`}
-                style={{ animationDelay: `${i * 50}ms` }}
+                aria-hidden="true"
               >
-                <div
-                  className={`flex h-10 w-10 md:h-11 md:w-11 shrink-0 items-center justify-center rounded-xl text-base font-bold tabular-nums ${
-                    step.bridge
-                      ? "bg-primary text-white shadow-md shadow-primary/25"
-                      : "bg-primary/10 text-primary-dark"
-                  }`}
-                  aria-hidden="true"
-                >
-                  {i + 1}
-                </div>
-                <div className="flex-1 pt-1">
-                  <h3 className="text-base md:text-lg font-semibold text-foreground mb-1.5 leading-snug">
-                    {step.title}
-                  </h3>
-                  <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                    {step.body}
-                  </p>
-                </div>
-              </li>
+                {i + 1}
+              </div>
+              <div className="flex-1 pt-1">
+                <h3 className="text-base md:text-lg font-semibold text-foreground mb-1.5 leading-snug">
+                  {step.title}
+                </h3>
+                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                  {step.body}
+                </p>
+              </div>
             </FadeInCSS>
           ))}
         </ol>

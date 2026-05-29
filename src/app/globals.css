@@ -4,7 +4,8 @@
 
 :root {
   --primary: #E05A3A;
-  --primary-dark: #C74B2E;
+  /* Accessible coral (WCAG AA): white text + on light backgrounds. */
+  --primary-dark: #BC4527;
   --primary-light: #FF7F5C;
   --background: #FAFAFA;
   --surface: #FFFFFF;
@@ -110,7 +111,7 @@ body {
   }
 
   .btn-primary {
-    @apply btn bg-primary text-white hover:bg-primary-dark hover:scale-[1.02] active:scale-[0.98] shadow-soft hover:shadow-soft-lg;
+    @apply btn bg-primary-dark text-white hover:bg-primary-700 hover:scale-[1.02] active:scale-[0.98] shadow-soft hover:shadow-soft-lg;
   }
 
   .btn-secondary {
