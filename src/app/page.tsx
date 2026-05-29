@@ -31,7 +31,7 @@ const softwareAppJsonLd = {
   aggregateRating: {
     "@type": "AggregateRating",
     ratingValue: 5.0,
-    reviewCount: 4,
+    reviewCount: 3,
     bestRating: 5,
     worstRating: 1,
   },
@@ -50,11 +50,6 @@ export const revalidate = 3600; // Revalidate stats every hour
 // in softwareAppJsonLd above.
 const APP_STORE_REVIEWS = [
   {
-    author: "BiggiAgile123",
-    text: "I like that it’s connected with Apple Health.",
-    source: "App Store Review",
-  },
-  {
     author: "Sol Maraiah",
     text: "Very seamless to use, friendly user and it only takes few seconds to load. No lag, app is way better than those in the market right now. Actual weight and est weight of the AI is pretty accurate.",
     source: "App Store Review",
@@ -66,7 +61,7 @@ const APP_STORE_REVIEWS = [
   },
   {
     author: "D.mercer",
-    text: "works exactly how i expected and is good with weight loss goals",
+    text: "Works exactly how I expected and is good with weight loss goals",
     source: "App Store Review",
   },
 ];
