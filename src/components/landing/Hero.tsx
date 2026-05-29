@@ -3,6 +3,7 @@
 import Image from "next/image";
 import AppStoreButton from "@/components/AppStoreButton";
 import type { Goal } from "@/lib/landing/calculator";
+import { trackHeroGoalSelected } from "@/lib/landing/analytics";
 
 export interface HeroProps {
   selectedGoal: Goal | null;
@@ -114,7 +115,10 @@ export function Hero({ selectedGoal, onGoalSelect, stats }: HeroProps) {
                     key={goal}
                     type="button"
                     onClick={() => {
-                      if (!isSelected) onGoalSelect(goal);
+                      if (!isSelected) {
+                        trackHeroGoalSelected({ goal });
+                        onGoalSelect(goal);
+                      }
                     }}
                     aria-pressed={isSelected}
                     className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 ${
@@ -168,7 +172,7 @@ export function Hero({ selectedGoal, onGoalSelect, stats }: HeroProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
               </a>
-              <AppStoreButton variant="hero" hideTagline className="w-full sm:w-auto [&>div]:w-full [&>div]:sm:w-auto [&>div]:h-full [&_a]:h-full [&_a>div]:h-full" />
+              <AppStoreButton variant="hero" hideTagline location="hero" className="w-full sm:w-auto [&>div]:w-full [&>div]:sm:w-auto [&>div]:h-full [&_a]:h-full [&_a>div]:h-full" />
             </div>
 
             {/* Trust strip */}

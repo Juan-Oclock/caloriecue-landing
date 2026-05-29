@@ -1,3 +1,10 @@
+"use client";
+
+import {
+  trackAppStoreClick,
+  type AppStoreClickLocation,
+} from "@/lib/landing/analytics";
+
 const APP_STORE_URL = "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
 
 interface AppStoreButtonProps {
@@ -5,6 +12,8 @@ interface AppStoreButtonProps {
   centered?: boolean;
   hideTagline?: boolean;
   className?: string;
+  /** When set, fires an `app_store_click` analytics event on click. */
+  location?: AppStoreClickLocation;
 }
 
 function AppleLogo({ className = "w-5 h-5" }: { className?: string }) {
@@ -15,13 +24,18 @@ function AppleLogo({ className = "w-5 h-5" }: { className?: string }) {
   );
 }
 
-export default function AppStoreButton({ variant = "hero", centered = false, hideTagline = false, className = "" }: AppStoreButtonProps) {
+export default function AppStoreButton({ variant = "hero", centered = false, hideTagline = false, className = "", location }: AppStoreButtonProps) {
+  const handleClick = () => {
+    if (location) trackAppStoreClick({ location });
+  };
+
   if (variant === "compact") {
     return (
       <a
         href={APP_STORE_URL}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={handleClick}
         className={`inline-flex items-center gap-2 btn-primary text-sm py-2.5 px-5 hover:scale-[1.02] active:scale-[0.98] transition-transform ${className}`}
       >
         <AppleLogo className="w-4 h-4" />
@@ -57,6 +71,7 @@ export default function AppStoreButton({ variant = "hero", centered = false, hid
           href={APP_STORE_URL}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={handleClick}
           className="relative block hover:scale-[1.03] active:scale-[0.98] transition-transform"
         >
           <div className="relative bg-black text-white px-6 py-3.5 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-shadow group">

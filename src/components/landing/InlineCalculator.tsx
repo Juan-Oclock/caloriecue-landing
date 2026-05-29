@@ -16,6 +16,7 @@ import {
   trackCalculatorStarted,
   trackCalculatorCompleted,
   trackCalculatorCtaClicked,
+  trackAppStoreClick,
   type AnalyticsAdapter,
 } from "@/lib/landing/analytics";
 import { AuthorityPanel } from "./AuthorityPanel";
@@ -244,9 +245,12 @@ export function InlineCalculator({
                 result={result!}
                 ctas={effectiveCtas}
                 onRecalculate={handleRecalculate}
-                onCtaClick={(which) =>
-                trackCalculatorCtaClicked({ which, goal: inputs.goal }, analytics)
-              }
+                onCtaClick={(which) => {
+                  trackCalculatorCtaClicked({ which, goal: inputs.goal }, analytics);
+                  if (which === "app") {
+                    trackAppStoreClick({ location: "calculator" }, analytics);
+                  }
+                }}
               />
             )}
           </div>
