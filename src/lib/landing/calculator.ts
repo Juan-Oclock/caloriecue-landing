@@ -57,7 +57,7 @@ const GOAL_PACE_LABELS: Record<Goal, string> = {
 };
 
 const NEXT_STEP_TEXT =
-  'Track your meals for 7 days and adjust from your weekly average.';
+  'Track your meals for 7 days and adjust from your weekly average — CalorieCue logs each one from a photo in seconds.';
 
 function requirePositive(value: number, field: string): void {
   if (!Number.isFinite(value) || value <= 0) {

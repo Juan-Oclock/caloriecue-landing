@@ -191,7 +191,7 @@ export function InlineCalculator({
     if (ctas) return ctas;
     return [
       {
-        label: "Get the App — make tracking effortless",
+        label: "Get the App — start tracking today",
         href: APP_STORE_URL,
         variant: "primary",
         analyticsId: "app",

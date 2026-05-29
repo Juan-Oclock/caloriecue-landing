@@ -64,6 +64,11 @@ describe('getHomepageCalculatorResult', () => {
     expect(new Set(texts).size).toBe(1);
   });
 
+  it('nextStepText names CalorieCue (Guardrail 3 — app visible in calculator result)', () => {
+    const result = getHomepageCalculatorResult(baseInput({ goal: 'lose-weight' }));
+    expect(result.nextStepText).toContain('CalorieCue');
+  });
+
   it('uses the existing Mifflin-St Jeor + activity multiplier for maintenanceCalories', () => {
     // 30yo male, 80kg, 180cm, moderate (1.55):
     // BMR = 1780; TDEE = round(1780 * 1.55) = 2759
