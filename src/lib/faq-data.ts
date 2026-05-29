@@ -15,7 +15,7 @@ export const FAQ_ITEMS: FAQItem[] = [
   {
     question: "How accurate is the AI calorie estimation?",
     answer:
-      "Our AI estimates are typically within 10–15% of actual values, and you can always adjust portion sizes for better accuracy. For packaged foods, our barcode scanner pulls exact nutrition data from verified databases.",
+      "Our AI recognizes foods and estimates their nutrition with high accuracy, and it keeps getting better. If a result ever looks off, just re-analyze the photo or adjust the portions in a tap. For packaged foods, our barcode scanner pulls exact nutrition data from verified databases.",
   },
   {
     question: "Is CalorieCue really free?",
