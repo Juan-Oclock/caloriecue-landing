@@ -181,23 +181,29 @@ export function getMDXComponents(): MDXComponentsType {
         {children}
       </pre>
     ),
-    img: ({ src, alt }) => (
-      <figure className="my-6">
-        <Image
-          src={src ?? ""}
-          alt={alt ?? ""}
-          width={800}
-          height={450}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 720px, 800px"
-          className="rounded-xl w-full h-auto"
-        />
-        {alt && (
-          <figcaption className="text-center text-sm text-muted-foreground mt-2">
-            {alt}
-          </figcaption>
-        )}
-      </figure>
-    ),
+    img: ({ src, alt, title }) => {
+      // Caption: prefer an explicit markdown title (`![alt](src "caption")`) so
+      // the displayed caption can stay distinct from descriptive SEO alt text.
+      // Falls back to alt when no title is given, so existing posts are unchanged.
+      const caption = title ?? alt;
+      return (
+        <figure className="my-6">
+          <Image
+            src={src ?? ""}
+            alt={alt ?? ""}
+            width={800}
+            height={450}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 720px, 800px"
+            className="rounded-xl w-full h-auto"
+          />
+          {caption && (
+            <figcaption className="text-center text-sm text-muted-foreground mt-2">
+              {caption}
+            </figcaption>
+          )}
+        </figure>
+      );
+    },
     hr: () => <hr className="my-8 border-border" />,
     strong: ({ children }) => (
       <strong className="font-semibold text-foreground">{children}</strong>
