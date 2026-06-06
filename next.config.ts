@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   // Normalize trailing slashes - prevents duplicate URL issues for SEO
   trailingSlash: false,
 
+  // @react-pdf/renderer relies on native-ish deps (yoga-layout, fontkit) that
+  // must not be bundled by Webpack/Turbopack. It is only ever imported in
+  // server-side API routes (the cheat-sheet PDF generator).
+  serverExternalPackages: ['@react-pdf/renderer'],
+
   // Serve optimized image formats
   images: {
     formats: ['image/avif', 'image/webp'],
