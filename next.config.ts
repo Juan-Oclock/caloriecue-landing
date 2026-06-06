@@ -9,6 +9,26 @@ const nextConfig: NextConfig = {
   // server-side API routes (the cheat-sheet PDF generator).
   serverExternalPackages: ['@react-pdf/renderer'],
 
+  // The cheat-sheet PDF routes read fonts + images from /public by absolute
+  // path at runtime; bundle those files into the serverless functions so they
+  // exist in production.
+  outputFileTracingIncludes: {
+    '/api/cheat-sheet/pdf': [
+      './public/fonts/**',
+      './public/cheat-sheet/**',
+      './public/caloriecue_logo.png',
+      './public/app-icons/1024.png',
+      './public/mockup-caloriecue.png',
+    ],
+    '/api/cheat-sheet-download': [
+      './public/fonts/**',
+      './public/cheat-sheet/**',
+      './public/caloriecue_logo.png',
+      './public/app-icons/1024.png',
+      './public/mockup-caloriecue.png',
+    ],
+  },
+
   // Serve optimized image formats
   images: {
     formats: ['image/avif', 'image/webp'],
