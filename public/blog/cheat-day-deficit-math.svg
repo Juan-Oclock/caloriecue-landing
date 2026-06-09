@@ -1,0 +1,62 @@
+<svg width="1000" height="580" viewBox="0 0 1000 580" xmlns="http://www.w3.org/2000/svg" font-family="'Helvetica Neue', Arial, sans-serif">
+  <rect x="0" y="0" width="1000" height="580" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="50" y="48" font-size="29" font-weight="700" fill="#1A1A1A">How One Cheat Day Erases Your Week</text>
+  <text x="50" y="78" font-size="16" fill="#868E96">Running calorie balance &#183; five days of deficit vs one unrestricted day</text>
+
+  <!-- Zero line at y=300. Below = deficit (good, orange). Above = surplus (bad, gray). -->
+  <!-- scale: 1px = ~8 cal. -500/day -> 62px down per day. -->
+  <line x1="90" y1="300" x2="930" y2="300" stroke="#868E96" stroke-width="1.5"/>
+  <text x="96" y="293" font-size="12" fill="#868E96">0 (break-even)</text>
+
+  <!-- Y guide labels -->
+  <g font-size="12" fill="#ADB5BD" text-anchor="end">
+    <text x="82" y="180">+2,000 surplus</text>
+    <text x="82" y="455">-2,500 deficit</text>
+  </g>
+
+  <!-- Cumulative deficit bars Mon-Fri, each step down 62px from previous. Bars are columns showing running total. -->
+  <!-- Running totals: Mon -500 (y=362), Tue -1000 (424... too deep). Let me use scale 1px=11cal so -2500=227px below 300 = y527. step=45px -->
+  <!-- Recompute: step per 500 = 45px. Mon cumulative -500 (y=345), Tue -1000 (390), Wed -1500 (435), Thu -2000 (480), Fri -2500 (525) -->
+
+  <!-- Weekday cumulative-deficit columns (orange, below zero line) -->
+  <!-- Mon -->
+  <rect x="120" y="300" width="70" height="45" fill="#FFD8A8"/>
+  <text x="155" y="365" font-size="13" fill="#495057" text-anchor="middle">Mon</text>
+  <text x="155" y="338" font-size="11" font-weight="700" fill="#E8920C" text-anchor="middle">-500</text>
+  <!-- Tue -->
+  <rect x="215" y="300" width="70" height="90" fill="#FFC078"/>
+  <text x="250" y="410" font-size="13" fill="#495057" text-anchor="middle">Tue</text>
+  <text x="250" y="383" font-size="11" font-weight="700" fill="#E8920C" text-anchor="middle">-1,000</text>
+  <!-- Wed -->
+  <rect x="310" y="300" width="70" height="135" fill="#FFB066"/>
+  <text x="345" y="455" font-size="13" fill="#495057" text-anchor="middle">Wed</text>
+  <text x="345" y="428" font-size="11" font-weight="700" fill="#E8920C" text-anchor="middle">-1,500</text>
+  <!-- Thu -->
+  <rect x="405" y="300" width="70" height="180" fill="#FB9A3C"/>
+  <text x="440" y="500" font-size="13" fill="#495057" text-anchor="middle">Thu</text>
+  <text x="440" y="473" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">-2,000</text>
+  <!-- Fri -->
+  <rect x="500" y="300" width="70" height="225" fill="#E8590C"/>
+  <text x="535" y="545" font-size="13" font-weight="600" fill="#495057" text-anchor="middle">Fri</text>
+  <text x="535" y="518" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">-2,500</text>
+
+  <!-- Arrow + label: banked -->
+  <text x="345" y="285" font-size="13" font-weight="700" fill="#E8590C" text-anchor="middle">5 days banked: -2,500 cal</text>
+
+  <!-- Saturday cheat day: +3,000 from the Friday position. Net = -2500 + 3000 = +500 surplus -->
+  <!-- Sat column goes from Fri cumulative (-2500, y525) up through zero to +500 surplus. +500 above zero = y255 (45px above 300). -->
+  <!-- Draw the cheat-day swing as a tall gray bar from y=255 (top, +500) down to y=525 (bottom, where Fri left off) -->
+  <rect x="610" y="255" width="90" height="270" fill="#CED4DA"/>
+  <text x="655" y="545" font-size="13" font-weight="600" fill="#495057" text-anchor="middle">Sat</text>
+  <text x="655" y="242" font-size="12" font-weight="700" fill="#868E96" text-anchor="middle">+3,000 in one day</text>
+
+  <!-- Net marker -->
+  <line x1="610" y1="255" x2="760" y2="255" stroke="#C92A2A" stroke-width="2" stroke-dasharray="5,4"/>
+  <text x="770" y="259" font-size="14" font-weight="700" fill="#C92A2A">NET: +500 surplus</text>
+  <text x="770" y="279" font-size="12" fill="#868E96">the whole week, gone</text>
+
+  <!-- Footer -->
+  <text x="50" y="565" font-size="13" fill="#ADB5BD">Example: 500-cal daily deficit Mon&#8211;Fri, then a 3,000-cal surplus cheat day. Result: a net gain for the week.</text>
+</svg>
