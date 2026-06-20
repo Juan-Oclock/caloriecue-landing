@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" font-family="Inter, 'Helvetica Neue', Arial, sans-serif">
+  <style>
+    .tracer { animation: trace 6s linear infinite; }
+    @keyframes trace { to { stroke-dashoffset: -2000; } }
+    @media (prefers-reduced-motion: reduce) { .tracer { animation: none; } }
+  </style>
+
+  <rect width="800" height="520" fill="#FFFFFF"/>
+  <text x="48" y="56" font-size="30" font-weight="700" fill="#1A1A1A">Shop the perimeter</text>
+  <text x="48" y="86" font-size="16" fill="#6B7280">Fresh, whole, easy-to-track foods line the edges. Packaged calories hide in the middle.</text>
+
+  <!-- store box -->
+  <rect x="150" y="150" width="500" height="320" rx="16" fill="#FAFAFA" stroke="#E5E7EB" stroke-width="1.5"/>
+
+  <!-- center aisles (dim = packaged) -->
+  <g fill="#EFEFEF">
+    <rect x="300" y="215" width="42" height="190" rx="8"/>
+    <rect x="379" y="215" width="42" height="190" rx="8"/>
+    <rect x="458" y="215" width="42" height="190" rx="8"/>
+  </g>
+  <text x="400" y="312" font-size="13" font-weight="600" fill="#B0B0B0" text-anchor="middle" transform="rotate(-90 400 312)">CENTER AISLES · packaged</text>
+
+  <!-- static perimeter highlight -->
+  <path d="M190 178 H610 Q638 178 638 206 V414 Q638 442 610 442 H190 Q162 442 162 414 V206 Q162 178 190 178 Z"
+        fill="none" stroke="#FF6A3D" stroke-width="11" opacity="0.16"/>
+  <!-- animated tracer dot -->
+  <path class="tracer" d="M190 178 H610 Q638 178 638 206 V414 Q638 442 610 442 H190 Q162 442 162 414 V206 Q162 178 190 178 Z"
+        pathLength="2000" fill="none" stroke="#FF6A3D" stroke-width="9" stroke-linecap="round"
+        stroke-dasharray="32 1968" stroke-dashoffset="0"/>
+
+  <!-- edge labels -->
+  <text x="400" y="172" font-size="15" font-weight="700" fill="#1A1A1A" text-anchor="middle" letter-spacing="1">PRODUCE</text>
+  <text x="400" y="456" font-size="15" font-weight="700" fill="#1A1A1A" text-anchor="middle" letter-spacing="1">DAIRY &amp; EGGS</text>
+  <text x="624" y="315" font-size="15" font-weight="700" fill="#1A1A1A" text-anchor="middle" letter-spacing="1" transform="rotate(90 624 315)">MEAT &amp; SEAFOOD</text>
+  <text x="176" y="305" font-size="15" font-weight="700" fill="#1A1A1A" text-anchor="middle" letter-spacing="1" transform="rotate(-90 176 305)">BAKERY &amp; BULK</text>
+
+  <text x="48" y="502" font-size="13" fill="#9CA3AF">Start at produce, work the edges, and only dip into the center for staples like oats, rice, and beans.</text>
+</svg>
