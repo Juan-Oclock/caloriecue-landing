@@ -7,9 +7,9 @@ const root = process.cwd();
 const targetPosts = [
   {
     slug: "high-protein-low-calorie-foods",
-    title: "High Protein Low Calorie Foods: 40 Best Options Ranked",
+    title: "40 High-Protein, Low-Calorie Foods (Ranked, 2026)",
     description:
-      "See the best high-protein, low-calorie foods ranked by protein per calorie, with serving sizes, calories, and protein for weight loss meals.",
+      "The 40 best high-protein, low-calorie foods, ranked by protein per calorie — with exact grams and calories per serving. Build a leaner plate, fast.",
     quickAnswer:
       "The best high-protein, low-calorie foods are shrimp, tuna, cod, egg whites, whey protein, chicken breast, turkey jerky, pork tenderloin, fat-free Greek yogurt, and cottage cheese.",
   },
