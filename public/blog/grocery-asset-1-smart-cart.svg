@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 470" font-family="Inter, 'Helvetica Neue', Arial, sans-serif">
+  <style>
+    .float { animation: bob 3.4s ease-in-out infinite; }
+    .f1 { animation-delay: 0s; }
+    .f2 { animation-delay: .45s; }
+    .f3 { animation-delay: .9s; }
+    .f4 { animation-delay: .65s; }
+    .f5 { animation-delay: 1.1s; }
+    .f6 { animation-delay: .2s; }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    @media (prefers-reduced-motion: reduce) { .float { animation: none; } }
+  </style>
+
+  <rect width="800" height="470" fill="#FFFFFF"/>
+  <text x="48" y="56" font-size="30" font-weight="700" fill="#1A1A1A">A calorie-smart cart</text>
+  <text x="48" y="86" font-size="16" fill="#6B7280">Build it from six sections — lead with protein and produce and the deficit half-solves itself.</text>
+  <line x1="48" y1="108" x2="752" y2="108" stroke="#E5E7EB" stroke-width="1"/>
+
+  <!-- Shopping cart -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- handle -->
+    <path d="M70 168 H104 L120 210" fill="none" stroke="#1A1A1A" stroke-width="7"/>
+    <!-- basket -->
+    <path d="M120 210 H320 L300 300 H150 Z" fill="#FFE7DD" stroke="#1A1A1A" stroke-width="7"/>
+    <!-- basket slats -->
+    <g stroke="#FF6A3D" stroke-width="3" opacity="0.55">
+      <path d="M168 213 L176 297"/>
+      <path d="M212 213 L216 297"/>
+      <path d="M256 213 L256 297"/>
+      <path d="M300 213 L296 297"/>
+      <path d="M130 240 H312"/>
+      <path d="M138 270 H304"/>
+    </g>
+    <!-- legs to wheels -->
+    <path d="M150 300 L168 332" fill="none" stroke="#1A1A1A" stroke-width="7"/>
+    <path d="M300 300 L282 332" fill="none" stroke="#1A1A1A" stroke-width="7"/>
+    <!-- wheels -->
+    <circle cx="176" cy="350" r="17" fill="#1A1A1A"/>
+    <circle cx="176" cy="350" r="6" fill="#FFFFFF"/>
+    <circle cx="282" cy="350" r="17" fill="#1A1A1A"/>
+    <circle cx="282" cy="350" r="6" fill="#FFFFFF"/>
+  </g>
+
+  <!-- Six floating category pills -->
+  <!-- col 1 -->
+  <g transform="translate(372,150)"><g class="float f1">
+    <rect width="186" height="58" rx="15" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1.5"/>
+    <circle cx="28" cy="29" r="7" fill="#FF6A3D"/>
+    <text x="48" y="35" font-size="16" font-weight="600" fill="#1A1A1A">Protein</text>
+  </g></g>
+  <g transform="translate(372,228)"><g class="float f2">
+    <rect width="186" height="58" rx="15" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1.5"/>
+    <circle cx="28" cy="29" r="7" fill="#FF6A3D"/>
+    <text x="48" y="35" font-size="16" font-weight="600" fill="#1A1A1A">Vegetables</text>
+  </g></g>
+  <g transform="translate(372,306)"><g class="float f3">
+    <rect width="186" height="58" rx="15" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1.5"/>
+    <circle cx="28" cy="29" r="7" fill="#FF6A3D"/>
+    <text x="48" y="35" font-size="16" font-weight="600" fill="#1A1A1A">Fruit</text>
+  </g></g>
+  <!-- col 2 -->
+  <g transform="translate(578,150)"><g class="float f4">
+    <rect width="186" height="58" rx="15" fill="#FFE7DD" stroke="#FFD1C5" stroke-width="1.5"/>
+    <circle cx="28" cy="29" r="7" fill="#FF6A3D"/>
+    <text x="48" y="35" font-size="16" font-weight="700" fill="#1A1A1A">Dairy &amp; eggs</text>
+  </g></g>
+  <g transform="translate(578,228)"><g class="float f5">
+    <rect width="186" height="58" rx="15" fill="#FFE7DD" stroke="#FFD1C5" stroke-width="1.5"/>
+    <circle cx="28" cy="29" r="7" fill="#FF6A3D"/>
+    <text x="48" y="35" font-size="16" font-weight="700" fill="#1A1A1A">Grains &amp; carbs</text>
+  </g></g>
+  <g transform="translate(578,306)"><g class="float f6">
+    <rect width="186" height="58" rx="15" fill="#FFE7DD" stroke="#FFD1C5" stroke-width="1.5"/>
+    <circle cx="28" cy="29" r="7" fill="#FF6A3D"/>
+    <text x="48" y="35" font-size="16" font-weight="700" fill="#1A1A1A">Low-cal flavor</text>
+  </g></g>
+
+  <text x="48" y="448" font-size="13" fill="#9CA3AF">Most of it is single-ingredient food — predictable calories that track themselves.</text>
+</svg>
