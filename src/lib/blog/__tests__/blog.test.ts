@@ -4,6 +4,7 @@ import {
   getGoalPathway,
   GOAL_TAGS,
   getAllPosts,
+  getPostBySlug,
 } from '@/lib/blog';
 
 describe('getPostsByTag', () => {
@@ -74,5 +75,21 @@ describe('goal tag coverage (post-tagging state)', () => {
       expect(post.tags).toContain(goal);
       expect(getPostsByTag(goal).map((p) => p.slug)).toContain(slug);
     }
+  });
+});
+
+describe('high-protein low-calorie foods SEO refresh', () => {
+  it('targets the exact high-protein low-calorie foods search intent', () => {
+    const post = getPostBySlug('high-protein-low-calorie-foods');
+
+    expect(post).toBeDefined();
+    expect(post?.title).toBe(
+      'Foods High in Protein and Low in Calories: 40 Best Options Ranked',
+    );
+    expect(post?.description).toContain('foods high in protein and low in calories');
+    expect(post?.content).toContain('Best foods high in protein and low in calories');
+    expect(post?.content).toContain('/blog/protein-per-calorie');
+    expect(post?.content).toContain('/blog/high-protein-low-calorie-grocery-list');
+    expect(post?.content).toContain('/blog/high-protein-meals-under-500-calories');
   });
 });

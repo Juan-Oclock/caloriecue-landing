@@ -7,11 +7,11 @@ const root = process.cwd();
 const targetPosts = [
   {
     slug: "high-protein-low-calorie-foods",
-    title: "40 High-Protein, Low-Calorie Foods (Ranked, 2026)",
+    title: "Foods High in Protein and Low in Calories: 40 Best Options Ranked",
     description:
-      "The 40 best high-protein, low-calorie foods, ranked by protein per calorie — with exact grams and calories per serving. Build a leaner plate, fast.",
+      "The best foods high in protein and low in calories, ranked with calories, protein, serving sizes, and protein per 100 calories.",
     quickAnswer:
-      "The best high-protein, low-calorie foods are shrimp, tuna, cod, egg whites, whey protein, chicken breast, turkey jerky, pork tenderloin, fat-free Greek yogurt, and cottage cheese.",
+      "The best foods high in protein and low in calories are shrimp, tuna canned in water, cod, egg whites, whey protein, chicken breast, turkey jerky, pork tenderloin, fat-free Greek yogurt, and low-fat cottage cheese.",
   },
   {
     slug: "how-to-track-calories",
@@ -79,14 +79,14 @@ assert(
   "src/lib/blog/index.ts should export getPostsBySlugs(slugs: string[])"
 );
 
-const homepagePreview = readText("src/components/BlogPreview.tsx");
+const blogPage = readText("src/app/blog/page.tsx");
 assert(
-  homepagePreview.includes("POPULAR_GUIDE_SLUGS"),
-  "BlogPreview should define curated popular guide slugs"
+  blogPage.includes("FEATURED_GUIDE_SLUGS"),
+  "Blog page should define curated featured guide slugs"
 );
 assert(
-  homepagePreview.includes("Popular Calorie Tracking Guides"),
-  "BlogPreview should render the curated guide section heading"
+  blogPage.includes("featuredGuides"),
+  "Blog page should pass featured guides into BlogListingClient"
 );
 
 const blogListing = readText("src/components/blog/BlogListingClient.tsx");
@@ -101,8 +101,8 @@ assert(
 
 for (const post of targetPosts) {
   assert(
-    homepagePreview.includes(post.slug),
-    `BlogPreview should link to ${post.slug}`
+    blogPage.includes(post.slug),
+    `Blog page should feature ${post.slug}`
   );
   assert(
     blogListing.includes(post.slug) || blogListing.includes("featuredGuides"),
