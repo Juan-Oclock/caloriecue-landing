@@ -93,3 +93,45 @@ describe('high-protein low-calorie foods SEO refresh', () => {
     expect(post?.content).toContain('/blog/high-protein-meals-under-500-calories');
   });
 });
+
+describe('GSC-backed SEO refreshes', () => {
+  it('targets calorie counting grocery list intent without changing the slug', () => {
+    const post = getPostBySlug('calorie-counting-grocery-list');
+
+    expect(post).toBeDefined();
+    expect(post?.slug).toBe('calorie-counting-grocery-list');
+    expect(post?.title).toBe('Calorie Counting Grocery List: 75+ Foods to Buy by Aisle');
+    expect(post?.description).toContain('calorie counting grocery list');
+    expect(post?.dateModified).toBe('2026-07-02');
+    expect(post?.content).toContain('What should be on a calorie counting grocery list?');
+    expect(post?.content).toContain('/blog/how-to-count-calories');
+    expect(post?.content).toContain('/blog/calorie-counting-diet-plan');
+  });
+
+  it('targets best AI calorie tracker intent on the existing app comparison slug', () => {
+    const post = getPostBySlug('best-calorie-tracker-app');
+
+    expect(post).toBeDefined();
+    expect(post?.slug).toBe('best-calorie-tracker-app');
+    expect(post?.title).toBe('Best AI Calorie Tracker Apps in 2026: Tested Comparison');
+    expect(post?.dateModified).toBe('2026-07-02');
+    expect(post?.content).toContain('What is the best AI calorie tracker app?');
+    expect(post?.content).toContain('AI/photo logging');
+    expect(post?.content).toContain('Photo estimate with editable calories and macros');
+  });
+
+  it('targets weight-loss drinks intent while keeping the broad drinks URL', () => {
+    const post = getPostBySlug('what-to-drink-to-lose-weight');
+
+    expect(post).toBeDefined();
+    expect(post?.slug).toBe('what-to-drink-to-lose-weight');
+    expect(post?.title).toBe(
+      'What to Drink to Lose Weight: Best Drinks, Worst Drinks, and Simple Swaps',
+    );
+    expect(post?.description).toContain('zero-calorie drinks');
+    expect(post?.dateModified).toBe('2026-07-02');
+    expect(post?.content).toContain('Diet soda and zero-calorie drinks');
+    expect(post?.content).toContain('Electrolyte drinks and sports drinks');
+    expect(post?.content).toContain('/blog/why-am-i-always-hungry');
+  });
+});
