@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protein-Per-Calorie Calculator</title>
+<style>
+  :root{
+    --orange:#FF6A3D; --orange-dark:#E85427; --tint:#FFE7DD; --tint-soft:#FFF6F2;
+    --ink:#1A1A1A; --muted:#6B7280; --faint:#9CA3AF; --line:#ECECEC; --card:#FFFFFF; --bg:#FAFAF8;
+    --excellent:#16A34A; --good:#FF6A3D; --moderate:#F59E0B; --low:#9CA3AF;
+  }
+  *{box-sizing:border-box;}
+  .ppc{
+    font-family:Inter,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    max-width:680px;margin:0 auto;color:var(--ink);background:var(--bg);
+    border:1px solid var(--line);border-radius:20px;padding:28px 26px;line-height:1.5;
+  }
+  .ppc h2{font-size:24px;font-weight:800;margin:0 0 4px;letter-spacing:-.01em;}
+  .ppc .sub{color:var(--muted);font-size:15px;margin:0 0 22px;}
+  .ppc .inputs{display:flex;gap:14px;flex-wrap:wrap;}
+  .ppc .field{flex:1;min-width:140px;}
+  .ppc label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:.04em;}
+  .ppc input{
+    width:100%;font-size:20px;font-weight:700;color:var(--ink);background:var(--card);
+    border:2px solid var(--line);border-radius:12px;padding:12px 14px;outline:none;font-family:inherit;
+  }
+  .ppc input:focus{border-color:var(--orange);}
+  .ppc .picks{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px;}
+  .ppc .pick{
+    font-size:13px;font-weight:600;color:var(--ink);background:var(--card);
+    border:1px solid var(--line);border-radius:20px;padding:7px 13px;cursor:pointer;transition:.15s;
+  }
+  .ppc .pick:hover{border-color:var(--orange);background:var(--tint-soft);}
+
+  .ppc .result{margin-top:22px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;}
+  .ppc .stats{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;}
+  .ppc .stat{flex:1;min-width:120px;}
+  .ppc .stat .num{font-size:34px;font-weight:800;line-height:1;letter-spacing:-.02em;}
+  .ppc .stat .lbl{font-size:13px;color:var(--muted);margin-top:5px;}
+  .ppc .badge{
+    display:inline-flex;align-items:center;gap:7px;font-size:15px;font-weight:800;
+    padding:9px 15px;border-radius:24px;color:#fff;white-space:nowrap;
+  }
+  .ppc .badge .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.85);}
+
+  .ppc .gauge{margin-top:20px;}
+  .ppc .gauge-track{position:relative;height:14px;border-radius:8px;overflow:hidden;display:flex;}
+  .ppc .gauge-track span{height:100%;}
+  .ppc .z-low{background:#E5E7EB;flex:20;}
+  .ppc .z-mod{background:#FCD9A6;flex:15;}
+  .ppc .z-good{background:#FFC3AC;flex:25;}
+  .ppc .z-exc{background:#BBF7D0;flex:40;}
+  .ppc .marker{position:absolute;top:-6px;width:4px;height:26px;background:var(--ink);border-radius:3px;transform:translateX(-2px);transition:left .35s ease;}
+  .ppc .gauge-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:7px;}
+
+  .ppc .verdict-text{font-size:14px;color:var(--muted);margin-top:14px;}
+  .ppc .verdict-text b{color:var(--ink);}
+
+  .ppc .chart{margin-top:26px;}
+  .ppc .chart h3{font-size:16px;font-weight:800;margin:0 0 3px;}
+  .ppc .chart .chart-sub{font-size:13px;color:var(--muted);margin:0 0 16px;}
+  .ppc .row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .ppc .row .name{width:150px;font-size:13px;font-weight:600;text-align:right;flex-shrink:0;color:var(--ink);}
+  .ppc .row .bar-wrap{flex:1;background:#F1F1EE;border-radius:6px;height:22px;overflow:hidden;}
+  .ppc .row .bar{height:100%;border-radius:6px;background:var(--orange);transition:width .4s ease;}
+  .ppc .row .val{width:42px;font-size:13px;font-weight:700;flex-shrink:0;}
+  .ppc .row.you .name{color:var(--orange-dark);font-weight:800;}
+  .ppc .row.you .bar{background:linear-gradient(90deg,var(--orange),var(--orange-dark));}
+  .ppc .row.you .val{color:var(--orange-dark);}
+  .ppc .you-tag{font-size:10px;font-weight:800;color:#fff;background:var(--orange);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle;}
+
+  .ppc .foot{font-size:12px;color:var(--faint);margin-top:22px;border-top:1px solid var(--line);padding-top:14px;}
+
+  @media (max-width:480px){
+    .ppc{padding:22px 18px;}
+    .ppc .row .name{width:104px;font-size:12px;}
+    .ppc .stat .num{font-size:28px;}
+  }
+</style>
+</head>
+<body>
+<div class="ppc">
+  <h2>Protein-Per-Calorie Calculator</h2>
+  <p class="sub">Enter any food's protein and calories to see how protein-dense it really is — and how it ranks.</p>
+
+  <div class="inputs">
+    <div class="field">
+      <label for="ppc-protein">Protein (g)</label>
+      <input id="ppc-protein" type="number" inputmode="decimal" min="0" step="0.1" value="31">
+    </div>
+    <div class="field">
+      <label for="ppc-calories">Calories</label>
+      <input id="ppc-calories" type="number" inputmode="decimal" min="0" step="1" value="165">
+    </div>
+  </div>
+
+  <div class="picks" id="ppc-picks"></div>
+
+  <div class="result">
+    <div class="stats">
+      <div class="stat">
+        <div class="num" id="ppc-per100">18.8<span style="font-size:18px;font-weight:700;">g</span></div>
+        <div class="lbl">protein per 100 calories</div>
+      </div>
+      <div class="stat">
+        <div class="num" id="ppc-pct">75<span style="font-size:18px;font-weight:700;">%</span></div>
+        <div class="lbl">of calories from protein</div>
+      </div>
+      <div class="stat" style="flex:0 0 auto;">
+        <span class="badge" id="ppc-badge"><span class="dot"></span><span id="ppc-badge-text">Excellent</span></span>
+      </div>
+    </div>
+
+    <div class="gauge">
+      <div class="gauge-track">
+        <span class="z-low"></span><span class="z-mod"></span><span class="z-good"></span><span class="z-exc"></span>
+        <div class="marker" id="ppc-marker" style="left:75%;"></div>
+      </div>
+      <div class="gauge-scale"><span>Low</span><span>Moderate</span><span>Good</span><span>Excellent</span></div>
+    </div>
+
+    <p class="verdict-text" id="ppc-verdict"></p>
+  </div>
+
+  <div class="chart">
+    <h3>How it ranks against common foods</h3>
+    <p class="chart-sub">Grams of protein per 100 calories — higher is more protein-dense.</p>
+    <div id="ppc-rows"></div>
+  </div>
+
+  <p class="foot">A "good" protein-to-calorie ratio means more of a food's calories come from protein. As a rule of thumb, aim for foods where protein makes up at least a third of the calories (≈9 g per 100 cal or more). Protein has 4 calories per gram. Reference values are approximate and vary by cut, brand, and preparation.</p>
+</div>
+
+<script>
+(function(){
+  var foods = [
+    {name:"Shrimp", p:24, c:99},
+    {name:"Egg whites", p:11, c:52},
+    {name:"Tuna (in water)", p:26, c:116},
+    {name:"Chicken breast", p:31, c:165},
+    {name:"Turkey breast", p:30, c:135},
+    {name:"Whey protein", p:25, c:120},
+    {name:"Greek yogurt (nonfat)", p:10, c:59},
+    {name:"Cottage cheese", p:11, c:84},
+    {name:"Tofu (firm)", p:13, c:110},
+    {name:"Salmon", p:22, c:200},
+    {name:"Eggs (whole)", p:13, c:155},
+    {name:"Black beans", p:9, c:132},
+    {name:"Peanut butter", p:25, c:588},
+    {name:"White rice", p:2.7, c:130},
+    {name:"Avocado", p:2, c:160}
+  ];
+  foods.forEach(function(f){ f.per100 = f.p / f.c * 100; });
+
+  var picks = [
+    {label:"Chicken breast", p:31, c:165},
+    {label:"Eggs", p:13, c:155},
+    {label:"Greek yogurt", p:10, c:59},
+    {label:"Peanut butter", p:25, c:588},
+    {label:"White rice", p:2.7, c:130}
+  ];
+
+  var pEl = document.getElementById('ppc-protein');
+  var cEl = document.getElementById('ppc-calories');
+  var per100El = document.getElementById('ppc-per100');
+  var pctEl = document.getElementById('ppc-pct');
+  var badge = document.getElementById('ppc-badge');
+  var badgeText = document.getElementById('ppc-badge-text');
+  var marker = document.getElementById('ppc-marker');
+  var verdict = document.getElementById('ppc-verdict');
+  var rowsEl = document.getElementById('ppc-rows');
+  var picksEl = document.getElementById('ppc-picks');
+
+  var GAUGE_MAX = 25; // g protein per 100 cal that = 100% of calories
+  var CHART_MAX = 24;
+
+  picks.forEach(function(pk){
+    var b = document.createElement('button');
+    b.className = 'pick';
+    b.textContent = pk.label;
+    b.addEventListener('click', function(){ pEl.value = pk.p; cEl.value = pk.c; update(); });
+    picksEl.appendChild(b);
+  });
+
+  function tierFor(pct){
+    if(pct >= 60) return {name:"Excellent", color:"var(--excellent)", text:"This is a lean, protein-dense food — exactly what you want anchoring a meal."};
+    if(pct >= 35) return {name:"Good", color:"var(--good)", text:"A solid protein source. Foods like this make hitting your protein target easy."};
+    if(pct >= 20) return {name:"Moderate", color:"var(--moderate)", text:"Some protein, but a good share of the calories come from carbs or fat. Fine as part of a meal, not your main protein."};
+    return {name:"Low", color:"var(--low)", text:"This is mostly carbs or fat, not protein. Pair it with a leaner protein source."};
+  }
+
+  function update(){
+    var p = parseFloat(pEl.value) || 0;
+    var c = parseFloat(cEl.value) || 0;
+
+    if(c <= 0){
+      per100El.innerHTML = '–';
+      pctEl.innerHTML = '–';
+      badgeText.textContent = 'Enter calories';
+      badge.style.background = 'var(--muted)';
+      marker.style.left = '0%';
+      verdict.innerHTML = 'Enter a food\u2019s protein and calories to see its ratio.';
+      renderRows(null);
+      return;
+    }
+
+    var per100 = p / c * 100;
+    var pct = Math.min(p * 4 / c * 100, 100);
+    var tier = tierFor(pct);
+
+    per100El.innerHTML = (Math.round(per100 * 10) / 10) + '<span style="font-size:18px;font-weight:700;">g</span>';
+    pctEl.innerHTML = Math.round(pct) + '<span style="font-size:18px;font-weight:700;">%</span>';
+    badgeText.textContent = tier.name;
+    badge.style.background = tier.color;
+    marker.style.left = Math.max(0, Math.min(per100 / GAUGE_MAX * 100, 100)) + '%';
+    verdict.innerHTML = '<b>' + tier.name + '.</b> ' + tier.text;
+
+    renderRows({name:"Your food", per100:per100, you:true});
+  }
+
+  function renderRows(yours){
+    var list = foods.map(function(f){ return {name:f.name, per100:f.per100, you:false}; });
+    if(yours) list.push(yours);
+    list.sort(function(a,b){ return b.per100 - a.per100; });
+
+    rowsEl.innerHTML = '';
+    list.forEach(function(item){
+      var row = document.createElement('div');
+      row.className = 'row' + (item.you ? ' you' : '');
+      var w = Math.max(2, Math.min(item.per100 / CHART_MAX * 100, 100));
+      var nameHtml = item.name + (item.you ? '<span class="you-tag">YOU</span>' : '');
+      row.innerHTML =
+        '<div class="name">' + nameHtml + '</div>' +
+        '<div class="bar-wrap"><div class="bar" style="width:' + w + '%;"></div></div>' +
+        '<div class="val">' + (Math.round(item.per100 * 10) / 10) + 'g</div>';
+      rowsEl.appendChild(row);
+    });
+  }
+
+  pEl.addEventListener('input', update);
+  cEl.addEventListener('input', update);
+  update();
+})();
+</script>
+</body>
+</html>

@@ -134,4 +134,54 @@ describe('GSC-backed SEO refreshes', () => {
     expect(post?.content).toContain('Electrolyte drinks and sports drinks');
     expect(post?.content).toContain('/blog/why-am-i-always-hungry');
   });
+
+  it('repairs the thin AI calorie tracking guide with stronger indexing signals', () => {
+    const post = getPostBySlug('ai-calorie-tracking-guide');
+
+    expect(post).toBeDefined();
+    expect(post?.slug).toBe('ai-calorie-tracking-guide');
+    expect(post?.title).toBe(
+      'AI Calorie Tracking Guide: How Photo Food Logging Works, Accuracy, and When to Trust It',
+    );
+    expect(post?.description).toContain('AI calorie tracking');
+    expect(post?.dateModified).toBe('2026-07-06');
+    expect(post?.tldr).toContain('AI calorie tracking is best used as a fast first draft');
+    expect(post?.faq?.length).toBeGreaterThanOrEqual(5);
+    expect(post?.content.trim().split(/\s+/).length).toBeGreaterThan(1800);
+    expect(post?.content).toContain('/blog/best-calorie-tracker-app');
+    expect(post?.content).toContain('/blog/how-to-count-calories-without-a-food-scale');
+    expect(post?.content).toContain('/blog/what-to-do-after-downloading-calorie-tracker');
+    expect(post?.content).toContain('/blog/calorie-counting-grocery-list');
+  });
+
+  it('refreshes high-priority crawled-not-indexed posts with updated metadata', () => {
+    const slugs = [
+      'why-am-i-always-hungry',
+      'how-many-calories-should-i-eat',
+      'does-calorie-counting-work',
+      'volume-eating',
+      'how-to-track-calories-eating-out',
+      'healthy-snacks-for-weight-loss',
+    ];
+
+    for (const slug of slugs) {
+      const post = getPostBySlug(slug);
+      expect(post, slug).toBeDefined();
+      expect(post?.dateModified, slug).toBe('2026-07-06');
+      expect(post?.tldr, slug).toBeTruthy();
+      expect(post?.tldr?.length, slug).toBeGreaterThan(120);
+    }
+  });
+
+  it('adds FAQ schema and stronger internal linking to the calorie-counting evidence page', () => {
+    const post = getPostBySlug('does-calorie-counting-work');
+
+    expect(post).toBeDefined();
+    expect(post?.faq?.length).toBeGreaterThanOrEqual(5);
+    expect(post?.content).toContain('/blog/how-to-start-counting-calories');
+    expect(post?.content).toContain('/blog/how-to-count-calories');
+    expect(post?.content).toContain('/blog/how-to-calculate-calorie-deficit');
+    expect(post?.content).toContain('/blog/track-calories-without-obsessing');
+    expect(post?.content).toContain('/blog/best-calorie-tracker-app');
+  });
 });

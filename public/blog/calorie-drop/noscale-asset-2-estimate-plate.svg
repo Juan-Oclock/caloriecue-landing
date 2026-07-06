@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 430" font-family="Inter, 'Helvetica Neue', Arial, sans-serif">
+  <rect width="800" height="430" fill="#FFFFFF"/>
+  <text x="40" y="54" font-size="30" font-weight="700" fill="#1A1A1A">Estimate a whole plate in seconds</text>
+  <text x="40" y="84" font-size="16" fill="#6B7280">Add up the cues. A typical chicken-and-rice dinner, no weighing:</text>
+  <line x1="40" y1="106" x2="760" y2="106" stroke="#E5E7EB" stroke-width="1"/>
+
+  <g font-size="17">
+    <!-- Row 1 -->
+    <g transform="translate(40,130)">
+      <circle cx="14" cy="14" r="6" fill="#FF6A3D"/>
+      <text x="36" y="20" font-weight="600" fill="#1A1A1A">1 palm grilled chicken</text>
+      <text x="660" y="20" font-weight="700" fill="#1A1A1A" text-anchor="end">~150 cal</text>
+    </g>
+    <line x1="40" y1="166" x2="700" y2="166" stroke="#F0F0F0" stroke-width="1"/>
+    <!-- Row 2 -->
+    <g transform="translate(40,180)">
+      <circle cx="14" cy="14" r="6" fill="#FF6A3D"/>
+      <text x="36" y="20" font-weight="600" fill="#1A1A1A">1 cupped hand steamed rice</text>
+      <text x="660" y="20" font-weight="700" fill="#1A1A1A" text-anchor="end">~120 cal</text>
+    </g>
+    <line x1="40" y1="216" x2="700" y2="216" stroke="#F0F0F0" stroke-width="1"/>
+    <!-- Row 3 -->
+    <g transform="translate(40,230)">
+      <circle cx="14" cy="14" r="6" fill="#FF6A3D"/>
+      <text x="36" y="20" font-weight="600" fill="#1A1A1A">1 fist of broccoli</text>
+      <text x="660" y="20" font-weight="700" fill="#1A1A1A" text-anchor="end">~30 cal</text>
+    </g>
+    <line x1="40" y1="266" x2="700" y2="266" stroke="#F0F0F0" stroke-width="1"/>
+    <!-- Row 4 -->
+    <g transform="translate(40,280)">
+      <circle cx="14" cy="14" r="6" fill="#FF6A3D"/>
+      <text x="36" y="20" font-weight="600" fill="#1A1A1A">1 thumb of oil it cooked in</text>
+      <text x="660" y="20" font-weight="700" fill="#1A1A1A" text-anchor="end">~120 cal</text>
+    </g>
+  </g>
+
+  <!-- total -->
+  <rect x="40" y="318" width="660" height="56" rx="14" fill="#FFE7DD"/>
+  <text x="64" y="353" font-size="18" font-weight="800" fill="#1A1A1A">Whole plate</text>
+  <text x="676" y="353" font-size="22" font-weight="800" fill="#FF6A3D" text-anchor="end">≈ 420 cal</text>
+
+  <text x="40" y="404" font-size="14" fill="#9CA3AF">You just tracked a meal without weighing a thing. Close enough, every day, beats perfect once a week.</text>
+</svg>

@@ -1,31 +1,34 @@
 import { MetadataRoute } from "next";
-import { getAllPosts, GOAL_TAGS } from "@/lib/blog";
+import { getAllPosts } from "@/lib/blog";
+
+const SITE_URL = "https://caloriecue.app";
+const STATIC_LAST_MODIFIED = {
+  home: new Date("2026-07-06T00:00:00.000Z"),
+  tdeeCalculator: new Date("2026-07-02T00:00:00.000Z"),
+  support: new Date("2026-06-01T00:00:00.000Z"),
+  privacy: new Date("2026-06-01T00:00:00.000Z"),
+  terms: new Date("2026-06-01T00:00:00.000Z"),
+};
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts();
 
   const blogEntries: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `https://caloriecue.app/blog/${post.slug}`,
+    url: `${SITE_URL}/blog/${post.slug}`,
     lastModified: new Date(post.dateModified ?? post.date),
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
-  const goalTagEntries: MetadataRoute.Sitemap = GOAL_TAGS.map((tag) => ({
-    url: `https://caloriecue.app/blog/tag/${tag}`,
-    lastModified: posts.length > 0 ? new Date(posts[0].date) : new Date(),
-    changeFrequency: "weekly",
-    priority: 0.7,
-  }));
+  const latestPostDate = posts.length > 0 ? new Date(posts[0].dateModified ?? posts[0].date) : STATIC_LAST_MODIFIED.home;
 
   return [
-    { url: "https://caloriecue.app", lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
-    { url: "https://caloriecue.app/tdee-calculator", lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
-    { url: "https://caloriecue.app/blog", lastModified: posts.length > 0 ? new Date(posts[0].date) : new Date(), changeFrequency: "weekly", priority: 0.8 },
-    ...goalTagEntries,
+    { url: SITE_URL, lastModified: STATIC_LAST_MODIFIED.home, changeFrequency: "weekly", priority: 1 },
+    { url: `${SITE_URL}/tdee-calculator`, lastModified: STATIC_LAST_MODIFIED.tdeeCalculator, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/blog`, lastModified: latestPostDate, changeFrequency: "weekly", priority: 0.8 },
     ...blogEntries,
-    { url: "https://caloriecue.app/support", lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
-    { url: "https://caloriecue.app/privacy", lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
-    { url: "https://caloriecue.app/terms", lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
+    { url: `${SITE_URL}/support`, lastModified: STATIC_LAST_MODIFIED.support, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${SITE_URL}/privacy`, lastModified: STATIC_LAST_MODIFIED.privacy, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${SITE_URL}/terms`, lastModified: STATIC_LAST_MODIFIED.terms, changeFrequency: "monthly", priority: 0.5 },
   ];
 }

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 440" font-family="Inter, 'Helvetica Neue', Arial, sans-serif">
+  <rect width="800" height="440" fill="#FFFFFF"/>
+  <text x="40" y="54" font-size="30" font-weight="700" fill="#1A1A1A">Calorie anchors worth memorizing</text>
+  <text x="40" y="84" font-size="16" fill="#6B7280">Know these ten and you can ballpark almost any meal from memory.</text>
+  <line x1="40" y1="106" x2="760" y2="106" stroke="#E5E7EB" stroke-width="1"/>
+
+  <!-- two columns of anchors -->
+  <g font-size="16">
+    <!-- left column -->
+    <g transform="translate(40,128)">
+      <g transform="translate(0,0)">
+        <rect width="350" height="44" rx="10" fill="#FAFAFA"/>
+        <text x="16" y="28" font-weight="600" fill="#1A1A1A">Chicken breast (palm)</text>
+        <text x="334" y="28" font-weight="800" fill="#FF6A3D" text-anchor="end">165</text>
+      </g>
+      <g transform="translate(0,54)">
+        <rect width="350" height="44" rx="10" fill="#FAFAFA"/>
+        <text x="16" y="28" font-weight="600" fill="#1A1A1A">1 large egg</text>
+        <text x="334" y="28" font-weight="800" fill="#FF6A3D" text-anchor="end">70</text>
+      </g>
+      <g transform="translate(0,108)">
+        <rect width="350" height="44" rx="10" fill="#FAFAFA"/>
+        <text x="16" y="28" font-weight="600" fill="#1A1A1A">Cooked rice (1 cup)</text>
+        <text x="334" y="28" font-weight="800" fill="#FF6A3D" text-anchor="end">200</text>
+      </g>
+      <g transform="translate(0,162)">
+        <rect width="350" height="44" rx="10" fill="#FAFAFA"/>
+        <text x="16" y="28" font-weight="600" fill="#1A1A1A">Bread (1 slice)</text>
+        <text x="334" y="28" font-weight="800" fill="#FF6A3D" text-anchor="end">80</text>
+      </g>
+      <g transform="translate(0,216)">
+        <rect width="350" height="44" rx="10" fill="#FAFAFA"/>
+        <text x="16" y="28" font-weight="600" fill="#1A1A1A">Banana (1 medium)</text>
+        <text x="334" y="28" font-weight="800" fill="#FF6A3D" text-anchor="end">105</text>
+      </g>
+    </g>
+    <!-- right column -->
+    <g transform="translate(410,128)">
+      <g transform="translate(0,0)">
+        <rect width="350" height="44" rx="10" fill="#FAFAFA"/>
+        <text x="16" y="28" font-weight="600" fill="#1A1A1A">Greek yogurt (6 oz)</text>
+        <text x="334" y="28" font-weight="800" fill="#FF6A3D" text-anchor="end">90</text>
+      </g>
+      <g transform="translate(0,54)">
+        <rect width="350" height="44" rx="10" fill="#FAFAFA"/>
+        <text x="16" y="28" font-weight="600" fill="#1A1A1A">Cheese (1 oz / 1 slice)</text>
+        <text x="334" y="28" font-weight="800" fill="#FF6A3D" text-anchor="end">110</text>
+      </g>
+      <g transform="translate(0,108)">
+        <rect width="350" height="44" rx="10" fill="#FAFAFA"/>
+        <text x="16" y="28" font-weight="600" fill="#1A1A1A">Oil or butter (1 tbsp)</text>
+        <text x="334" y="28" font-weight="800" fill="#FF6A3D" text-anchor="end">120</text>
+      </g>
+      <g transform="translate(0,162)">
+        <rect width="350" height="44" rx="10" fill="#FAFAFA"/>
+        <text x="16" y="28" font-weight="600" fill="#1A1A1A">Apple (1 medium)</text>
+        <text x="334" y="28" font-weight="800" fill="#FF6A3D" text-anchor="end">95</text>
+      </g>
+      <g transform="translate(0,216)">
+        <rect width="350" height="44" rx="10" fill="#FAFAFA"/>
+        <text x="16" y="28" font-weight="600" fill="#1A1A1A">Nut butter (1 tbsp)</text>
+        <text x="334" y="28" font-weight="800" fill="#FF6A3D" text-anchor="end">95</text>
+      </g>
+    </g>
+  </g>
+
+  <text x="40" y="416" font-size="13" fill="#9CA3AF">Approximate calories per serving. Round to the nearest 5 or 10 — precision isn't the point, consistency is.</text>
+</svg>

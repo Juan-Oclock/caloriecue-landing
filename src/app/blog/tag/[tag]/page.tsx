@@ -67,6 +67,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description: meta.description,
     alternates: { canonical: url },
+    robots: { index: false, follow: true },
     openGraph: {
       title: `${title} | CalorieCue`,
       description: meta.description,
