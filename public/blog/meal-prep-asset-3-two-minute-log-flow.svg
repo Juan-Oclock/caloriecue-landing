@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1376" height="768" viewBox="0 0 1376 768" role="img" aria-labelledby="title desc">
+  <title id="title">Two minute calorie counting log flow</title>
+  <desc id="desc">A four step flow for logging meal prep quickly: snap the meal, verify portions, save the meal, and reuse it during the week.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#134e4a"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000000" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+  <rect width="1376" height="768" rx="48" fill="url(#bg)"/>
+  <g transform="translate(88 78)">
+    <text x="0" y="0" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="46" font-weight="800">The under-two-minute logging flow</text>
+    <text x="0" y="44" fill="#ccfbf1" font-family="Inter, Arial, sans-serif" font-size="22">Meal prep only converts if logging stays faster than eating.</text>
+  </g>
+  <g transform="translate(96 178)" filter="url(#shadow)" font-family="Inter, Arial, sans-serif">
+    <g>
+      <rect width="260" height="366" rx="34" fill="#ffffff"/>
+      <circle cx="54" cy="58" r="28" fill="#fed7aa"/>
+      <text x="46" y="67" fill="#9a3412" font-size="28" font-weight="900">1</text>
+      <text x="34" y="122" fill="#0f172a" font-size="28" font-weight="850">Snap</text>
+      <text x="34" y="168" fill="#475569" font-size="20">Take one photo before</text>
+      <text x="34" y="199" fill="#475569" font-size="20">you eat the container.</text>
+      <rect x="34" y="256" width="192" height="58" rx="20" fill="#fff7ed"/>
+      <text x="60" y="292" fill="#ea580c" font-size="20" font-weight="800">10 seconds</text>
+    </g>
+    <g transform="translate(306 0)">
+      <rect width="260" height="366" rx="34" fill="#ffffff"/>
+      <circle cx="54" cy="58" r="28" fill="#99f6e4"/>
+      <text x="46" y="67" fill="#0f766e" font-size="28" font-weight="900">2</text>
+      <text x="34" y="122" fill="#0f172a" font-size="28" font-weight="850">Verify</text>
+      <text x="34" y="168" fill="#475569" font-size="20">Check protein, carbs,</text>
+      <text x="34" y="199" fill="#475569" font-size="20">oil, and sauce once.</text>
+      <rect x="34" y="256" width="192" height="58" rx="20" fill="#f0fdfa"/>
+      <text x="60" y="292" fill="#0f766e" font-size="20" font-weight="800">45 seconds</text>
+    </g>
+    <g transform="translate(612 0)">
+      <rect width="260" height="366" rx="34" fill="#ffffff"/>
+      <circle cx="54" cy="58" r="28" fill="#bbf7d0"/>
+      <text x="46" y="67" fill="#15803d" font-size="28" font-weight="900">3</text>
+      <text x="34" y="122" fill="#0f172a" font-size="28" font-weight="850">Save</text>
+      <text x="34" y="168" fill="#475569" font-size="20">Name the meal:</text>
+      <text x="34" y="199" fill="#475569" font-size="20">Chicken bowl v1.</text>
+      <rect x="34" y="256" width="192" height="58" rx="20" fill="#f0fdf4"/>
+      <text x="60" y="292" fill="#15803d" font-size="20" font-weight="800">35 seconds</text>
+    </g>
+    <g transform="translate(918 0)">
+      <rect width="260" height="366" rx="34" fill="#ffffff"/>
+      <circle cx="54" cy="58" r="28" fill="#c7d2fe"/>
+      <text x="46" y="67" fill="#4338ca" font-size="28" font-weight="900">4</text>
+      <text x="34" y="122" fill="#0f172a" font-size="28" font-weight="850">Repeat</text>
+      <text x="34" y="168" fill="#475569" font-size="20">Reuse the saved log</text>
+      <text x="34" y="199" fill="#475569" font-size="20">for the same container.</text>
+      <rect x="34" y="256" width="192" height="58" rx="20" fill="#eef2ff"/>
+      <text x="60" y="292" fill="#4338ca" font-size="20" font-weight="800">20 seconds</text>
+    </g>
+  </g>
+  <g transform="translate(328 628)">
+    <rect width="720" height="72" rx="36" fill="#ffffff" opacity="0.96"/>
+    <text x="52" y="46" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="850">Fast enough to do every day. Accurate enough to stay on target.</text>
+  </g>
+</svg>

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1376" height="768" viewBox="0 0 1376 768" role="img" aria-labelledby="title desc">
+  <title id="title">Calorie counting meal prep component map</title>
+  <desc id="desc">A visual system showing two proteins, two carbs, two vegetables, and three sauces combining into five calorie-counted meal prep days.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff7ed"/>
+      <stop offset="0.52" stop-color="#ecfeff"/>
+      <stop offset="1" stop-color="#f8fafc"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0f172a" flood-opacity="0.14"/>
+    </filter>
+  </defs>
+  <rect width="1376" height="768" rx="48" fill="url(#bg)"/>
+  <g transform="translate(92 70)">
+    <text x="0" y="0" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="800">The loggable meal prep system</text>
+    <text x="0" y="42" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="22">Prep components once. Build five different days. Save the meals once and reuse the log.</text>
+  </g>
+  <g transform="translate(92 160)" filter="url(#shadow)">
+    <rect width="1188" height="465" rx="32" fill="#ffffff"/>
+    <g transform="translate(44 46)">
+      <text x="0" y="0" fill="#ea580c" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800">PREP ONCE</text>
+      <g transform="translate(0 38)">
+        <rect width="240" height="300" rx="26" fill="#fff7ed" stroke="#fed7aa" stroke-width="2"/>
+        <text x="28" y="52" fill="#9a3412" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800">Protein</text>
+        <text x="28" y="102" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Chicken breast</text>
+        <text x="28" y="137" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">~165 cal / 31g protein</text>
+        <text x="28" y="188" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Lean turkey</text>
+        <text x="28" y="223" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">~170 cal / 21g protein</text>
+      </g>
+      <g transform="translate(278 38)">
+        <rect width="240" height="300" rx="26" fill="#f0fdfa" stroke="#99f6e4" stroke-width="2"/>
+        <text x="28" y="52" fill="#0f766e" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800">Carb</text>
+        <text x="28" y="102" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Rice</text>
+        <text x="28" y="137" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">1/2 cup cooked</text>
+        <text x="28" y="188" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Sweet potato</text>
+        <text x="28" y="223" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">1 small baked</text>
+      </g>
+      <g transform="translate(556 38)">
+        <rect width="240" height="300" rx="26" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="2"/>
+        <text x="28" y="52" fill="#15803d" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800">Volume</text>
+        <text x="28" y="102" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Broccoli mix</text>
+        <text x="28" y="137" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">2 cups</text>
+        <text x="28" y="188" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Salad kit base</text>
+        <text x="28" y="223" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">greens + cucumber</text>
+      </g>
+      <g transform="translate(834 38)">
+        <rect width="240" height="300" rx="26" fill="#eef2ff" stroke="#c7d2fe" stroke-width="2"/>
+        <text x="28" y="52" fill="#4338ca" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800">Flavor</text>
+        <text x="28" y="102" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Salsa</text>
+        <text x="28" y="137" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">Greek yogurt sauce</text>
+        <text x="28" y="188" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Soy ginger</text>
+        <text x="28" y="223" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">Measure oils once</text>
+      </g>
+    </g>
+  </g>
+  <g transform="translate(190 656)">
+    <rect width="996" height="64" rx="32" fill="#0f172a"/>
+    <text x="44" y="40" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="800">Result: five meals that feel different, but log from the same saved building blocks.</text>
+  </g>
+</svg>
