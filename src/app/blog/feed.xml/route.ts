@@ -1,5 +1,7 @@
 import { getAllPosts } from "@/lib/blog";
 
+export const dynamic = "force-static";
+
 function escapeXml(text: string): string {
   return text
     .replace(/&/g, "&amp;")
@@ -11,6 +13,10 @@ function escapeXml(text: string): string {
 
 export async function GET() {
   const posts = getAllPosts();
+  const newestPostDate = posts[0]?.dateModified ?? posts[0]?.date;
+  const lastBuildDate = newestPostDate
+    ? new Date(newestPostDate).toUTCString()
+    : new Date(0).toUTCString();
 
   const items = posts
     .map(
@@ -33,7 +39,7 @@ export async function GET() {
     <link>https://caloriecue.app/blog</link>
     <description>Tips, guides, and insights on nutrition tracking, healthy eating, and AI-powered calorie counting.</description>
     <language>en-us</language>
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <lastBuildDate>${lastBuildDate}</lastBuildDate>
     <atom:link href="https://caloriecue.app/blog/feed.xml" rel="self" type="application/rss+xml" />
     ${items}
   </channel>

@@ -1,27 +1,8 @@
 import { updateSession } from '@/lib/supabase/middleware';
+import { buildAdminCsp, buildPublicCsp } from '@/lib/csp';
 import { NextResponse, type NextRequest } from 'next/server';
 
 const CANONICAL_HOST = 'caloriecue.app';
-
-const isDev = process.env.NODE_ENV === 'development';
-
-function buildCsp(nonce: string) {
-  return [
-    "default-src 'self'",
-    `script-src 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ''}`,
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https:",
-    "font-src 'self'",
-    "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com https://www.googletagmanager.com https://*.supabase.co",
-    "frame-src 'none'",
-    "object-src 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "frame-ancestors 'none'",
-    `trusted-types default nextjs#bundler`,
-    "require-trusted-types-for 'script'",
-  ].join('; ');
-}
 
 export async function middleware(request: NextRequest) {
   const host = request.headers.get('host') ?? '';
@@ -34,23 +15,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
-  // Generate per-request nonce for CSP
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
-  const csp = buildCsp(nonce);
+  const { pathname } = request.nextUrl;
 
-  // Forward nonce + CSP to Next.js via request headers so layout can read them
+  // Public routes use a stable CSP so their rendered output can be cached.
+  if (!pathname.startsWith('/admin')) {
+    const response = NextResponse.next();
+    response.headers.set('Content-Security-Policy', buildPublicCsp());
+    return response;
+  }
+
+  // Admin routes remain dynamic and keep the stricter per-request nonce CSP.
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  const csp = buildAdminCsp(nonce);
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-nonce', nonce);
   requestHeaders.set('Content-Security-Policy', csp);
-
-  const { pathname } = request.nextUrl;
-
-  // Only refresh Supabase session for admin routes
-  if (!pathname.startsWith('/admin')) {
-    const response = NextResponse.next({ request: { headers: requestHeaders } });
-    response.headers.set('Content-Security-Policy', csp);
-    return response;
-  }
 
   const { user, supabaseResponse } = await updateSession(request, requestHeaders);
 
