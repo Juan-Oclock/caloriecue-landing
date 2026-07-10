@@ -9,6 +9,7 @@
     "lint": "next lint",
     "newsletter": "node scripts/send-newsletter.js",
     "verify:seo-guides": "node scripts/verify-seo-guides.mjs",
+    "verify:static-routes": "node scripts/verify-static-routes.mjs",
     "test": "vitest",
     "test:run": "vitest run",
     "test:ui": "vitest --ui"

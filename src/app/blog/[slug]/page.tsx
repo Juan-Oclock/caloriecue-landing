@@ -9,6 +9,8 @@ import { Navigation, Footer, FadeIn } from "@/components";
 import { TableOfContents, ShareButtons, RelatedPosts, NewsletterSection, BlogTldr, getMDXComponents } from "@/components/blog";
 import { getAllPosts, getPostBySlug, extractHeadings } from "@/lib/blog";
 
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   return getAllPosts().map((post) => ({ slug: post.slug }));
 }
