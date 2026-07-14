@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1376" height="768" viewBox="0 0 1376 768" role="img" aria-labelledby="title desc">
+  <title id="title">Why nutrition label math can differ</title>
+  <desc id="desc">A label with 10 grams protein, 24 grams carbohydrate, and 7 grams fat calculates to 199 calories while the rounded label shows 200.</desc>
+  <defs>
+    <filter id="shadow2" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#2C211C" flood-opacity="0.10"/>
+    </filter>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FCFAF5"/>
+      <stop offset="1" stop-color="#F4EFE7"/>
+    </linearGradient>
+  </defs>
+  <rect width="1376" height="768" rx="34" fill="url(#bg2)"/>
+  <text x="688" y="76" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="38" font-weight="820" fill="#211C19">Why does the label say 200?</text>
+  <text x="688" y="112" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="18" fill="#706963">Your 199-calorie calculation can still be correct</text>
+
+  <g filter="url(#shadow2)">
+    <g transform="translate(82 154)">
+      <rect width="360" height="438" rx="20" fill="#FFFFFF"/>
+      <text x="26" y="48" font-family="Arial, sans-serif" font-size="30" font-weight="900" fill="#111111">Nutrition Facts</text>
+      <rect x="24" y="62" width="312" height="10" fill="#111111"/>
+      <text x="26" y="100" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#111111">Amount per serving</text>
+      <text x="26" y="145" font-family="Arial, sans-serif" font-size="27" font-weight="900" fill="#111111">Calories</text>
+      <text x="334" y="145" text-anchor="end" font-family="Arial, sans-serif" font-size="48" font-weight="900" fill="#111111">200</text>
+      <rect x="24" y="160" width="312" height="7" fill="#111111"/>
+      <g font-family="Arial, sans-serif" font-size="17" fill="#111111">
+        <text x="26" y="207" font-weight="700">Total Fat</text><text x="334" y="207" text-anchor="end" font-weight="700">7g</text>
+        <line x1="24" y1="220" x2="336" y2="220" stroke="#111111" stroke-width="1"/>
+        <text x="26" y="263" font-weight="700">Total Carbohydrate</text><text x="334" y="263" text-anchor="end" font-weight="700">24g</text>
+        <line x1="24" y1="276" x2="336" y2="276" stroke="#111111" stroke-width="1"/>
+        <text x="26" y="319" font-weight="700">Protein</text><text x="334" y="319" text-anchor="end" font-weight="700">10g</text>
+      </g>
+      <rect x="24" y="352" width="312" height="60" rx="12" fill="#FFF0EA"/>
+      <text x="180" y="378" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="12" font-weight="750" letter-spacing="1" fill="#B7462C">PRINTED TOTAL</text>
+      <text x="180" y="401" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="20" font-weight="850" fill="#211C19">200 calories</text>
+    </g>
+
+    <g transform="translate(486 198)">
+      <rect width="396" height="350" rx="24" fill="#211C19"/>
+      <text x="32" y="47" font-family="Inter, -apple-system, sans-serif" font-size="14" font-weight="750" letter-spacing="1.5" fill="#EAA38F">YOUR CALCULATION</text>
+      <g font-family="Inter, -apple-system, sans-serif" font-size="20" fill="#FFFFFF">
+        <circle cx="40" cy="94" r="6" fill="#E05A3A"/><text x="60" y="101">10 g protein × 4</text><text x="356" y="101" text-anchor="end" font-weight="800">40</text>
+        <circle cx="40" cy="148" r="6" fill="#D3932F"/><text x="60" y="155">24 g carbs × 4</text><text x="356" y="155" text-anchor="end" font-weight="800">96</text>
+        <circle cx="40" cy="202" r="6" fill="#4E8064"/><text x="60" y="209">7 g fat × 9</text><text x="356" y="209" text-anchor="end" font-weight="800">63</text>
+      </g>
+      <line x1="32" y1="236" x2="364" y2="236" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="2"/>
+      <text x="32" y="286" font-family="Inter, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF">Calculated total</text>
+      <text x="364" y="292" text-anchor="end" font-family="Inter, -apple-system, sans-serif" font-size="48" font-weight="850" fill="#FFFFFF">199</text>
+      <text x="364" y="320" text-anchor="end" font-family="Inter, -apple-system, sans-serif" font-size="13" fill="#FFFFFF" opacity="0.6">calories</text>
+    </g>
+
+    <g transform="translate(926 154)">
+      <rect width="368" height="438" rx="24" fill="#FFFFFF"/>
+      <circle cx="184" cy="68" r="36" fill="#EEF7F1"/>
+      <path d="M168 68l11 11 22-24" fill="none" stroke="#4E8064" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="184" y="129" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="22" font-weight="820" fill="#211C19">Both can be right</text>
+      <text x="184" y="161" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="15" fill="#706963">Labels use unrounded source values</text>
+      <g transform="translate(34 195)" font-family="Inter, -apple-system, sans-serif">
+        <rect width="300" height="48" rx="14" fill="#FFF5F1"/><circle cx="24" cy="24" r="7" fill="#E05A3A"/><text x="44" y="30" font-size="15" font-weight="700" fill="#4B403A">Rounded grams and calories</text>
+        <rect y="60" width="300" height="48" rx="14" fill="#FFF9EC"/><circle cx="24" cy="84" r="7" fill="#D3932F"/><text x="44" y="90" font-size="15" font-weight="700" fill="#4B403A">Fiber energy factors</text>
+        <rect y="120" width="300" height="48" rx="14" fill="#F2F8F4"/><circle cx="24" cy="144" r="7" fill="#4E8064"/><text x="44" y="150" font-size="15" font-weight="700" fill="#4B403A">Sugar alcohols</text>
+        <rect y="180" width="300" height="48" rx="14" fill="#F7F3F9"/><circle cx="24" cy="204" r="7" fill="#7A668F"/><text x="44" y="210" font-size="15" font-weight="700" fill="#4B403A">Specific Atwater factors</text>
+      </g>
+    </g>
+  </g>
+
+  <rect x="254" y="640" width="868" height="70" rx="20" fill="#FFFFFF" stroke="#E7DFD5"/>
+  <text x="688" y="670" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="14" font-weight="750" letter-spacing="1.3" fill="#E05A3A">THE PRACTICAL RULE</text>
+  <text x="688" y="695" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="17" font-weight="700" fill="#3B332E">A difference of a few calories is usually rounding—not bad math.</text>
+  <text x="1284" y="738" text-anchor="end" font-family="Inter, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#E05A3A">caloriecue.app</text>
+</svg>

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1376" height="768" viewBox="0 0 1376 768" role="img" aria-labelledby="title desc">
+  <title id="title">How many nutrient grams equal 100 calories</title>
+  <desc id="desc">One hundred calories equals 25 grams protein, 25 grams carbohydrate, 11.1 grams fat, or 14.3 grams alcohol.</desc>
+  <defs>
+    <filter id="shadow3" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#30251F" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFEFA"/>
+      <stop offset="1" stop-color="#F3EEE6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1376" height="768" rx="34" fill="url(#bg3)"/>
+  <text x="688" y="78" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="38" font-weight="820" fill="#211C19">What does 100 calories weigh?</text>
+  <text x="688" y="115" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="18" fill="#706963">Reverse the formula: calories ÷ calories per gram</text>
+
+  <g filter="url(#shadow3)">
+    <g transform="translate(74 166)">
+      <rect width="286" height="410" rx="26" fill="#FFFFFF"/>
+      <circle cx="143" cy="103" r="72" fill="#FFF0EA"/>
+      <circle cx="143" cy="103" r="56" fill="none" stroke="#E05A3A" stroke-width="12" stroke-dasharray="315 352" stroke-linecap="round" transform="rotate(-90 143 103)"/>
+      <text x="143" y="97" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="750" fill="#B7462C">100</text>
+      <text x="143" y="118" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#B7462C">CALORIES</text>
+      <text x="143" y="211" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="18" font-weight="780" fill="#3B332E">PROTEIN</text>
+      <text x="143" y="292" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="68" font-weight="850" fill="#211C19">25 g</text>
+      <rect x="41" y="331" width="204" height="46" rx="14" fill="#FFF5F1"/>
+      <text x="143" y="360" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#B7462C">100 ÷ 4</text>
+    </g>
+
+    <g transform="translate(388 166)">
+      <rect width="286" height="410" rx="26" fill="#FFFFFF"/>
+      <circle cx="143" cy="103" r="72" fill="#FFF8E8"/>
+      <circle cx="143" cy="103" r="56" fill="none" stroke="#D3932F" stroke-width="12" stroke-dasharray="315 352" stroke-linecap="round" transform="rotate(-90 143 103)"/>
+      <text x="143" y="97" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="750" fill="#95651E">100</text>
+      <text x="143" y="118" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#95651E">CALORIES</text>
+      <text x="143" y="211" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="18" font-weight="780" fill="#3B332E">CARBOHYDRATES</text>
+      <text x="143" y="292" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="68" font-weight="850" fill="#211C19">25 g</text>
+      <rect x="41" y="331" width="204" height="46" rx="14" fill="#FFFAEE"/>
+      <text x="143" y="360" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#95651E">100 ÷ 4</text>
+    </g>
+
+    <g transform="translate(702 166)">
+      <rect width="286" height="410" rx="26" fill="#FFFFFF"/>
+      <circle cx="143" cy="103" r="72" fill="#EEF7F1"/>
+      <circle cx="143" cy="103" r="56" fill="none" stroke="#4E8064" stroke-width="12" stroke-dasharray="140 352" stroke-linecap="round" transform="rotate(-90 143 103)"/>
+      <text x="143" y="97" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="750" fill="#376249">100</text>
+      <text x="143" y="118" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#376249">CALORIES</text>
+      <text x="143" y="211" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="18" font-weight="780" fill="#3B332E">FAT</text>
+      <text x="143" y="292" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="64" font-weight="850" fill="#211C19">11.1 g</text>
+      <rect x="41" y="331" width="204" height="46" rx="14" fill="#F1F8F3"/>
+      <text x="143" y="360" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#376249">100 ÷ 9</text>
+    </g>
+
+    <g transform="translate(1016 166)">
+      <rect width="286" height="410" rx="26" fill="#FFFFFF"/>
+      <circle cx="143" cy="103" r="72" fill="#F5F0F8"/>
+      <circle cx="143" cy="103" r="56" fill="none" stroke="#7A668F" stroke-width="12" stroke-dasharray="202 352" stroke-linecap="round" transform="rotate(-90 143 103)"/>
+      <text x="143" y="97" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="750" fill="#665274">100</text>
+      <text x="143" y="118" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#665274">CALORIES</text>
+      <text x="143" y="211" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="18" font-weight="780" fill="#3B332E">ALCOHOL</text>
+      <text x="143" y="292" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="64" font-weight="850" fill="#211C19">14.3 g</text>
+      <rect x="41" y="331" width="204" height="46" rx="14" fill="#F7F3F9"/>
+      <text x="143" y="360" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#665274">100 ÷ 7</text>
+    </g>
+  </g>
+
+  <rect x="176" y="623" width="1024" height="82" rx="22" fill="#211C19"/>
+  <circle cx="220" cy="664" r="18" fill="#E05A3A"/>
+  <text x="220" y="671" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="20" font-weight="850" fill="#FFFFFF">!</text>
+  <text x="258" y="657" font-family="Inter, -apple-system, sans-serif" font-size="17" font-weight="750" fill="#FFFFFF">These are pure nutrient grams—not food portions.</text>
+  <text x="258" y="683" font-family="Inter, -apple-system, sans-serif" font-size="14" fill="#FFFFFF" opacity="0.65">A protein-rich food also contains water and may contain fat or carbohydrates.</text>
+  <text x="1284" y="738" text-anchor="end" font-family="Inter, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#E05A3A">caloriecue.app</text>
+</svg>

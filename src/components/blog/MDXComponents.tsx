@@ -5,6 +5,7 @@ import type { MDXComponents as MDXComponentsType } from "mdx/types";
 import React, { type ReactNode } from "react";
 import CheatSheetForm from "./CheatSheetForm";
 import ProteinPerCalorieCalculator from "./ProteinPerCalorieCalculator";
+import CaloriesPerGramCalculator from "./CaloriesPerGramCalculator";
 
 function getTextContent(children: ReactNode): string {
   if (typeof children === "string") return children;
@@ -229,5 +230,6 @@ export function getMDXComponents(): MDXComponentsType {
     BlogImage,
     CheatSheetForm,
     ProteinPerCalorieCalculator,
+    CaloriesPerGramCalculator,
   };
 }
