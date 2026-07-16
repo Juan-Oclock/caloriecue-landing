@@ -13,6 +13,7 @@ export function createFlowRun({
   outputDirectory,
   existingRun = null,
   resetChangedShotIds = [],
+  approvedResetShotIds = resetChangedShotIds,
   now = new Date().toISOString(),
 }) {
   const manifest = validateManifest(manifestInput);
@@ -21,16 +22,21 @@ export function createFlowRun({
     throw new Error("prepare-flow requires a flow-browser manifest");
   }
 
-  const resetIds = new Set(resetChangedShotIds);
+  const resetIds = new Set(approvedResetShotIds);
   const existingById = new Map((existingRun?.shots ?? []).map((shot) => [shot.id, shot]));
   const changed = [];
+  const invalidRetries = [];
   const shots = manifest.shots.map((shot) => {
     const promptFingerprint = fingerprintPrompt(shot.prompt);
     const existing = existingById.get(shot.id);
     const promptChanged = existing && existing.promptFingerprint !== promptFingerprint;
-    if (promptChanged && !resetIds.has(shot.id)) changed.push(shot.id);
+    const resetApproved = resetIds.has(shot.id);
+    if (promptChanged && !resetApproved) changed.push(shot.id);
+    if (resetApproved && !promptChanged && existing?.status !== "failed") {
+      invalidRetries.push({ id: shot.id, status: existing?.status ?? "missing" });
+    }
 
-    if (existing && !promptChanged) {
+    if (existing && !promptChanged && !resetApproved) {
       return { ...existing, title: shot.title, promptFingerprint, updatedAt: now };
     }
 
@@ -45,13 +51,20 @@ export function createFlowRun({
       outputPath: path.join(outputDirectory, "shots", `shot-${String(shot.id).padStart(2, "0")}.mp4`),
       bytes: null,
       error: null,
-      replacementApproved: Boolean(promptChanged && resetIds.has(shot.id)),
+      replacementApproved: Boolean(existing && resetApproved),
       updatedAt: now,
     };
   });
 
   if (changed.length > 0) {
     throw new Error(`Changed prompt requires approved reset for shot ${changed.join(", ")}`);
+  }
+  if (invalidRetries.length > 0) {
+    throw new Error(
+      invalidRetries
+        .map(({ id, status }) => `Shot ${id} is ${status} and cannot be retried`)
+        .join("; "),
+    );
   }
 
   return {

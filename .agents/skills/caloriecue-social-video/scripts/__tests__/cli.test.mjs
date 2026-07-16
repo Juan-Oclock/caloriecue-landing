@@ -11,6 +11,11 @@ import test from "node:test";
 
 import { runCli } from "../social-video.mjs";
 import { loadEnvironment } from "../lib/env.mjs";
+import {
+  fingerprintAlignmentSource,
+  fingerprintBytes,
+  fingerprintNarrationInput,
+} from "../lib/narration.mjs";
 
 function makeManifest() {
   return {
@@ -86,7 +91,32 @@ async function setupManifest(manifest = makeManifest()) {
   return { cwd, manifestPath };
 }
 
-async function writeCompleteFlowHandoff(cwd, manifest) {
+function narrationIdentity(manifest, voiceId, audioBytes) {
+  const inputFingerprint = fingerprintNarrationInput({
+    text: manifest.narration,
+    voiceId,
+    modelId: manifest.elevenlabs.modelId,
+    outputFormat: manifest.elevenlabs.outputFormat,
+    voiceSettings: manifest.elevenlabs.voiceSettings,
+  });
+  const audioFingerprint = fingerprintBytes(audioBytes);
+  return {
+    voiceId,
+    inputFingerprint,
+    audioFingerprint,
+    alignmentSourceFingerprint: fingerprintAlignmentSource({
+      text: manifest.narration,
+      narrationInputFingerprint: inputFingerprint,
+      audioFingerprint,
+    }),
+  };
+}
+
+async function writeCompleteFlowHandoff(
+  cwd,
+  manifest,
+  { voiceId = "voice-123", audioBytes = Buffer.from("narration audio") } = {},
+) {
   const directory = path.join(
     cwd,
     "social-video-assets",
@@ -106,10 +136,16 @@ async function writeCompleteFlowHandoff(cwd, manifest) {
       (shot) => `shots/shot-${String(shot.id).padStart(2, "0")}.mp4`,
     ),
   ];
+  const identity = narrationIdentity(manifest, voiceId, audioBytes);
   const contents = {
     "generation-report.json": JSON.stringify({
-      narration: { status: "complete" },
+      narration: { status: "complete", ...identity },
     }),
+    "narration.mp3": audioBytes,
+    "alignment.json": JSON.stringify({
+      words: [{ text: "Narration", start: 0, end: 0.5 }],
+    }),
+    "subtitles.srt": "1\n00:00:00,000 --> 00:00:00,500\nNarration\n",
     "flow-run.json": JSON.stringify({
       shots: manifest.shots.map((shot) => ({
         id: shot.id,
@@ -157,6 +193,30 @@ function outputCollector() {
     writeOut: (value) => stdout.push(String(value)),
     writeError: (value) => stderr.push(String(value)),
   };
+}
+
+async function runNarrationForTest({
+  cwd,
+  manifestPath,
+  voiceId = "voice-123",
+  dependencies = noNetworkDependencies(),
+  replacement = false,
+  confirmGeneration = true,
+  output = outputCollector(),
+}) {
+  const argv = ["narrate", "--manifest", manifestPath];
+  if (confirmGeneration) argv.push("--confirm-elevenlabs-generation");
+  if (replacement) argv.push("--confirm-elevenlabs-replacement");
+  const code = await runCli(argv, {
+    cwd,
+    env: {
+      ELEVENLABS_API_KEY: "eleven-key",
+      ELEVENLABS_VOICE_ID: voiceId,
+    },
+    dependencies,
+    ...output,
+  });
+  return { code, output };
 }
 
 test("process environment overrides .env.local without mutating either", async () => {
@@ -492,6 +552,74 @@ test("requires explicit shot IDs and confirmation to reset a changed Flow prompt
   assert.equal(run.shots[0].replacementApproved, true);
 });
 
+test("approved Flow retry resets only selected unchanged failed shots", async () => {
+  const manifest = makeFlowManifest();
+  const { cwd, manifestPath } = await setupManifest(manifest);
+  assert.equal(
+    await runCli(["prepare-flow", "--manifest", manifestPath], {
+      cwd,
+      env: {},
+      dependencies: noNetworkDependencies(),
+    }),
+    0,
+  );
+
+  const runPath = path.join(
+    cwd,
+    "social-video-assets",
+    manifest.slug,
+    "flow-run.json",
+  );
+  const failed = JSON.parse(await readFile(runPath, "utf8"));
+  failed.shots[0] = {
+    ...failed.shots[0],
+    status: "failed",
+    attempts: 2,
+    flowProjectUrl: "https://labs.google/fx/tools/flow/project/example",
+    error: "selected failure",
+    failedAt: "2026-07-16T00:30:00.000Z",
+  };
+  failed.shots[1] = {
+    ...failed.shots[1],
+    status: "failed",
+    attempts: 1,
+    error: "unselected failure",
+  };
+  await writeFile(runPath, JSON.stringify(failed, null, 2));
+
+  const output = outputCollector();
+  const code = await runCli(
+    [
+      "prepare-flow",
+      "--manifest",
+      manifestPath,
+      "--shots",
+      "1",
+      "--confirm-flow-retry",
+    ],
+    {
+      cwd,
+      env: {},
+      dependencies: noNetworkDependencies(),
+      ...output,
+    },
+  );
+
+  assert.equal(code, 0);
+  const retried = JSON.parse(await readFile(runPath, "utf8"));
+  assert.equal(retried.shots[0].status, "pending");
+  assert.equal(retried.shots[0].attempts, 2);
+  assert.equal(
+    retried.shots[0].flowProjectUrl,
+    "https://labs.google/fx/tools/flow/project/example",
+  );
+  assert.equal(retried.shots[0].error, null);
+  assert.equal(retried.shots[0].replacementApproved, true);
+  assert.equal(retried.shots[0].failedAt, undefined);
+  assert.equal(retried.shots[1].status, "failed");
+  assert.equal(retried.shots[1].error, "unselected failure");
+});
+
 test("selective regeneration preserves previously completed shot records", async () => {
   const { cwd, manifestPath } = await setupManifest();
   const output = outputCollector();
@@ -759,14 +887,25 @@ test("narrate produces audio, alignment, and SRT without Gemini", async () => {
 });
 
 test("narrate resumes at alignment when narration already exists", async () => {
-  const { cwd, manifestPath } = await setupManifest(makeFlowManifest());
+  const manifest = makeFlowManifest();
+  const { cwd, manifestPath } = await setupManifest(manifest);
   const directory = path.join(
     cwd,
     "social-video-assets",
     "high-protein-low-calorie-foods",
   );
   await mkdir(directory, { recursive: true });
-  await writeFile(path.join(directory, "narration.mp3"), Buffer.from("existing audio"));
+  const audioBytes = Buffer.from("existing audio");
+  await writeFile(path.join(directory, "narration.mp3"), audioBytes);
+  await writeFile(
+    path.join(directory, "generation-report.json"),
+    JSON.stringify({
+      narration: {
+        status: "complete",
+        ...narrationIdentity(manifest, "voice-123", audioBytes),
+      },
+    }),
+  );
   let narrationCalls = 0;
   let alignmentCalls = 0;
   const code = await runCli(
@@ -802,6 +941,327 @@ test("narrate resumes at alignment when narration already exists", async () => {
   assert.equal(code, 0);
   assert.equal(narrationCalls, 0);
   assert.equal(alignmentCalls, 1);
+});
+
+test("narrate blocks stale audio when approved inputs change", async (t) => {
+  const cases = [
+    {
+      name: "narration text",
+      mutate(manifest) {
+        manifest.narration = manifest.narration.replace(
+          "Protein labels",
+          "Nutrition labels",
+        );
+      },
+    },
+    {
+      name: "voice ID",
+      voiceId: "voice-456",
+      mutate() {},
+    },
+    {
+      name: "model",
+      mutate(manifest) {
+        manifest.elevenlabs.modelId = "eleven_v3";
+      },
+    },
+    {
+      name: "voice settings",
+      mutate(manifest) {
+        manifest.elevenlabs.voiceSettings.stability = 0.7;
+      },
+    },
+  ];
+
+  for (const scenario of cases) {
+    await t.test(scenario.name, async () => {
+      const manifest = makeFlowManifest();
+      const { cwd, manifestPath } = await setupManifest(manifest);
+      const directory = await writeCompleteFlowHandoff(cwd, manifest);
+      const narrationPath = path.join(directory, "narration.mp3");
+      const alignmentPath = path.join(directory, "alignment.json");
+      const subtitlesPath = path.join(directory, "subtitles.srt");
+      const originalAudio = await readFile(narrationPath);
+      const originalAlignment = await readFile(alignmentPath);
+      const originalSubtitles = await readFile(subtitlesPath);
+      scenario.mutate(manifest);
+      await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+
+      let narrationCalls = 0;
+      let alignmentCalls = 0;
+      const { code, output } = await runNarrationForTest({
+        cwd,
+        manifestPath,
+        voiceId: scenario.voiceId,
+        dependencies: {
+          ...noNetworkDependencies(),
+          generateNarration: async () => {
+            narrationCalls += 1;
+            throw new Error("unexpected narration generation");
+          },
+          forceAlign: async () => {
+            alignmentCalls += 1;
+            throw new Error("unexpected alignment");
+          },
+        },
+      });
+
+      assert.equal(code, 2);
+      assert.equal(narrationCalls, 0);
+      assert.equal(alignmentCalls, 0);
+      assert.deepEqual(await readFile(narrationPath), originalAudio);
+      assert.deepEqual(await readFile(alignmentPath), originalAlignment);
+      assert.deepEqual(await readFile(subtitlesPath), originalSubtitles);
+      assert.match(
+        output.stderr.join("\n"),
+        /replacement.*confirm-elevenlabs-replacement/i,
+      );
+      const report = JSON.parse(
+        await readFile(path.join(directory, "generation-report.json"), "utf8"),
+      );
+      assert.equal(report.narration.status, "stale");
+
+      const verification = outputCollector();
+      assert.equal(
+        await runCli(["verify-assets", "--manifest", manifestPath], {
+          cwd,
+          dependencies: noNetworkDependencies(),
+          ...verification,
+        }),
+        1,
+      );
+      assert.match(
+        verification.stderr.join("\n"),
+        /narration.*(fingerprint|identity|stale)/i,
+      );
+    });
+  }
+});
+
+test("narrate blocks legacy audio without a recorded identity", async () => {
+  const manifest = makeFlowManifest();
+  const { cwd, manifestPath } = await setupManifest(manifest);
+  const directory = path.join(cwd, "social-video-assets", manifest.slug);
+  await mkdir(directory, { recursive: true });
+  await writeFile(path.join(directory, "narration.mp3"), "legacy audio");
+  await writeFile(
+    path.join(directory, "generation-report.json"),
+    JSON.stringify({ narration: { status: "complete" } }),
+  );
+  let narrationCalls = 0;
+  let alignmentCalls = 0;
+  const { code, output } = await runNarrationForTest({
+    cwd,
+    manifestPath,
+    dependencies: {
+      ...noNetworkDependencies(),
+      generateNarration: async () => {
+        narrationCalls += 1;
+      },
+      forceAlign: async () => {
+        alignmentCalls += 1;
+      },
+    },
+  });
+
+  assert.equal(code, 2);
+  assert.equal(narrationCalls, 0);
+  assert.equal(alignmentCalls, 0);
+  assert.equal(await readFile(path.join(directory, "narration.mp3"), "utf8"), "legacy audio");
+  assert.match(output.stderr.join("\n"), /replacement/i);
+  const report = JSON.parse(
+    await readFile(path.join(directory, "generation-report.json"), "utf8"),
+  );
+  assert.equal(report.narration.status, "stale");
+});
+
+test("matching narration identity rebuilds stale alignment only", async () => {
+  const manifest = makeFlowManifest();
+  const { cwd, manifestPath } = await setupManifest(manifest);
+  const directory = await writeCompleteFlowHandoff(cwd, manifest);
+  const reportPath = path.join(directory, "generation-report.json");
+  const report = JSON.parse(await readFile(reportPath, "utf8"));
+  report.narration.alignmentSourceFingerprint = "stale-alignment";
+  await writeFile(reportPath, JSON.stringify(report, null, 2));
+  const originalAudio = await readFile(path.join(directory, "narration.mp3"));
+  let narrationCalls = 0;
+  let alignmentCalls = 0;
+  const { code } = await runNarrationForTest({
+    cwd,
+    manifestPath,
+    dependencies: {
+      ...noNetworkDependencies(),
+      generateNarration: async () => {
+        narrationCalls += 1;
+        throw new Error("unexpected narration generation");
+      },
+      forceAlign: async () => {
+        alignmentCalls += 1;
+        return {
+          words: [{ text: "Refreshed", start: 0, end: 0.5 }],
+          characters: [],
+          loss: 0.01,
+        };
+      },
+    },
+  });
+
+  assert.equal(code, 0);
+  assert.equal(narrationCalls, 0);
+  assert.equal(alignmentCalls, 1);
+  assert.deepEqual(await readFile(path.join(directory, "narration.mp3")), originalAudio);
+  assert.match(
+    await readFile(path.join(directory, "subtitles.srt"), "utf8"),
+    /Refreshed/,
+  );
+  const refreshed = JSON.parse(await readFile(reportPath, "utf8"));
+  assert.equal(
+    refreshed.narration.alignmentSourceFingerprint,
+    narrationIdentity(manifest, "voice-123", originalAudio)
+      .alignmentSourceFingerprint,
+  );
+});
+
+test("approved narration replacement refreshes the complete asset chain", async () => {
+  const manifest = makeFlowManifest();
+  const { cwd, manifestPath } = await setupManifest(manifest);
+  const directory = await writeCompleteFlowHandoff(cwd, manifest);
+  manifest.narration = manifest.narration.replace(
+    "Protein labels",
+    "Nutrition labels",
+  );
+  await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+  const replacementAudio = Buffer.from("replacement narration audio");
+  let narrationCalls = 0;
+  let alignmentCalls = 0;
+  let narrationTemporaryPath = "";
+  let alignmentAudioPath = "";
+  const { code } = await runNarrationForTest({
+    cwd,
+    manifestPath,
+    voiceId: "voice-456",
+    replacement: true,
+    dependencies: {
+      ...noNetworkDependencies(),
+      generateNarration: async ({ outputPath }) => {
+        narrationCalls += 1;
+        narrationTemporaryPath = outputPath;
+        await writeFile(outputPath, replacementAudio);
+        return {
+          outputPath,
+          bytes: replacementAudio.length,
+          characterCost: 130,
+          requestId: "replacement-request",
+        };
+      },
+      forceAlign: async ({ audioPath }) => {
+        alignmentCalls += 1;
+        alignmentAudioPath = audioPath;
+        assert.deepEqual(await readFile(audioPath), replacementAudio);
+        return {
+          words: [{ text: "Replacement", start: 0, end: 0.5 }],
+          characters: [],
+          loss: 0.01,
+        };
+      },
+    },
+  });
+
+  assert.equal(code, 0);
+  assert.equal(narrationCalls, 1);
+  assert.equal(alignmentCalls, 1);
+  assert.match(narrationTemporaryPath, /\.tmp$/);
+  assert.equal(alignmentAudioPath, narrationTemporaryPath);
+  assert.deepEqual(
+    await readFile(path.join(directory, "narration.mp3")),
+    replacementAudio,
+  );
+  assert.match(
+    await readFile(path.join(directory, "subtitles.srt"), "utf8"),
+    /Replacement/,
+  );
+  const report = JSON.parse(
+    await readFile(path.join(directory, "generation-report.json"), "utf8"),
+  );
+  assert.deepEqual(
+    {
+      voiceId: report.narration.voiceId,
+      inputFingerprint: report.narration.inputFingerprint,
+      audioFingerprint: report.narration.audioFingerprint,
+      alignmentSourceFingerprint:
+        report.narration.alignmentSourceFingerprint,
+    },
+    narrationIdentity(manifest, "voice-456", replacementAudio),
+  );
+
+  const verification = outputCollector();
+  assert.equal(
+    await runCli(["verify-assets", "--manifest", manifestPath], {
+      cwd,
+      dependencies: noNetworkDependencies(),
+      ...verification,
+    }),
+    0,
+  );
+  assert.deepEqual(verification.stderr, []);
+});
+
+test("failed approved replacement preserves final generated assets", async () => {
+  const manifest = makeFlowManifest();
+  const { cwd, manifestPath } = await setupManifest(manifest);
+  const directory = await writeCompleteFlowHandoff(cwd, manifest);
+  const narrationPath = path.join(directory, "narration.mp3");
+  const alignmentPath = path.join(directory, "alignment.json");
+  const subtitlesPath = path.join(directory, "subtitles.srt");
+  const originalAudio = await readFile(narrationPath);
+  const originalAlignment = await readFile(alignmentPath);
+  const originalSubtitles = await readFile(subtitlesPath);
+  let narrationCalls = 0;
+  let alignmentCalls = 0;
+  const { code } = await runNarrationForTest({
+    cwd,
+    manifestPath,
+    voiceId: "voice-456",
+    replacement: true,
+    dependencies: {
+      ...noNetworkDependencies(),
+      generateNarration: async ({ outputPath }) => {
+        narrationCalls += 1;
+        await writeFile(outputPath, "temporary replacement");
+        return { outputPath, bytes: 21, characterCost: 130 };
+      },
+      forceAlign: async () => {
+        alignmentCalls += 1;
+        throw new Error("alignment failed");
+      },
+    },
+  });
+
+  assert.equal(code, 1);
+  assert.equal(narrationCalls, 1);
+  assert.equal(alignmentCalls, 1);
+  assert.deepEqual(await readFile(narrationPath), originalAudio);
+  assert.deepEqual(await readFile(alignmentPath), originalAlignment);
+  assert.deepEqual(await readFile(subtitlesPath), originalSubtitles);
+  const report = JSON.parse(
+    await readFile(path.join(directory, "generation-report.json"), "utf8"),
+  );
+  assert.equal(report.narration.status, "failed");
+});
+
+test("narration replacement confirmation also requires generation confirmation", async () => {
+  const manifest = makeFlowManifest();
+  const { cwd, manifestPath } = await setupManifest(manifest);
+  await writeCompleteFlowHandoff(cwd, manifest);
+  const { code, output } = await runNarrationForTest({
+    cwd,
+    manifestPath,
+    replacement: true,
+    confirmGeneration: false,
+  });
+
+  assert.equal(code, 2);
+  assert.match(output.stderr.join("\n"), /confirm-elevenlabs-generation/);
 });
 
 test("verify-assets reports missing handoff files", async () => {

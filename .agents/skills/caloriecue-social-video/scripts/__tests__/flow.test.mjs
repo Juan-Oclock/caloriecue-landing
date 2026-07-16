@@ -79,6 +79,89 @@ test("blocks a changed prompt until its shot reset is approved", () => {
   assert.equal(reset.shots[0].replacementApproved, true);
 });
 
+test("resets only an explicitly approved unchanged failed shot", () => {
+  const manifest = flowManifest();
+  const initial = createFlowRun({
+    manifest,
+    outputDirectory: "/tmp/example",
+    now: "2026-07-16T00:00:00.000Z",
+  });
+  initial.shots[0] = {
+    ...initial.shots[0],
+    status: "failed",
+    attempts: 2,
+    flowProjectUrl: "https://labs.google/fx/tools/flow/project/example",
+    downloadedFilename: "failed-download.mp4",
+    bytes: 42,
+    error: "terminal Flow failure",
+    failedAt: "2026-07-16T00:30:00.000Z",
+    completedAt: "2026-07-16T00:31:00.000Z",
+  };
+  initial.shots[1] = {
+    ...initial.shots[1],
+    status: "failed",
+    attempts: 1,
+    error: "unselected failure",
+  };
+
+  const retried = createFlowRun({
+    manifest,
+    outputDirectory: "/tmp/example",
+    existingRun: initial,
+    approvedResetShotIds: [1],
+    now: "2026-07-16T01:00:00.000Z",
+  });
+
+  assert.deepEqual(
+    {
+      status: retried.shots[0].status,
+      attempts: retried.shots[0].attempts,
+      flowProjectUrl: retried.shots[0].flowProjectUrl,
+      downloadedFilename: retried.shots[0].downloadedFilename,
+      bytes: retried.shots[0].bytes,
+      error: retried.shots[0].error,
+      replacementApproved: retried.shots[0].replacementApproved,
+      failedAt: retried.shots[0].failedAt,
+      completedAt: retried.shots[0].completedAt,
+    },
+    {
+      status: "pending",
+      attempts: 2,
+      flowProjectUrl: "https://labs.google/fx/tools/flow/project/example",
+      downloadedFilename: null,
+      bytes: null,
+      error: null,
+      replacementApproved: true,
+      failedAt: undefined,
+      completedAt: undefined,
+    },
+  );
+  assert.equal(retried.shots[1].status, "failed");
+  assert.equal(retried.shots[1].error, "unselected failure");
+});
+
+for (const status of ["pending", "submitted", "downloaded"]) {
+  test(`rejects an approved unchanged retry from ${status}`, () => {
+    const manifest = flowManifest();
+    const initial = createFlowRun({
+      manifest,
+      outputDirectory: "/tmp/example",
+    });
+    initial.shots[0] = { ...initial.shots[0], status };
+
+    assert.throws(
+      () =>
+        createFlowRun({
+          manifest,
+          outputDirectory: "/tmp/example",
+          existingRun: initial,
+          approvedResetShotIds: [1],
+        }),
+      new RegExp(`shot 1.*${status}.*cannot be retried`, "i"),
+    );
+  });
+}
+
 test("hashes normalized prompt text consistently", () => {
   assert.equal(fingerprintPrompt("  Hello   world  "), fingerprintPrompt("Hello world"));
 });

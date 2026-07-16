@@ -45,6 +45,12 @@ node .agents/skills/caloriecue-social-video/scripts/social-video.mjs prepare-flo
    - Update `flow-run.json` only at confirmed `submitted`, terminal `failed`, or `downloaded` milestones.
    - Never retry an ambiguous submission. A Flow retry requires separate approval of the shot IDs and added credits.
 
+After that retry approval, reset only the named terminally failed shots with:
+
+~~~bash
+node .agents/skills/caloriecue-social-video/scripts/social-video.mjs prepare-flow --manifest social-video-assets/<slug>/manifest.json --shots <FAILED_IDS> --confirm-flow-retry
+~~~
+
 6. Generate the approved narration, then verify the editor-ready package.
 
 ~~~bash
@@ -53,6 +59,12 @@ node .agents/skills/caloriecue-social-video/scripts/social-video.mjs verify-asse
 ~~~
 
 The initial package approval covers one narration generation. Any ElevenLabs replacement generation requires separate approval.
+
+After that separate replacement approval, replace the complete narration asset chain with:
+
+~~~bash
+node .agents/skills/caloriecue-social-video/scripts/social-video.mjs narrate --manifest social-video-assets/<slug>/manifest.json --confirm-elevenlabs-generation --confirm-elevenlabs-replacement
+~~~
 
 7. Stop for the user's edit. Hand off the editor-ready assets only; do not use Remotion, assemble or edit the video, add music, upload, or publish.
 

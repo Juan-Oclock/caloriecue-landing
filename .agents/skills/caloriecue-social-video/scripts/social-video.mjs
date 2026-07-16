@@ -5,6 +5,7 @@ import {
   mkdir,
   readFile,
   rename,
+  unlink,
   writeFile,
 } from "node:fs/promises";
 import path from "node:path";
@@ -24,6 +25,11 @@ import {
   getElevenLabsVoice,
 } from "./lib/elevenlabs.mjs";
 import { createFlowRun } from "./lib/flow.mjs";
+import {
+  fingerprintAlignmentSource,
+  fingerprintBytes,
+  fingerprintNarrationInput,
+} from "./lib/narration.mjs";
 import {
   estimateVideoUsage,
   estimateVeoCost,
@@ -46,6 +52,7 @@ const BOOLEAN_FLAGS = new Set([
   "confirm-paid-generation",
   "confirm-flow-retry",
   "confirm-elevenlabs-generation",
+  "confirm-elevenlabs-replacement",
 ]);
 
 const DEFAULT_DEPENDENCIES = {
@@ -187,14 +194,14 @@ async function runPrepareFlow({ cwd, flags, writeOut }) {
   );
   const runPath = path.join(outputDirectory, "flow-run.json");
   const existingRun = await readExistingJson(runPath, "Flow run");
-  const resetChangedShotIds = flags["confirm-flow-retry"]
+  const approvedResetShotIds = flags["confirm-flow-retry"]
     ? normalizeShotSelection(manifest, flags.shots)
     : [];
   const run = createFlowRun({
     manifest,
     outputDirectory,
     existingRun,
-    resetChangedShotIds,
+    approvedResetShotIds,
   });
   await writeCreativeFiles(outputDirectory, manifest);
   await writeJsonAtomic(runPath, run);
@@ -536,6 +543,16 @@ async function runGeneration({
   return 0;
 }
 
+async function removeTemporaryFiles(paths) {
+  for (const filePath of paths) {
+    try {
+      await unlink(filePath);
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+    }
+  }
+}
+
 async function runNarration({
   cwd,
   env,
@@ -583,55 +600,146 @@ async function runNarration({
     };
   await writeCreativeFiles(outputDirectory, manifest);
 
-  try {
-    const narrationPath = path.join(outputDirectory, "narration.mp3");
-    if (!(await pathExists(narrationPath))) {
-      report.narration = { status: "generating" };
+  const narrationPath = path.join(outputDirectory, "narration.mp3");
+  const alignmentPath = path.join(outputDirectory, "alignment.json");
+  const subtitlesPath = path.join(outputDirectory, "subtitles.srt");
+  const narrationTemporaryPath = narrationPath + ".tmp";
+  const alignmentTemporaryPath = alignmentPath + ".tmp";
+  const subtitlesTemporaryPath = subtitlesPath + ".tmp";
+  const temporaryPaths = [
+    narrationTemporaryPath,
+    alignmentTemporaryPath,
+    subtitlesTemporaryPath,
+  ];
+  const replacementApproved = Boolean(
+    flags["confirm-elevenlabs-replacement"],
+  );
+  const inputFingerprint = fingerprintNarrationInput({
+    text: manifest.narration,
+    voiceId: loaded.ELEVENLABS_VOICE_ID,
+    modelId: manifest.elevenlabs.modelId,
+    outputFormat: manifest.elevenlabs.outputFormat,
+    voiceSettings: manifest.elevenlabs.voiceSettings,
+  });
+  const narrationExists = await pathExists(narrationPath);
+  let audioFingerprint = null;
+
+  if (narrationExists) {
+    audioFingerprint = fingerprintBytes(await readFile(narrationPath));
+    const identityMatches =
+      report.narration?.voiceId === loaded.ELEVENLABS_VOICE_ID &&
+      report.narration?.inputFingerprint === inputFingerprint &&
+      report.narration?.audioFingerprint === audioFingerprint;
+    if (!identityMatches && !replacementApproved) {
+      report.narration = {
+        ...report.narration,
+        status: "stale",
+        error:
+          "Existing narration assets do not match the approved narration inputs",
+      };
       await saveReport(reportPath, report);
-      const result = await dependencies.generateNarration({
+      writeError(
+        "ElevenLabs narration replacement blocked. Add --confirm-elevenlabs-replacement only after separate replacement approval.",
+      );
+      return 2;
+    }
+  }
+
+  let generatedResult = null;
+  let generatedAudioReady = false;
+  const shouldGenerate = !narrationExists || replacementApproved;
+
+  try {
+    let workingAudioPath = narrationPath;
+    if (shouldGenerate) {
+      report.narration = {
+        ...report.narration,
+        status: "generating",
+        error: null,
+      };
+      await saveReport(reportPath, report);
+      generatedResult = await dependencies.generateNarration({
         apiKey: loaded.ELEVENLABS_API_KEY,
         voiceId: loaded.ELEVENLABS_VOICE_ID,
         text: manifest.narration,
         modelId: manifest.elevenlabs.modelId,
         outputFormat: manifest.elevenlabs.outputFormat,
         voiceSettings: manifest.elevenlabs.voiceSettings,
-        outputPath: narrationPath,
+        outputPath: narrationTemporaryPath,
       });
-      report.narration = { status: "complete", ...result };
-      await saveReport(reportPath, report);
+      audioFingerprint = fingerprintBytes(
+        await readFile(narrationTemporaryPath),
+      );
+      generatedAudioReady = true;
+      workingAudioPath = narrationTemporaryPath;
     }
 
-    const alignmentPath = path.join(
-      outputDirectory,
-      "alignment.json",
-    );
-    const subtitlesPath = path.join(
-      outputDirectory,
-      "subtitles.srt",
-    );
-    if (
+    const alignmentSourceFingerprint = fingerprintAlignmentSource({
+      text: manifest.narration,
+      narrationInputFingerprint: inputFingerprint,
+      audioFingerprint,
+    });
+    const alignmentNeedsRefresh =
+      shouldGenerate ||
       !(await pathExists(alignmentPath)) ||
-      !(await pathExists(subtitlesPath))
-    ) {
+      !(await pathExists(subtitlesPath)) ||
+      report.narration?.alignmentSourceFingerprint !==
+        alignmentSourceFingerprint;
+
+    if (alignmentNeedsRefresh) {
       const alignment = await dependencies.forceAlign({
         apiKey: loaded.ELEVENLABS_API_KEY,
-        audioPath: narrationPath,
+        audioPath: workingAudioPath,
         text: manifest.narration,
       });
-      await writeJsonAtomic(alignmentPath, alignment);
-      await writeFile(subtitlesPath, alignmentToSrt(alignment));
+      await writeFile(
+        alignmentTemporaryPath,
+        JSON.stringify(alignment, null, 2) + "\n",
+      );
+      await writeFile(
+        subtitlesTemporaryPath,
+        alignmentToSrt(alignment),
+      );
+      if (shouldGenerate) {
+        await rename(narrationTemporaryPath, narrationPath);
+      }
+      await rename(alignmentTemporaryPath, alignmentPath);
+      await rename(subtitlesTemporaryPath, subtitlesPath);
     }
 
     report.narration = {
       ...report.narration,
+      ...(generatedResult ?? {}),
       status: "complete",
       outputPath: narrationPath,
+      voiceId: loaded.ELEVENLABS_VOICE_ID,
+      inputFingerprint,
+      audioFingerprint,
+      alignmentSourceFingerprint,
+      error: null,
     };
     await saveReport(reportPath, report);
+    await removeTemporaryFiles(temporaryPaths);
 
     writeOut(`Narration assets: ${outputDirectory}`);
     return 0;
   } catch (error) {
+    if (
+      !narrationExists &&
+      generatedAudioReady &&
+      (await pathExists(narrationTemporaryPath))
+    ) {
+      await rename(narrationTemporaryPath, narrationPath);
+      report.narration = {
+        ...report.narration,
+        ...(generatedResult ?? {}),
+        outputPath: narrationPath,
+        voiceId: loaded.ELEVENLABS_VOICE_ID,
+        inputFingerprint,
+        audioFingerprint,
+      };
+    }
+    await removeTemporaryFiles(temporaryPaths);
     report.narration = {
       ...report.narration,
       status: "failed",
@@ -736,7 +844,7 @@ export async function runCli(
     }
 
     writeError(
-      "Usage: social-video.mjs <validate|estimate|prepare-flow|check-setup|generate|narrate|verify-assets> [options]",
+      "Usage: social-video.mjs <validate|estimate|prepare-flow|check-setup|generate|narrate|verify-assets> [options]. Narration replacement: narrate --manifest <path> --confirm-elevenlabs-generation --confirm-elevenlabs-replacement",
     );
     return 2;
   } catch (error) {

@@ -24,6 +24,12 @@ Open `flow-run.json`. Before any click on Generate, inspect the saved Flow proje
 6. Wait for a terminal result without submitting another prompt.
 7. On a visible terminal failure, mark `failed` and stop that shot; retry needs separate approval for that shot ID and the added credits.
 
+After approval, reset only the named failed records before returning to step 4:
+
+```bash
+node .agents/skills/caloriecue-social-video/scripts/social-video.mjs prepare-flow --manifest social-video-assets/<slug>/manifest.json --shots <FAILED_IDS> --confirm-flow-retry
+```
+
 Update `flow-run.json` only at these confirmed milestones. Never infer acceptance or failure from a timeout, stale tab, or interrupted browser session.
 
 ## Download and confirm
