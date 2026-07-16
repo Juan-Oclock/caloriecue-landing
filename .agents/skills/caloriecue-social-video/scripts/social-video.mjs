@@ -22,8 +22,11 @@ import {
   generateNarration,
   getElevenLabsVoice,
 } from "./lib/elevenlabs.mjs";
+import { createFlowRun } from "./lib/flow.mjs";
 import {
+  estimateVideoUsage,
   estimateVeoCost,
+  getVideoConfiguration,
   normalizeShotSelection,
   validateManifest,
 } from "./lib/manifest.mjs";
@@ -33,11 +36,16 @@ import {
   missingEnvironmentVariables,
 } from "./lib/env.mjs";
 
-const REQUIRED_ENVIRONMENT = [
-  "GEMINI_API_KEY",
+const GEMINI_ENVIRONMENT = ["GEMINI_API_KEY"];
+const ELEVENLABS_ENVIRONMENT = [
   "ELEVENLABS_API_KEY",
   "ELEVENLABS_VOICE_ID",
 ];
+const BOOLEAN_FLAGS = new Set([
+  "confirm-paid-generation",
+  "confirm-flow-retry",
+  "confirm-elevenlabs-generation",
+]);
 
 const DEFAULT_DEPENDENCIES = {
   downloadVeoVideo,
@@ -60,7 +68,7 @@ function parseArguments(argv) {
     }
 
     const key = token.slice(2);
-    if (key === "confirm-paid-generation") {
+    if (BOOLEAN_FLAGS.has(key)) {
       flags[key] = true;
       continue;
     }
@@ -120,16 +128,12 @@ async function writeJsonAtomic(filePath, value) {
   await rename(temporaryPath, filePath);
 }
 
-async function readExistingReport(reportPath) {
+async function readExistingJson(filePath, label) {
   try {
-    return JSON.parse(await readFile(reportPath, "utf8"));
+    return JSON.parse(await readFile(filePath, "utf8"));
   } catch (error) {
-    if (error?.code === "ENOENT") {
-      return null;
-    }
-    throw new Error(
-      "Unable to resume generation report: " + error.message,
-    );
+    if (error?.code === "ENOENT") return null;
+    throw new Error(`Unable to resume ${label}: ${error.message}`);
   }
 }
 
@@ -170,6 +174,33 @@ async function writeCreativeFiles(outputDirectory, manifest) {
   );
 }
 
+async function runPrepareFlow({ cwd, flags, writeOut }) {
+  const { manifest } = await readManifest(flags.manifest, cwd);
+  if (flags["confirm-flow-retry"] && !flags.shots) {
+    throw new Error("--confirm-flow-retry requires explicit --shots IDs");
+  }
+  const outputDirectory = path.join(
+    cwd,
+    "social-video-assets",
+    manifest.slug,
+  );
+  const runPath = path.join(outputDirectory, "flow-run.json");
+  const existingRun = await readExistingJson(runPath, "Flow run");
+  const resetChangedShotIds = flags["confirm-flow-retry"]
+    ? normalizeShotSelection(manifest, flags.shots)
+    : [];
+  const run = createFlowRun({
+    manifest,
+    outputDirectory,
+    existingRun,
+    resetChangedShotIds,
+  });
+  await writeCreativeFiles(outputDirectory, manifest);
+  await writeJsonAtomic(runPath, run);
+  writeOut(`Flow queue prepared: ${runPath}`);
+  return 0;
+}
+
 function makeShotRecord(shot, outputDirectory, existing) {
   const outputPath = path.join(
     outputDirectory,
@@ -189,6 +220,7 @@ function makeShotRecord(shot, outputDirectory, existing) {
 
 function makeReport({
   manifest,
+  video,
   shotRecords,
   estimatedCost,
   approvedBudget,
@@ -199,7 +231,8 @@ function makeReport({
     version: 1,
     articleUrl: manifest.articleUrl,
     slug: manifest.slug,
-    veo: manifest.veo,
+    videoProvider: video.provider,
+    video,
     estimatedVeoCostUsd: estimatedCost,
     approvedBudgetUsd: approvedBudget,
     startedAt: existingReport?.startedAt || now,
@@ -215,20 +248,25 @@ async function saveReport(reportPath, report) {
 }
 
 async function runSetupCheck({
+  provider,
   cwd,
   env,
   dependencies,
   writeOut,
   writeError,
 }) {
+  if (!["flow-browser", "gemini-api"].includes(provider)) {
+    writeError('Setup provider must be "flow-browser" or "gemini-api".');
+    return 2;
+  }
   const loaded = await loadEnvironment({ cwd, env });
-  const missing = missingEnvironmentVariables(
-    loaded,
-    REQUIRED_ENVIRONMENT,
-  );
+  const required = provider === "gemini-api"
+    ? [...GEMINI_ENVIRONMENT, ...ELEVENLABS_ENVIRONMENT]
+    : ELEVENLABS_ENVIRONMENT;
+  const missing = missingEnvironmentVariables(loaded, required);
   let checkFailed = false;
 
-  if (loaded.GEMINI_API_KEY) {
+  if (provider === "gemini-api" && loaded.GEMINI_API_KEY) {
     try {
       const models = await dependencies.listVeoModels({
         apiKey: loaded.GEMINI_API_KEY,
@@ -247,6 +285,8 @@ async function runSetupCheck({
       );
       checkFailed = true;
     }
+  } else if (provider === "flow-browser") {
+    writeOut("Flow authentication: verify the signed-in session in Chrome");
   }
 
   if (
@@ -292,6 +332,13 @@ async function runGeneration({
   writeError,
 }) {
   const { manifest } = await readManifest(flags.manifest, cwd);
+  const video = getVideoConfiguration(manifest);
+  if (video.provider !== "gemini-api") {
+    writeError(
+      "Gemini API generation requires a gemini-api manifest; this package uses flow-browser.",
+    );
+    return 2;
+  }
   const selectedIds = normalizeShotSelection(manifest, flags.shots);
   const estimatedCost = estimateVeoCost(manifest, selectedIds);
 
@@ -324,7 +371,7 @@ async function runGeneration({
   const loaded = await loadEnvironment({ cwd, env });
   const missing = missingEnvironmentVariables(
     loaded,
-    REQUIRED_ENVIRONMENT,
+    GEMINI_ENVIRONMENT,
   );
   if (missing.length > 0) {
     writeError(
@@ -344,7 +391,10 @@ async function runGeneration({
   );
   await writeCreativeFiles(outputDirectory, manifest);
 
-  const existingReport = await readExistingReport(reportPath);
+  const existingReport = await readExistingJson(
+    reportPath,
+    "generation report",
+  );
   const existingById = new Map(
     (existingReport?.shots || []).map((shot) => [shot.id, shot]),
   );
@@ -369,6 +419,7 @@ async function runGeneration({
   ].sort((left, right) => left.id - right.id);
   const report = makeReport({
     manifest,
+    video,
     shotRecords,
     estimatedCost,
     approvedBudget,
@@ -395,11 +446,11 @@ async function runGeneration({
     try {
       const operation = await dependencies.submitVeoShot({
         apiKey: loaded.GEMINI_API_KEY,
-        model: manifest.veo.model,
+        model: video.geminiApi.model,
         prompt: shot.prompt,
-        aspectRatio: manifest.veo.aspectRatio,
-        resolution: manifest.veo.resolution,
-        durationSeconds: manifest.veo.durationSeconds,
+        aspectRatio: video.aspectRatio,
+        resolution: video.resolution,
+        durationSeconds: video.durationSeconds,
       });
       record.operationName = operation.name;
       record.status = "submitted";
@@ -559,19 +610,26 @@ export async function runCli(
         manifest,
         flags.shots,
       );
-      const estimate = estimateVeoCost(manifest, selectedIds);
-      writeOut(
-        "Estimated Veo cost: " +
-          formatMoney(estimate) +
-          " for " +
-          selectedIds.length +
-          " shot(s)",
-      );
+      const usage = estimateVideoUsage(manifest, selectedIds);
+      if (usage.provider === "flow-browser") {
+        writeOut(
+          `Estimated Flow usage: ${usage.totalCredits} Flow credits for ${usage.selectedShots} shot(s) / ${usage.outputs} output(s)`,
+        );
+      } else {
+        writeOut(
+          `Estimated Veo cost: ${formatMoney(usage.totalUsd)} for ${usage.selectedShots} shot(s)`,
+        );
+      }
       return 0;
+    }
+
+    if (command === "prepare-flow") {
+      return await runPrepareFlow({ cwd, flags, writeOut });
     }
 
     if (command === "check-setup") {
       return await runSetupCheck({
+        provider: flags.provider ?? "flow-browser",
         cwd,
         env,
         dependencies,
@@ -592,7 +650,7 @@ export async function runCli(
     }
 
     writeError(
-      "Usage: social-video.mjs <validate|estimate|check-setup|generate> [options]",
+      "Usage: social-video.mjs <validate|estimate|prepare-flow|check-setup|generate> [options]",
     );
     return 2;
   } catch (error) {

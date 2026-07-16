@@ -55,11 +55,34 @@ function makeManifest() {
   };
 }
 
-async function setupManifest() {
+function makeFlowManifest(overrides = {}) {
+  const { veo: _legacyVeo, ...base } = makeManifest();
+  return {
+    ...base,
+    version: 2,
+    video: {
+      provider: "flow-browser",
+      aspectRatio: "9:16",
+      resolution: "1080p",
+      durationSeconds: 8,
+    },
+    flow: {
+      model: "veo-3.1-fast",
+      creditTier: "non-ultra",
+      outputsPerShot: 1,
+    },
+    geminiApi: {
+      model: "veo-3.1-fast-generate-preview",
+    },
+    ...overrides,
+  };
+}
+
+async function setupManifest(manifest = makeManifest()) {
   const cwd = await mkdtemp(path.join(os.tmpdir(), "caloriecue-cli-"));
   const manifestPath = path.join(cwd, "input", "manifest.json");
   await mkdir(path.dirname(manifestPath), { recursive: true });
-  await writeFile(manifestPath, JSON.stringify(makeManifest(), null, 2));
+  await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
   return { cwd, manifestPath };
 }
 
@@ -142,6 +165,19 @@ test("blocks paid generation when confirmation is absent", async () => {
   assert.match(output.stderr.join("\n"), /confirm-paid-generation/);
 });
 
+test("rejects Gemini generation for a Flow manifest before network access", async () => {
+  const { cwd, manifestPath } = await setupManifest(makeFlowManifest());
+  const output = outputCollector();
+  const code = await runCli(["generate", "--manifest", manifestPath, "--budget-usd", "15", "--confirm-paid-generation"], {
+    cwd,
+    env: paidEnvironment(),
+    dependencies: noNetworkDependencies(),
+    ...output,
+  });
+  assert.equal(code, 2);
+  assert.match(output.stderr.join("\n"), /requires.*gemini-api/i);
+});
+
 test("blocks paid generation when the estimate exceeds the approved budget", async () => {
   const { cwd, manifestPath } = await setupManifest();
   const output = outputCollector();
@@ -191,8 +227,8 @@ test("reports missing environment names without secret values", async () => {
 
   assert.equal(code, 2);
   assert.match(output.stderr.join("\n"), /GEMINI_API_KEY/);
-  assert.match(output.stderr.join("\n"), /ELEVENLABS_API_KEY/);
-  assert.match(output.stderr.join("\n"), /ELEVENLABS_VOICE_ID/);
+  assert.doesNotMatch(output.stderr.join("\n"), /ELEVENLABS_API_KEY/);
+  assert.doesNotMatch(output.stderr.join("\n"), /ELEVENLABS_VOICE_ID/);
 });
 
 test("submits only selected shots and writes a resumable report", async () => {
@@ -279,7 +315,7 @@ test("check-setup uses only non-generating account checks", async () => {
     throw new Error("paid call");
   };
 
-  const code = await runCli(["check-setup"], {
+  const code = await runCli(["check-setup", "--provider", "gemini-api"], {
     cwd,
     env: paidEnvironment(),
     dependencies: {
@@ -311,7 +347,7 @@ test("check-setup verifies Gemini even when ElevenLabs is not configured", async
   const output = outputCollector();
   let geminiChecks = 0;
 
-  const code = await runCli(["check-setup"], {
+  const code = await runCli(["check-setup", "--provider", "gemini-api"], {
     cwd,
     env: { GEMINI_API_KEY: "gemini-key" },
     dependencies: {
@@ -329,6 +365,92 @@ test("check-setup verifies Gemini even when ElevenLabs is not configured", async
   assert.match(output.stdout.join("\n"), /veo-3\.1-fast/);
   assert.match(output.stderr.join("\n"), /ELEVENLABS_API_KEY/);
   assert.match(output.stderr.join("\n"), /ELEVENLABS_VOICE_ID/);
+});
+
+test("Flow setup checks ElevenLabs but never Gemini", async () => {
+  const cwd = await mkdtemp(path.join(os.tmpdir(), "caloriecue-flow-check-"));
+  const output = outputCollector();
+  let geminiChecks = 0;
+  const code = await runCli(["check-setup", "--provider", "flow-browser"], {
+    cwd,
+    env: { ELEVENLABS_API_KEY: "eleven-key", ELEVENLABS_VOICE_ID: "voice-123" },
+    dependencies: {
+      ...noNetworkDependencies(),
+      listVeoModels: async () => { geminiChecks += 1; return []; },
+      getElevenLabsVoice: async () => ({ voice_id: "voice-123", name: "CalorieCue Educator" }),
+    },
+    ...output,
+  });
+  assert.equal(code, 0);
+  assert.equal(geminiChecks, 0);
+  assert.match(output.stdout.join("\n"), /verify.*Chrome/i);
+});
+
+test("estimates Flow packages in credits instead of USD", async () => {
+  const { cwd, manifestPath } = await setupManifest(makeFlowManifest());
+  const output = outputCollector();
+  const code = await runCli(["estimate", "--manifest", manifestPath], {
+    cwd,
+    env: {},
+    dependencies: noNetworkDependencies(),
+    ...output,
+  });
+  assert.equal(code, 0);
+  assert.match(output.stdout.join("\n"), /160 Flow credits/);
+  assert.doesNotMatch(output.stdout.join("\n"), /\$/);
+});
+
+test("prepares a resumable Flow file without network access", async () => {
+  const { cwd, manifestPath } = await setupManifest(makeFlowManifest());
+  const output = outputCollector();
+  const code = await runCli(["prepare-flow", "--manifest", manifestPath], {
+    cwd,
+    env: {},
+    dependencies: noNetworkDependencies(),
+    ...output,
+  });
+  assert.equal(code, 0);
+  const run = JSON.parse(await readFile(path.join(cwd, "social-video-assets", "high-protein-low-calorie-foods", "flow-run.json"), "utf8"));
+  assert.equal(run.shots.length, 8);
+  assert.ok(run.shots.every((shot) => shot.status === "pending"));
+});
+
+test("requires explicit shot IDs and confirmation to reset a changed Flow prompt", async () => {
+  const manifest = makeFlowManifest();
+  const { cwd, manifestPath } = await setupManifest(manifest);
+  const output = outputCollector();
+  assert.equal(await runCli(["prepare-flow", "--manifest", manifestPath], {
+    cwd,
+    env: {},
+    dependencies: noNetworkDependencies(),
+    ...output,
+  }), 0);
+
+  manifest.shots[0].prompt += " Revised after approval.";
+  await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+  const blocked = outputCollector();
+  assert.equal(await runCli(["prepare-flow", "--manifest", manifestPath], {
+    cwd,
+    env: {},
+    dependencies: noNetworkDependencies(),
+    ...blocked,
+  }), 1);
+  assert.match(blocked.stderr.join("\n"), /changed prompt.*shot 1/i);
+
+  const approved = outputCollector();
+  assert.equal(await runCli([
+    "prepare-flow",
+    "--manifest", manifestPath,
+    "--shots", "1",
+    "--confirm-flow-retry",
+  ], {
+    cwd,
+    env: {},
+    dependencies: noNetworkDependencies(),
+    ...approved,
+  }), 0);
+  const run = JSON.parse(await readFile(path.join(cwd, "social-video-assets", manifest.slug, "flow-run.json"), "utf8"));
+  assert.equal(run.shots[0].replacementApproved, true);
 });
 
 test("selective regeneration preserves previously completed shot records", async () => {
