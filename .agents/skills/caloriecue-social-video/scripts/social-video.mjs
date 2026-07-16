@@ -18,6 +18,8 @@ import {
   submitVeoShot,
 } from "./lib/gemini.mjs";
 import {
+  forceAlign,
+  generateNarration,
   getElevenLabsVoice,
 } from "./lib/elevenlabs.mjs";
 import { createFlowRun } from "./lib/flow.mjs";
@@ -32,6 +34,7 @@ import {
   loadEnvironment,
   missingEnvironmentVariables,
 } from "./lib/env.mjs";
+import { alignmentToSrt } from "./lib/subtitles.mjs";
 
 const GEMINI_ENVIRONMENT = ["GEMINI_API_KEY"];
 const ELEVENLABS_ENVIRONMENT = [
@@ -46,6 +49,8 @@ const BOOLEAN_FLAGS = new Set([
 
 const DEFAULT_DEPENDENCIES = {
   downloadVeoVideo,
+  forceAlign,
+  generateNarration,
   getElevenLabsVoice,
   listVeoModels,
   pollVeoOperation,
@@ -514,6 +519,115 @@ async function runGeneration({
   return 0;
 }
 
+async function runNarration({
+  cwd,
+  env,
+  flags,
+  dependencies,
+  writeOut,
+  writeError,
+}) {
+  const { manifest } = await readManifest(flags.manifest, cwd);
+  if (!flags["confirm-elevenlabs-generation"]) {
+    writeError(
+      "ElevenLabs generation blocked. Add --confirm-elevenlabs-generation only after explicit user approval.",
+    );
+    return 2;
+  }
+
+  const loaded = await loadEnvironment({ cwd, env });
+  const missing = missingEnvironmentVariables(
+    loaded,
+    ELEVENLABS_ENVIRONMENT,
+  );
+  if (missing.length > 0) {
+    writeError(`Missing environment variables: ${missing.join(", ")}`);
+    return 2;
+  }
+
+  const outputDirectory = path.join(
+    cwd,
+    "social-video-assets",
+    manifest.slug,
+  );
+  const reportPath = path.join(
+    outputDirectory,
+    "generation-report.json",
+  );
+  const report =
+    (await readExistingJson(reportPath, "generation report")) ??
+    {
+      version: 2,
+      articleUrl: manifest.articleUrl,
+      slug: manifest.slug,
+      videoProvider: getVideoConfiguration(manifest).provider,
+      shots: [],
+      narration: { status: "pending" },
+    };
+  await writeCreativeFiles(outputDirectory, manifest);
+
+  try {
+    const narrationPath = path.join(outputDirectory, "narration.mp3");
+    if (!(await pathExists(narrationPath))) {
+      report.narration = { status: "generating" };
+      await saveReport(reportPath, report);
+      const result = await dependencies.generateNarration({
+        apiKey: loaded.ELEVENLABS_API_KEY,
+        voiceId: loaded.ELEVENLABS_VOICE_ID,
+        text: manifest.narration,
+        modelId: manifest.elevenlabs.modelId,
+        outputFormat: manifest.elevenlabs.outputFormat,
+        voiceSettings: manifest.elevenlabs.voiceSettings,
+        outputPath: narrationPath,
+      });
+      report.narration = { status: "complete", ...result };
+      await saveReport(reportPath, report);
+    }
+
+    const alignmentPath = path.join(
+      outputDirectory,
+      "alignment.json",
+    );
+    const subtitlesPath = path.join(
+      outputDirectory,
+      "subtitles.srt",
+    );
+    if (
+      !(await pathExists(alignmentPath)) ||
+      !(await pathExists(subtitlesPath))
+    ) {
+      const alignment = await dependencies.forceAlign({
+        apiKey: loaded.ELEVENLABS_API_KEY,
+        audioPath: narrationPath,
+        text: manifest.narration,
+      });
+      await writeJsonAtomic(alignmentPath, alignment);
+      await writeFile(subtitlesPath, alignmentToSrt(alignment));
+    }
+
+    report.narration = {
+      ...report.narration,
+      status: "complete",
+      outputPath: narrationPath,
+    };
+    await saveReport(reportPath, report);
+
+    writeOut(`Narration assets: ${outputDirectory}`);
+    return 0;
+  } catch (error) {
+    report.narration = {
+      ...report.narration,
+      status: "failed",
+      error: String(error.message || error),
+    };
+    await saveReport(reportPath, report);
+    writeError(
+      `ElevenLabs narration failed: ${String(error.message || error)}`,
+    );
+    return 1;
+  }
+}
+
 export async function runCli(
   argv,
   {
@@ -584,8 +698,19 @@ export async function runCli(
       });
     }
 
+    if (command === "narrate") {
+      return await runNarration({
+        cwd,
+        env,
+        flags,
+        dependencies,
+        writeOut,
+        writeError,
+      });
+    }
+
     writeError(
-      "Usage: social-video.mjs <validate|estimate|prepare-flow|check-setup|generate> [options]",
+      "Usage: social-video.mjs <validate|estimate|prepare-flow|check-setup|generate|narrate> [options]",
     );
     return 2;
   } catch (error) {

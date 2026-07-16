@@ -636,3 +636,131 @@ test("full Gemini generation is video-only and never spends ElevenLabs credits",
   );
   assert.equal(report.narration.status, "failed");
 });
+
+test("blocks narration when ElevenLabs confirmation is absent", async () => {
+  const { cwd, manifestPath } = await setupManifest(makeFlowManifest());
+  const output = outputCollector();
+  const code = await runCli(["narrate", "--manifest", manifestPath], {
+    cwd,
+    env: {
+      ELEVENLABS_API_KEY: "eleven-key",
+      ELEVENLABS_VOICE_ID: "voice-123",
+    },
+    dependencies: noNetworkDependencies(),
+    ...output,
+  });
+  assert.equal(code, 2);
+  assert.match(output.stderr.join("\n"), /confirm-elevenlabs-generation/);
+});
+
+test("narrate produces audio, alignment, and SRT without Gemini", async () => {
+  const { cwd, manifestPath } = await setupManifest(makeFlowManifest());
+  const output = outputCollector();
+  let geminiCalls = 0;
+  const dependencies = {
+    ...noNetworkDependencies(),
+    listVeoModels: async () => {
+      geminiCalls += 1;
+      return [];
+    },
+    submitVeoShot: async () => {
+      geminiCalls += 1;
+      throw new Error("Gemini called");
+    },
+    generateNarration: async ({ outputPath }) => {
+      await writeFile(outputPath, Buffer.from("audio"));
+      return {
+        outputPath,
+        bytes: 5,
+        characterCost: 130,
+        requestId: "narration-request",
+      };
+    },
+    forceAlign: async () => ({
+      words: [
+        { text: "Protein", start: 0, end: 0.5 },
+        { text: "matters.", start: 0.6, end: 1.1 },
+      ],
+      characters: [],
+      loss: 0.01,
+    }),
+  };
+  const code = await runCli(
+    [
+      "narrate",
+      "--manifest",
+      manifestPath,
+      "--confirm-elevenlabs-generation",
+    ],
+    {
+      cwd,
+      env: {
+        ELEVENLABS_API_KEY: "eleven-key",
+        ELEVENLABS_VOICE_ID: "voice-123",
+      },
+      dependencies,
+      ...output,
+    },
+  );
+  assert.equal(code, 0);
+  assert.equal(geminiCalls, 0);
+  const directory = path.join(
+    cwd,
+    "social-video-assets",
+    "high-protein-low-calorie-foods",
+  );
+  assert.equal(
+    await readFile(path.join(directory, "narration.mp3"), "utf8"),
+    "audio",
+  );
+  assert.match(
+    await readFile(path.join(directory, "subtitles.srt"), "utf8"),
+    /Protein matters\./,
+  );
+});
+
+test("narrate resumes at alignment when narration already exists", async () => {
+  const { cwd, manifestPath } = await setupManifest(makeFlowManifest());
+  const directory = path.join(
+    cwd,
+    "social-video-assets",
+    "high-protein-low-calorie-foods",
+  );
+  await mkdir(directory, { recursive: true });
+  await writeFile(path.join(directory, "narration.mp3"), Buffer.from("existing audio"));
+  let narrationCalls = 0;
+  let alignmentCalls = 0;
+  const code = await runCli(
+    [
+      "narrate",
+      "--manifest",
+      manifestPath,
+      "--confirm-elevenlabs-generation",
+    ],
+    {
+      cwd,
+      env: {
+        ELEVENLABS_API_KEY: "eleven-key",
+        ELEVENLABS_VOICE_ID: "voice-123",
+      },
+      dependencies: {
+        ...noNetworkDependencies(),
+        generateNarration: async () => {
+          narrationCalls += 1;
+          throw new Error("unexpected narration");
+        },
+        forceAlign: async () => {
+          alignmentCalls += 1;
+          return {
+            words: [{ text: "Existing", start: 0, end: 0.5 }],
+            characters: [],
+            loss: 0.01,
+          };
+        },
+      },
+    },
+  );
+  assert.equal(code, 0);
+  assert.equal(narrationCalls, 0);
+  assert.equal(alignmentCalls, 1);
+});
