@@ -15,6 +15,12 @@ export const VEO_PRICES_PER_SECOND = Object.freeze({
   }),
 });
 
+export const FLOW_CREDITS_PER_GENERATION = Object.freeze({
+  "veo-3.1-lite": Object.freeze({ "non-ultra": 10, ultra: 5 }),
+  "veo-3.1-fast": Object.freeze({ "non-ultra": 20, ultra: 10 }),
+  "veo-3.1-quality": Object.freeze({ "non-ultra": 100, ultra: 100 }),
+});
+
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const VALID_DURATIONS = new Set([4, 6, 8]);
 
@@ -102,6 +108,72 @@ function validateVeo(value, problems) {
   }
 }
 
+function validateProviderVideo(input, problems) {
+  if (input.version === 1) {
+    validateVeo(input.veo, problems);
+    return;
+  }
+  if (input.version !== 2) {
+    problems.push("version must be 1 or 2");
+    return;
+  }
+
+  if (!isRecord(input.video)) {
+    problems.push("video must be an object");
+    return;
+  }
+  if (!["flow-browser", "gemini-api"].includes(input.video.provider)) {
+    problems.push('video.provider must be "flow-browser" or "gemini-api"');
+  }
+  if (input.video.aspectRatio !== "9:16") {
+    problems.push('video.aspectRatio must be "9:16"');
+  }
+  if (!["720p", "1080p", "4k"].includes(input.video.resolution)) {
+    problems.push("video.resolution is not supported");
+  }
+  if (!VALID_DURATIONS.has(input.video.durationSeconds)) {
+    problems.push("video.durationSeconds must be 4, 6, or 8");
+  }
+  if (
+    ["1080p", "4k"].includes(input.video.resolution) &&
+    input.video.durationSeconds !== 8
+  ) {
+    problems.push(
+      "video.durationSeconds must be 8 for 1080p or 4k generation",
+    );
+  }
+
+  if (!isRecord(input.flow)) {
+    problems.push("flow must be an object");
+  } else {
+    const tiers = FLOW_CREDITS_PER_GENERATION[input.flow.model];
+    if (!tiers) problems.push("flow.model is not supported");
+    if (!tiers?.[input.flow.creditTier]) {
+      problems.push("flow.creditTier is not supported");
+    }
+    if (
+      !Number.isInteger(input.flow.outputsPerShot) ||
+      input.flow.outputsPerShot < 1 ||
+      input.flow.outputsPerShot > 4
+    ) {
+      problems.push(
+        "flow.outputsPerShot must be an integer between 1 and 4",
+      );
+    }
+  }
+
+  if (
+    !isRecord(input.geminiApi) ||
+    !VEO_PRICES_PER_SECOND[input.geminiApi.model]
+  ) {
+    problems.push("geminiApi.model is not a supported Veo 3.1 API model");
+  } else if (
+    !VEO_PRICES_PER_SECOND[input.geminiApi.model][input.video.resolution]
+  ) {
+    problems.push("video.resolution is not supported by geminiApi.model");
+  }
+}
+
 function validateElevenLabs(value, problems) {
   if (!isRecord(value)) {
     problems.push("elevenlabs must be an object");
@@ -144,7 +216,7 @@ function validateSocialCopy(value, problems) {
   }
 }
 
-function validateShots(value, veo, targetDurationSeconds, problems) {
+function validateShots(value, video, targetDurationSeconds, problems) {
   if (!Array.isArray(value) || value.length === 0) {
     problems.push("shots must contain at least one shot");
     return;
@@ -183,11 +255,11 @@ function validateShots(value, veo, targetDurationSeconds, problems) {
   }
 
   if (
-    isRecord(veo) &&
-    VALID_DURATIONS.has(veo.durationSeconds) &&
+    isRecord(video) &&
+    VALID_DURATIONS.has(video.durationSeconds) &&
     Number.isFinite(targetDurationSeconds)
   ) {
-    const footageSeconds = value.length * veo.durationSeconds;
+    const footageSeconds = value.length * video.durationSeconds;
     if (footageSeconds < targetDurationSeconds) {
       problems.push(
         "shots do not provide enough footage for targetDurationSeconds",
@@ -201,10 +273,6 @@ export function validateManifest(input) {
 
   if (!isRecord(input)) {
     throw new ManifestValidationError(["manifest must be a JSON object"]);
-  }
-
-  if (input.version !== 1) {
-    problems.push("version must be 1");
   }
 
   validateArticleUrl(input.articleUrl, problems);
@@ -245,11 +313,11 @@ export function validateManifest(input) {
   }
 
   validateSocialCopy(input.socialCopy, problems);
-  validateVeo(input.veo, problems);
+  validateProviderVideo(input, problems);
   validateElevenLabs(input.elevenlabs, problems);
   validateShots(
     input.shots,
-    input.veo,
+    getVideoConfiguration(input),
     input.targetDurationSeconds,
     problems,
   );
@@ -295,12 +363,59 @@ export function normalizeShotSelection(manifestInput, selection) {
   return ids;
 }
 
+export function getVideoConfiguration(input) {
+  if (input?.version === 1) {
+    return {
+      provider: "gemini-api",
+      aspectRatio: input.veo?.aspectRatio,
+      resolution: input.veo?.resolution,
+      durationSeconds: input.veo?.durationSeconds,
+      flow: null,
+      geminiApi: { model: input.veo?.model },
+    };
+  }
+
+  return {
+    provider: input?.video?.provider,
+    aspectRatio: input?.video?.aspectRatio,
+    resolution: input?.video?.resolution,
+    durationSeconds: input?.video?.durationSeconds,
+    flow: input?.flow ?? null,
+    geminiApi: input?.geminiApi ?? null,
+  };
+}
+
+export function estimateVideoUsage(manifestInput, selectedShotIds) {
+  const manifest = validateManifest(manifestInput);
+  const ids = normalizeShotSelection(manifest, selectedShotIds);
+  const video = getVideoConfiguration(manifest);
+
+  if (video.provider === "flow-browser") {
+    const outputs = ids.length * video.flow.outputsPerShot;
+    const creditsPerGeneration =
+      FLOW_CREDITS_PER_GENERATION[video.flow.model][video.flow.creditTier];
+    return {
+      provider: "flow-browser",
+      selectedShots: ids.length,
+      outputs,
+      creditsPerGeneration,
+      totalCredits: outputs * creditsPerGeneration,
+    };
+  }
+
+  return {
+    provider: "gemini-api",
+    selectedShots: ids.length,
+    totalUsd: estimateVeoCost(manifest, ids),
+  };
+}
+
 export function estimateVeoCost(manifestInput, selectedShotIds) {
   const manifest = validateManifest(manifestInput);
   const ids = normalizeShotSelection(manifest, selectedShotIds);
-  const rate =
-    VEO_PRICES_PER_SECOND[manifest.veo.model][manifest.veo.resolution];
-  const estimate = ids.length * manifest.veo.durationSeconds * rate;
+  const video = getVideoConfiguration(manifest);
+  const rate = VEO_PRICES_PER_SECOND[video.geminiApi.model][video.resolution];
+  const estimate = ids.length * video.durationSeconds * rate;
 
   return Math.round((estimate + Number.EPSILON) * 100) / 100;
 }

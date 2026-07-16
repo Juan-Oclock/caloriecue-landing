@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "articleUrl": "https://caloriecue.app/blog/high-protein-low-calorie-foods",
+  "slug": "high-protein-low-calorie-foods",
+  "targetDurationSeconds": 64,
+  "narration": "Protein labels can be misleading when calories matter. The better comparison is protein per one hundred calories, because it shows how efficiently each food supports your target. Shrimp, tuna, cod, egg whites, chicken breast, Greek yogurt, and cottage cheese all deliver useful protein without spending most of your calorie budget. Shrimp provides about twenty three grams of protein per one hundred calories, while tuna and cod are close behind. Peanut butter can still fit a balanced diet, but it is far less protein dense than lean seafood or poultry. Start each meal with a lean protein anchor. Add vegetables or fruit for volume and fiber, then choose carbohydrates and fats that fit your preferences and remaining calories. You do not need perfect meals or a restrictive food list. You need portions you can repeat consistently. Save the complete ranking for your next grocery trip, and use CalorieCue to keep your portions, protein, and calories visible without turning every meal into a math problem.",
+  "socialCopy": {
+    "instagram": "Compare protein per one hundred calories.",
+    "tiktok": "High protein does not always mean protein dense.",
+    "facebook": "A practical way to compare protein foods.",
+    "hashtags": ["#CalorieCue", "#HighProtein", "#Nutrition"]
+  },
+  "video": {
+    "provider": "flow-browser",
+    "aspectRatio": "9:16",
+    "resolution": "1080p",
+    "durationSeconds": 8
+  },
+  "flow": {
+    "model": "veo-3.1-fast",
+    "creditTier": "non-ultra",
+    "outputsPerShot": 1
+  },
+  "geminiApi": {
+    "model": "veo-3.1-fast-generate-preview"
+  },
+  "elevenlabs": {
+    "modelId": "eleven_multilingual_v2",
+    "outputFormat": "mp3_44100_128",
+    "voiceSettings": {
+      "stability": 0.55,
+      "similarityBoost": 0.75,
+      "style": 0.15,
+      "useSpeakerBoost": true
+    }
+  },
+  "shots": [
+    { "id": 1, "title": "Hook", "purpose": "Open with contrast", "prompt": "A detailed vertical food comparison scene for shot one, with no text, captions, logos, dialogue, narration, or music." },
+    { "id": 2, "title": "Comparison", "purpose": "Show lean protein", "prompt": "A detailed vertical lean seafood preparation scene for shot two, with no text, captions, logos, dialogue, narration, or music." },
+    { "id": 3, "title": "Examples", "purpose": "Show protein variety", "prompt": "A detailed vertical arrangement of varied lean proteins for shot three, with no text, captions, logos, dialogue, narration, or music." },
+    { "id": 4, "title": "Nuance", "purpose": "Contrast energy density", "prompt": "A detailed vertical visual contrast between food portions for shot four, with no text, captions, logos, dialogue, narration, or music." },
+    { "id": 5, "title": "Anchor", "purpose": "Build a meal", "prompt": "A detailed vertical meal assembly scene starting with lean protein for shot five, with no text, captions, logos, dialogue, narration, or music." },
+    { "id": 6, "title": "Volume", "purpose": "Add produce", "prompt": "A detailed vertical plate filling with colorful vegetables for shot six, with no text, captions, logos, dialogue, narration, or music." },
+    { "id": 7, "title": "Consistency", "purpose": "Show repeatable portions", "prompt": "A detailed vertical meal preparation routine for shot seven, with no text, captions, logos, dialogue, narration, or music." },
+    { "id": 8, "title": "CTA", "purpose": "Close on practical action", "prompt": "A detailed vertical finished healthy meal scene for shot eight, with no text, captions, logos, dialogue, narration, or music." }
+  ]
+}

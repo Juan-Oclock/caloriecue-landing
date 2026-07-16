@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  estimateVideoUsage,
   estimateVeoCost,
+  getVideoConfiguration,
   normalizeShotSelection,
   validateManifest,
 } from "../lib/manifest.mjs";
@@ -47,6 +49,29 @@ function makeManifest(overrides = {}) {
         (index + 1) +
         ", with no text, captions, logos, dialogue, narration, or music.",
     })),
+    ...overrides,
+  };
+}
+
+function makeFlowManifest(overrides = {}) {
+  const { veo: _legacyVeo, ...base } = makeManifest();
+  return {
+    ...base,
+    version: 2,
+    video: {
+      provider: "flow-browser",
+      aspectRatio: "9:16",
+      resolution: "1080p",
+      durationSeconds: 8,
+    },
+    flow: {
+      model: "veo-3.1-fast",
+      creditTier: "non-ultra",
+      outputsPerShot: 1,
+    },
+    geminiApi: {
+      model: "veo-3.1-fast-generate-preview",
+    },
     ...overrides,
   };
 }
@@ -125,4 +150,37 @@ test("normalizes a comma-delimited shot selection and rejects unknown IDs", () =
     () => normalizeShotSelection(manifest, "2,9"),
     /unknown shot ID 9/,
   );
+});
+
+test("normalizes a version 2 Flow manifest", () => {
+  const manifest = validateManifest(makeFlowManifest());
+  assert.equal(getVideoConfiguration(manifest).provider, "flow-browser");
+  assert.equal(getVideoConfiguration(manifest).durationSeconds, 8);
+});
+
+test("treats legacy version 1 manifests as Gemini API packages", () => {
+  const config = getVideoConfiguration(validateManifest(makeManifest()));
+  assert.equal(config.provider, "gemini-api");
+  assert.equal(config.geminiApi.model, "veo-3.1-fast-generate-preview");
+});
+
+test("estimates eight Flow Fast outputs at 160 non-Ultra credits", () => {
+  assert.deepEqual(estimateVideoUsage(makeFlowManifest()), {
+    provider: "flow-browser",
+    selectedShots: 8,
+    outputs: 8,
+    creditsPerGeneration: 20,
+    totalCredits: 160,
+  });
+});
+
+test("counts effective Flow outputs and selected retry shots", () => {
+  const manifest = makeFlowManifest({
+    flow: {
+      model: "veo-3.1-fast",
+      creditTier: "non-ultra",
+      outputsPerShot: 2,
+    },
+  });
+  assert.equal(estimateVideoUsage(manifest, [2, 5]).totalCredits, 80);
 });
