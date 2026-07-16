@@ -18,8 +18,6 @@ import {
   submitVeoShot,
 } from "./lib/gemini.mjs";
 import {
-  forceAlign,
-  generateNarration,
   getElevenLabsVoice,
 } from "./lib/elevenlabs.mjs";
 import { createFlowRun } from "./lib/flow.mjs";
@@ -30,7 +28,6 @@ import {
   normalizeShotSelection,
   validateManifest,
 } from "./lib/manifest.mjs";
-import { alignmentToSrt } from "./lib/subtitles.mjs";
 import {
   loadEnvironment,
   missingEnvironmentVariables,
@@ -49,8 +46,6 @@ const BOOLEAN_FLAGS = new Set([
 
 const DEFAULT_DEPENDENCIES = {
   downloadVeoVideo,
-  forceAlign,
-  generateNarration,
   getElevenLabsVoice,
   listVeoModels,
   pollVeoOperation,
@@ -495,70 +490,10 @@ async function runGeneration({
     await saveReport(reportPath, report);
   }
 
-  if (!explicitSelection) {
-    const narrationPath = path.join(outputDirectory, "narration.mp3");
-    try {
-      if (!(await pathExists(narrationPath))) {
-        report.narration = {
-          status: "generating",
-        };
-        await saveReport(reportPath, report);
-        const narration = await dependencies.generateNarration({
-          apiKey: loaded.ELEVENLABS_API_KEY,
-          voiceId: loaded.ELEVENLABS_VOICE_ID,
-          text: manifest.narration,
-          modelId: manifest.elevenlabs.modelId,
-          outputFormat: manifest.elevenlabs.outputFormat,
-          voiceSettings: manifest.elevenlabs.voiceSettings,
-          outputPath: narrationPath,
-        });
-        report.narration = {
-          status: "complete",
-          outputPath: narrationPath,
-          bytes: narration.bytes,
-          characterCost: narration.characterCost,
-          requestId: narration.requestId,
-        };
-        await saveReport(reportPath, report);
-      }
-
-      const alignmentPath = path.join(
-        outputDirectory,
-        "alignment.json",
-      );
-      const subtitlesPath = path.join(
-        outputDirectory,
-        "subtitles.srt",
-      );
-      if (
-        !(await pathExists(alignmentPath)) ||
-        !(await pathExists(subtitlesPath))
-      ) {
-        const alignment = await dependencies.forceAlign({
-          apiKey: loaded.ELEVENLABS_API_KEY,
-          audioPath: narrationPath,
-          text: manifest.narration,
-        });
-        await writeJsonAtomic(alignmentPath, alignment);
-        await writeFile(
-          subtitlesPath,
-          alignmentToSrt(alignment),
-        );
-      }
-    } catch (error) {
-      report.narration = {
-        ...report.narration,
-        status: "failed",
-        error: String(error.message || error),
-      };
-      await saveReport(reportPath, report);
-    }
-  }
-
   await saveReport(reportPath, report);
-  const failures =
-    report.shots.filter((shot) => shot.status === "failed").length +
-    (report.narration.status === "failed" ? 1 : 0);
+  const failures = report.shots.filter(
+    (shot) => shot.status === "failed",
+  ).length;
 
   writeOut(
     "Asset package: " + outputDirectory,

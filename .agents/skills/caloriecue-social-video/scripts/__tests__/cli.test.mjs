@@ -541,10 +541,30 @@ test("selective regeneration preserves previously completed shot records", async
   assert.equal(report.shots[1].status, "complete");
 });
 
-test("full generation produces narration, alignment, and SRT assets", async () => {
+test("full Gemini generation is video-only and never spends ElevenLabs credits", async () => {
   const { cwd, manifestPath } = await setupManifest();
   const output = outputCollector();
   let submitted = 0;
+  let narrationCalls = 0;
+  let alignmentCalls = 0;
+  const outputDirectory = path.join(
+    cwd,
+    "social-video-assets",
+    "high-protein-low-calorie-foods",
+  );
+  await mkdir(outputDirectory, { recursive: true });
+  await writeFile(
+    path.join(outputDirectory, "generation-report.json"),
+    JSON.stringify({
+      version: 1,
+      startedAt: "2026-07-16T00:00:00.000Z",
+      shots: [],
+      narration: {
+        status: "failed",
+        error: "legacy narration failure",
+      },
+    }),
+  );
 
   const dependencies = {
     ...noNetworkDependencies(),
@@ -568,6 +588,7 @@ test("full generation produces narration, alignment, and SRT assets", async () =
       return { outputPath, bytes: 5 };
     },
     generateNarration: async ({ outputPath }) => {
+      narrationCalls += 1;
       await writeFile(outputPath, Buffer.from("audio"));
       return {
         outputPath,
@@ -576,14 +597,14 @@ test("full generation produces narration, alignment, and SRT assets", async () =
         requestId: "narration-request",
       };
     },
-    forceAlign: async () => ({
-      words: [
-        { text: "Protein", start: 0, end: 0.5 },
-        { text: "matters.", start: 0.6, end: 1.1 },
-      ],
-      characters: [],
-      loss: 0.01,
-    }),
+    forceAlign: async () => {
+      alignmentCalls += 1;
+      return {
+        words: [],
+        characters: [],
+        loss: 0.01,
+      };
+    },
   };
 
   const code = await runCli(
@@ -605,21 +626,13 @@ test("full generation produces narration, alignment, and SRT assets", async () =
 
   assert.equal(code, 0);
   assert.equal(submitted, 8);
-  const outputDirectory = path.join(
-    cwd,
-    "social-video-assets",
-    "high-protein-low-calorie-foods",
+  assert.equal(narrationCalls, 0);
+  assert.equal(alignmentCalls, 0);
+  const report = JSON.parse(
+    await readFile(
+      path.join(outputDirectory, "generation-report.json"),
+      "utf8",
+    ),
   );
-  assert.equal(
-    await readFile(path.join(outputDirectory, "narration.mp3"), "utf8"),
-    "audio",
-  );
-  assert.match(
-    await readFile(path.join(outputDirectory, "subtitles.srt"), "utf8"),
-    /Protein matters\./,
-  );
-  const alignment = JSON.parse(
-    await readFile(path.join(outputDirectory, "alignment.json"), "utf8"),
-  );
-  assert.equal(alignment.words.length, 2);
+  assert.equal(report.narration.status, "failed");
 });
