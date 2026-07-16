@@ -17,6 +17,7 @@ import {
   pollVeoOperation,
   submitVeoShot,
 } from "./lib/gemini.mjs";
+import { verifyAssetPackage } from "./lib/assets.mjs";
 import {
   forceAlign,
   generateNarration,
@@ -198,6 +199,22 @@ async function runPrepareFlow({ cwd, flags, writeOut }) {
   await writeCreativeFiles(outputDirectory, manifest);
   await writeJsonAtomic(runPath, run);
   writeOut(`Flow queue prepared: ${runPath}`);
+  return 0;
+}
+
+async function runVerifyAssets({ cwd, flags, writeOut, writeError }) {
+  const { manifest } = await readManifest(flags.manifest, cwd);
+  const outputDirectory = path.join(
+    cwd,
+    "social-video-assets",
+    manifest.slug,
+  );
+  const result = await verifyAssetPackage({ manifest, outputDirectory });
+  if (!result.valid) {
+    for (const problem of result.problems) writeError(problem);
+    return 1;
+  }
+  writeOut(`Asset package valid: ${outputDirectory}`);
   return 0;
 }
 
@@ -709,8 +726,17 @@ export async function runCli(
       });
     }
 
+    if (command === "verify-assets") {
+      return await runVerifyAssets({
+        cwd,
+        flags,
+        writeOut,
+        writeError,
+      });
+    }
+
     writeError(
-      "Usage: social-video.mjs <validate|estimate|prepare-flow|check-setup|generate|narrate> [options]",
+      "Usage: social-video.mjs <validate|estimate|prepare-flow|check-setup|generate|narrate|verify-assets> [options]",
     );
     return 2;
   } catch (error) {

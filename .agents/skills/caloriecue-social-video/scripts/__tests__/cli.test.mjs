@@ -86,6 +86,45 @@ async function setupManifest(manifest = makeManifest()) {
   return { cwd, manifestPath };
 }
 
+async function writeCompleteFlowHandoff(cwd, manifest) {
+  const directory = path.join(
+    cwd,
+    "social-video-assets",
+    manifest.slug,
+  );
+  const files = [
+    "brief.md",
+    "manifest.json",
+    "narration-script.txt",
+    "social-copy.md",
+    "generation-report.json",
+    "narration.mp3",
+    "alignment.json",
+    "subtitles.srt",
+    "flow-run.json",
+    ...manifest.shots.map(
+      (shot) => `shots/shot-${String(shot.id).padStart(2, "0")}.mp4`,
+    ),
+  ];
+  const contents = {
+    "generation-report.json": JSON.stringify({
+      narration: { status: "complete" },
+    }),
+    "flow-run.json": JSON.stringify({
+      shots: manifest.shots.map((shot) => ({
+        id: shot.id,
+        status: "downloaded",
+      })),
+    }),
+  };
+  for (const relativePath of files) {
+    const filePath = path.join(directory, relativePath);
+    await mkdir(path.dirname(filePath), { recursive: true });
+    await writeFile(filePath, contents[relativePath] ?? "asset");
+  }
+  return directory;
+}
+
 function paidEnvironment() {
   return {
     GEMINI_API_KEY: "gemini-key",
@@ -763,4 +802,38 @@ test("narrate resumes at alignment when narration already exists", async () => {
   assert.equal(code, 0);
   assert.equal(narrationCalls, 0);
   assert.equal(alignmentCalls, 1);
+});
+
+test("verify-assets reports missing handoff files", async () => {
+  const manifest = makeFlowManifest();
+  const { cwd, manifestPath } = await setupManifest(manifest);
+  const output = outputCollector();
+
+  const code = await runCli(["verify-assets", "--manifest", manifestPath], {
+    cwd,
+    dependencies: noNetworkDependencies(),
+    ...output,
+  });
+
+  assert.equal(code, 1);
+  assert.match(output.stderr.join("\n"), /brief\.md is missing/);
+  assert.match(output.stderr.join("\n"), /shots\/shot-01\.mp4 is missing/);
+});
+
+test("verify-assets accepts an editor-ready Flow handoff", async () => {
+  const manifest = makeFlowManifest();
+  const { cwd, manifestPath } = await setupManifest(manifest);
+  const directory = await writeCompleteFlowHandoff(cwd, manifest);
+  const output = outputCollector();
+
+  const code = await runCli(["verify-assets", "--manifest", manifestPath], {
+    cwd,
+    dependencies: noNetworkDependencies(),
+    ...output,
+  });
+
+  assert.equal(code, 0);
+  assert.deepEqual(output.stderr, []);
+  assert.match(output.stdout.join("\n"), /Asset package valid:/);
+  assert.match(output.stdout.join("\n"), new RegExp(directory));
 });
