@@ -48,6 +48,7 @@ BLOG_IMPLEMENTATION_PLAN.md
 !.agents/skills/caloriecue-social-video/**
 .codex/
 .superpowers/
+/.worktrees/
 docs/superpowers/
 AGENTS.md
 docs/spec/
