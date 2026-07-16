@@ -1,0 +1,610 @@
+#!/usr/bin/env node
+
+import {
+  access,
+  mkdir,
+  readFile,
+  rename,
+  writeFile,
+} from "node:fs/promises";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
+import {
+  downloadVeoVideo,
+  getVeoVideoUri,
+  listVeoModels,
+  pollVeoOperation,
+  submitVeoShot,
+} from "./lib/gemini.mjs";
+import {
+  forceAlign,
+  generateNarration,
+  getElevenLabsVoice,
+} from "./lib/elevenlabs.mjs";
+import {
+  estimateVeoCost,
+  normalizeShotSelection,
+  validateManifest,
+} from "./lib/manifest.mjs";
+import { alignmentToSrt } from "./lib/subtitles.mjs";
+import {
+  loadEnvironment,
+  missingEnvironmentVariables,
+} from "./lib/env.mjs";
+
+const REQUIRED_ENVIRONMENT = [
+  "GEMINI_API_KEY",
+  "ELEVENLABS_API_KEY",
+  "ELEVENLABS_VOICE_ID",
+];
+
+const DEFAULT_DEPENDENCIES = {
+  downloadVeoVideo,
+  forceAlign,
+  generateNarration,
+  getElevenLabsVoice,
+  listVeoModels,
+  pollVeoOperation,
+  submitVeoShot,
+};
+
+function parseArguments(argv) {
+  const [command, ...tokens] = argv;
+  const flags = {};
+
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index];
+    if (!token.startsWith("--")) {
+      throw new Error("Unexpected argument: " + token);
+    }
+
+    const key = token.slice(2);
+    if (key === "confirm-paid-generation") {
+      flags[key] = true;
+      continue;
+    }
+
+    const value = tokens[index + 1];
+    if (value === undefined || value.startsWith("--")) {
+      throw new Error("Missing value for --" + key);
+    }
+    flags[key] = value;
+    index += 1;
+  }
+
+  return { command, flags };
+}
+
+function formatMoney(value) {
+  return "$" + Number(value).toFixed(2);
+}
+
+async function pathExists(filePath) {
+  try {
+    await access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function readManifest(manifestPath, cwd) {
+  if (!manifestPath) {
+    throw new Error("--manifest is required");
+  }
+
+  const resolvedPath = path.resolve(cwd, manifestPath);
+  let parsed;
+  try {
+    parsed = JSON.parse(await readFile(resolvedPath, "utf8"));
+  } catch (error) {
+    throw new Error(
+      "Unable to read manifest " +
+        resolvedPath +
+        ": " +
+        error.message,
+    );
+  }
+
+  return {
+    manifest: validateManifest(parsed),
+    manifestPath: resolvedPath,
+  };
+}
+
+async function writeJsonAtomic(filePath, value) {
+  await mkdir(path.dirname(filePath), { recursive: true });
+  const temporaryPath = filePath + ".tmp";
+  await writeFile(temporaryPath, JSON.stringify(value, null, 2) + "\n");
+  await rename(temporaryPath, filePath);
+}
+
+async function readExistingReport(reportPath) {
+  try {
+    return JSON.parse(await readFile(reportPath, "utf8"));
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return null;
+    }
+    throw new Error(
+      "Unable to resume generation report: " + error.message,
+    );
+  }
+}
+
+function socialCopyMarkdown(socialCopy) {
+  return [
+    "# Instagram",
+    "",
+    socialCopy.instagram,
+    "",
+    "# TikTok",
+    "",
+    socialCopy.tiktok,
+    "",
+    "# Facebook",
+    "",
+    socialCopy.facebook,
+    "",
+    "# Hashtags",
+    "",
+    socialCopy.hashtags.join(" "),
+    "",
+  ].join("\n");
+}
+
+async function writeCreativeFiles(outputDirectory, manifest) {
+  await mkdir(path.join(outputDirectory, "shots"), { recursive: true });
+  await writeJsonAtomic(
+    path.join(outputDirectory, "manifest.json"),
+    manifest,
+  );
+  await writeFile(
+    path.join(outputDirectory, "narration-script.txt"),
+    manifest.narration.trim() + "\n",
+  );
+  await writeFile(
+    path.join(outputDirectory, "social-copy.md"),
+    socialCopyMarkdown(manifest.socialCopy),
+  );
+}
+
+function makeShotRecord(shot, outputDirectory, existing) {
+  const outputPath = path.join(
+    outputDirectory,
+    "shots",
+    "shot-" + String(shot.id).padStart(2, "0") + ".mp4",
+  );
+  return {
+    id: shot.id,
+    title: shot.title,
+    status: existing?.status || "pending",
+    operationName: existing?.operationName || null,
+    outputPath,
+    bytes: existing?.bytes || null,
+    error: null,
+  };
+}
+
+function makeReport({
+  manifest,
+  shotRecords,
+  estimatedCost,
+  approvedBudget,
+  existingReport,
+}) {
+  const now = new Date().toISOString();
+  return {
+    version: 1,
+    articleUrl: manifest.articleUrl,
+    slug: manifest.slug,
+    veo: manifest.veo,
+    estimatedVeoCostUsd: estimatedCost,
+    approvedBudgetUsd: approvedBudget,
+    startedAt: existingReport?.startedAt || now,
+    updatedAt: now,
+    shots: shotRecords,
+    narration: existingReport?.narration || { status: "pending" },
+  };
+}
+
+async function saveReport(reportPath, report) {
+  report.updatedAt = new Date().toISOString();
+  await writeJsonAtomic(reportPath, report);
+}
+
+async function runSetupCheck({
+  cwd,
+  env,
+  dependencies,
+  writeOut,
+  writeError,
+}) {
+  const loaded = await loadEnvironment({ cwd, env });
+  const missing = missingEnvironmentVariables(
+    loaded,
+    REQUIRED_ENVIRONMENT,
+  );
+  let checkFailed = false;
+
+  if (loaded.GEMINI_API_KEY) {
+    try {
+      const models = await dependencies.listVeoModels({
+        apiKey: loaded.GEMINI_API_KEY,
+      });
+      writeOut(
+        "Available Veo 3.1 models: " +
+          (models.length > 0
+            ? models.join(", ")
+            : "none reported"),
+      );
+      checkFailed = models.length === 0;
+    } catch (error) {
+      writeError(
+        "Gemini setup check failed: " +
+          String(error.message || error),
+      );
+      checkFailed = true;
+    }
+  }
+
+  if (
+    loaded.ELEVENLABS_API_KEY &&
+    loaded.ELEVENLABS_VOICE_ID
+  ) {
+    try {
+      const voice = await dependencies.getElevenLabsVoice({
+        apiKey: loaded.ELEVENLABS_API_KEY,
+        voiceId: loaded.ELEVENLABS_VOICE_ID,
+      });
+      writeOut(
+        "ElevenLabs voice: " +
+          voice.name +
+          " (" +
+          voice.voice_id +
+          ")",
+      );
+    } catch (error) {
+      writeError(
+        "ElevenLabs setup check failed: " +
+          String(error.message || error),
+      );
+      checkFailed = true;
+    }
+  }
+
+  if (missing.length > 0) {
+    writeError(
+      "Missing environment variables: " + missing.join(", "),
+    );
+    return 2;
+  }
+  return checkFailed ? 1 : 0;
+}
+
+async function runGeneration({
+  cwd,
+  env,
+  flags,
+  dependencies,
+  writeOut,
+  writeError,
+}) {
+  const { manifest } = await readManifest(flags.manifest, cwd);
+  const selectedIds = normalizeShotSelection(manifest, flags.shots);
+  const estimatedCost = estimateVeoCost(manifest, selectedIds);
+
+  if (!flags["confirm-paid-generation"]) {
+    writeError(
+      "Paid generation blocked. Add --confirm-paid-generation only after explicit user approval.",
+    );
+    return 2;
+  }
+
+  const approvedBudget = Number(flags["budget-usd"]);
+  if (!Number.isFinite(approvedBudget) || approvedBudget <= 0) {
+    writeError(
+      "Paid generation blocked. --budget-usd must be a positive approved amount.",
+    );
+    return 2;
+  }
+
+  if (estimatedCost > approvedBudget) {
+    writeError(
+      "Paid generation blocked. Estimated Veo cost " +
+        formatMoney(estimatedCost) +
+        " exceeds approved budget " +
+        formatMoney(approvedBudget) +
+        ".",
+    );
+    return 2;
+  }
+
+  const loaded = await loadEnvironment({ cwd, env });
+  const missing = missingEnvironmentVariables(
+    loaded,
+    REQUIRED_ENVIRONMENT,
+  );
+  if (missing.length > 0) {
+    writeError(
+      "Missing environment variables: " + missing.join(", "),
+    );
+    return 2;
+  }
+
+  const outputDirectory = path.join(
+    cwd,
+    "social-video-assets",
+    manifest.slug,
+  );
+  const reportPath = path.join(
+    outputDirectory,
+    "generation-report.json",
+  );
+  await writeCreativeFiles(outputDirectory, manifest);
+
+  const existingReport = await readExistingReport(reportPath);
+  const existingById = new Map(
+    (existingReport?.shots || []).map((shot) => [shot.id, shot]),
+  );
+  const shotsById = new Map(
+    manifest.shots.map((shot) => [shot.id, shot]),
+  );
+  const explicitSelection =
+    typeof flags.shots === "string" && flags.shots.trim().length > 0;
+  const selectedShotRecords = selectedIds.map((id) =>
+    makeShotRecord(
+      shotsById.get(id),
+      outputDirectory,
+      existingById.get(id),
+    ),
+  );
+  const preservedShotRecords = (existingReport?.shots || []).filter(
+    (shot) => !selectedIds.includes(shot.id),
+  );
+  const shotRecords = [
+    ...preservedShotRecords,
+    ...selectedShotRecords,
+  ].sort((left, right) => left.id - right.id);
+  const report = makeReport({
+    manifest,
+    shotRecords,
+    estimatedCost,
+    approvedBudget,
+    existingReport,
+  });
+
+  for (const record of selectedShotRecords) {
+    const shot = shotsById.get(record.id);
+    if (
+      !explicitSelection &&
+      (record.status === "complete" ||
+        (await pathExists(record.outputPath)))
+    ) {
+      record.status = "complete";
+      continue;
+    }
+    if (
+      record.operationName &&
+      ["submitted", "polling"].includes(record.status)
+    ) {
+      continue;
+    }
+
+    try {
+      const operation = await dependencies.submitVeoShot({
+        apiKey: loaded.GEMINI_API_KEY,
+        model: manifest.veo.model,
+        prompt: shot.prompt,
+        aspectRatio: manifest.veo.aspectRatio,
+        resolution: manifest.veo.resolution,
+        durationSeconds: manifest.veo.durationSeconds,
+      });
+      record.operationName = operation.name;
+      record.status = "submitted";
+      record.error = null;
+      await saveReport(reportPath, report);
+    } catch (error) {
+      record.status = "failed";
+      record.error = String(error.message || error);
+      await saveReport(reportPath, report);
+    }
+  }
+
+  for (const record of selectedShotRecords) {
+    if (
+      !record.operationName ||
+      !["submitted", "polling"].includes(record.status)
+    ) {
+      continue;
+    }
+
+    try {
+      record.status = "polling";
+      await saveReport(reportPath, report);
+      const operation = await dependencies.pollVeoOperation({
+        apiKey: loaded.GEMINI_API_KEY,
+        operationName: record.operationName,
+      });
+      const videoUri = getVeoVideoUri(operation);
+      const downloaded = await dependencies.downloadVeoVideo({
+        apiKey: loaded.GEMINI_API_KEY,
+        videoUri,
+        outputPath: record.outputPath,
+      });
+      record.status = "complete";
+      record.bytes = downloaded.bytes;
+      record.error = null;
+      record.completedAt = new Date().toISOString();
+    } catch (error) {
+      record.status = "failed";
+      record.error = String(error.message || error);
+    }
+    await saveReport(reportPath, report);
+  }
+
+  if (!explicitSelection) {
+    const narrationPath = path.join(outputDirectory, "narration.mp3");
+    try {
+      if (!(await pathExists(narrationPath))) {
+        report.narration = {
+          status: "generating",
+        };
+        await saveReport(reportPath, report);
+        const narration = await dependencies.generateNarration({
+          apiKey: loaded.ELEVENLABS_API_KEY,
+          voiceId: loaded.ELEVENLABS_VOICE_ID,
+          text: manifest.narration,
+          modelId: manifest.elevenlabs.modelId,
+          outputFormat: manifest.elevenlabs.outputFormat,
+          voiceSettings: manifest.elevenlabs.voiceSettings,
+          outputPath: narrationPath,
+        });
+        report.narration = {
+          status: "complete",
+          outputPath: narrationPath,
+          bytes: narration.bytes,
+          characterCost: narration.characterCost,
+          requestId: narration.requestId,
+        };
+        await saveReport(reportPath, report);
+      }
+
+      const alignmentPath = path.join(
+        outputDirectory,
+        "alignment.json",
+      );
+      const subtitlesPath = path.join(
+        outputDirectory,
+        "subtitles.srt",
+      );
+      if (
+        !(await pathExists(alignmentPath)) ||
+        !(await pathExists(subtitlesPath))
+      ) {
+        const alignment = await dependencies.forceAlign({
+          apiKey: loaded.ELEVENLABS_API_KEY,
+          audioPath: narrationPath,
+          text: manifest.narration,
+        });
+        await writeJsonAtomic(alignmentPath, alignment);
+        await writeFile(
+          subtitlesPath,
+          alignmentToSrt(alignment),
+        );
+      }
+    } catch (error) {
+      report.narration = {
+        ...report.narration,
+        status: "failed",
+        error: String(error.message || error),
+      };
+      await saveReport(reportPath, report);
+    }
+  }
+
+  await saveReport(reportPath, report);
+  const failures =
+    report.shots.filter((shot) => shot.status === "failed").length +
+    (report.narration.status === "failed" ? 1 : 0);
+
+  writeOut(
+    "Asset package: " + outputDirectory,
+  );
+  writeOut(
+    "Veo estimate: " +
+      formatMoney(estimatedCost) +
+      " within approved " +
+      formatMoney(approvedBudget),
+  );
+  if (failures > 0) {
+    writeError(
+      failures +
+        " generation step(s) failed. Resume from generation-report.json without resubmitting completed shots.",
+    );
+    return 1;
+  }
+  return 0;
+}
+
+export async function runCli(
+  argv,
+  {
+    cwd = process.cwd(),
+    env = process.env,
+    dependencies = DEFAULT_DEPENDENCIES,
+    writeOut = (value) => console.log(value),
+    writeError = (value) => console.error(value),
+  } = {},
+) {
+  try {
+    const { command, flags } = parseArguments(argv);
+
+    if (command === "validate") {
+      const { manifest } = await readManifest(flags.manifest, cwd);
+      writeOut(
+        "Manifest valid: " +
+          manifest.slug +
+          " (" +
+          manifest.shots.length +
+          " shots)",
+      );
+      return 0;
+    }
+
+    if (command === "estimate") {
+      const { manifest } = await readManifest(flags.manifest, cwd);
+      const selectedIds = normalizeShotSelection(
+        manifest,
+        flags.shots,
+      );
+      const estimate = estimateVeoCost(manifest, selectedIds);
+      writeOut(
+        "Estimated Veo cost: " +
+          formatMoney(estimate) +
+          " for " +
+          selectedIds.length +
+          " shot(s)",
+      );
+      return 0;
+    }
+
+    if (command === "check-setup") {
+      return await runSetupCheck({
+        cwd,
+        env,
+        dependencies,
+        writeOut,
+        writeError,
+      });
+    }
+
+    if (command === "generate") {
+      return await runGeneration({
+        cwd,
+        env,
+        flags,
+        dependencies,
+        writeOut,
+        writeError,
+      });
+    }
+
+    writeError(
+      "Usage: social-video.mjs <validate|estimate|check-setup|generate> [options]",
+    );
+    return 2;
+  } catch (error) {
+    writeError(String(error.message || error));
+    return 1;
+  }
+}
+
+const invokedUrl = process.argv[1]
+  ? pathToFileURL(path.resolve(process.argv[1])).href
+  : "";
+if (import.meta.url === invokedUrl) {
+  const code = await runCli(process.argv.slice(2));
+  process.exitCode = code;
+}
