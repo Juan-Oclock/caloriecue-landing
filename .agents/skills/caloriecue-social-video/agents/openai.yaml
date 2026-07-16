@@ -1,4 +1,4 @@
 interface:
   display_name: "CalorieCue Social Video"
-  short_description: "Turn CalorieCue blogs into video assets"
-  default_prompt: "Use $caloriecue-social-video to turn this CalorieCue blog URL into an approved set of Veo clips, ElevenLabs narration, subtitle timings, and social copy."
+  short_description: "Turn CalorieCue blogs into Flow-first video assets"
+  default_prompt: "Use $caloriecue-social-video to turn this CalorieCue blog URL into an approved set of browser-assisted Google Flow clips, ElevenLabs narration, subtitle timings, and social copy."

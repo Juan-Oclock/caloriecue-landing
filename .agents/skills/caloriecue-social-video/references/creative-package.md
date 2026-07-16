@@ -64,7 +64,7 @@ manifest.json is the machine-readable generation contract:
 
 ~~~json
 {
-  "version": 1,
+  "version": 2,
   "articleUrl": "https://caloriecue.app/blog/example-slug",
   "slug": "example-slug",
   "targetDurationSeconds": 64,
@@ -75,11 +75,19 @@ manifest.json is the machine-readable generation contract:
     "facebook": "Facebook description",
     "hashtags": ["#CalorieCue", "#Nutrition"]
   },
-  "veo": {
-    "model": "veo-3.1-fast-generate-preview",
+  "video": {
+    "provider": "flow-browser",
     "aspectRatio": "9:16",
     "resolution": "1080p",
     "durationSeconds": 8
+  },
+  "flow": {
+    "model": "veo-3.1-fast",
+    "creditTier": "non-ultra",
+    "outputsPerShot": 1
+  },
+  "geminiApi": {
+    "model": "veo-3.1-fast-generate-preview"
   },
   "elevenlabs": {
     "modelId": "eleven_multilingual_v2",
@@ -102,7 +110,7 @@ manifest.json is the machine-readable generation contract:
 }
 ~~~
 
-Add enough shots for the target duration. Use sequential positive integer IDs and keep every prompt self-contained.
+New packages use version 2 with `flow-browser`. Legacy version 1 manifests remain `gemini-api` packages. Add enough shots for the target duration. Use sequential positive integer IDs and keep every prompt self-contained.
 
 ## Approval sheet
 
@@ -113,14 +121,14 @@ Present, in order:
 3. Shot table with ID, purpose, and prompt.
 4. ElevenLabs voice ID or name.
 5. Platform descriptions and hashtags.
-6. Veo model, resolution, shot count, calculated estimate, and hard budget.
-7. A direct question asking whether to spend up to that budget.
+6. Flow model, duration, resolution, effective outputs per request, credits per generation, total Flow credits, visible balance when readable, ElevenLabs narration character count, and Google AI Pro visible-watermark notice.
+7. A direct question asking whether to use the stated Flow credits and ElevenLabs narration usage for this exact package.
 
 Do not collapse the prompts behind a summary; the user must be able to review what will be purchased.
 
 ## Handoff checklist
 
-- generation-report.json has no unresolved submitted or polling operation.
+- flow-run.json has no unresolved `submitted`, `pending`, or `failed` shot required by the approved manifest.
 - Every successful shot has a non-empty MP4 file.
 - narration.mp3, alignment.json, and subtitles.srt are non-empty.
 - The narration text matches the text used for forced alignment.
