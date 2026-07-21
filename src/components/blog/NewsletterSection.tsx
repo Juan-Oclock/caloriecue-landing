@@ -2,9 +2,16 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { trackGenerateLead } from "@/lib/analytics";
 import { createClient } from "@/lib/supabase/client";
 
-export default function NewsletterSection() {
+type NewsletterSectionProps = {
+  contentSlug?: string;
+};
+
+export default function NewsletterSection({
+  contentSlug,
+}: NewsletterSectionProps) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -36,6 +43,11 @@ export default function NewsletterSection() {
         return;
       }
 
+      trackGenerateLead({
+        leadType: "newsletter",
+        location: "blog_footer",
+        contentSlug,
+      });
       setSuccess(true);
       setEmail("");
     } catch {

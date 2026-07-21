@@ -300,7 +300,7 @@ export default async function BlogPostPage({
         </div>
       </article>
 
-      <NewsletterSection />
+      <NewsletterSection contentSlug={post.slug} />
       <Footer />
     </main>
   );
