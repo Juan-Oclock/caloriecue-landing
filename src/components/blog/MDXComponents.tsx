@@ -8,6 +8,26 @@ import ProteinPerCalorieCalculator from "./ProteinPerCalorieCalculator";
 import CaloriesPerGramCalculator from "./CaloriesPerGramCalculator";
 import TrackedAppStoreLink from "@/components/TrackedAppStoreLink";
 
+const CALORIECUE_APP_STORE_URL =
+  "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
+const MARKDOWN_LINK_CLASS_NAME =
+  "text-primary hover:text-primary-dark underline underline-offset-2";
+
+function isCalorieCueAppStoreUrl(href: string | undefined): boolean {
+  if (!href) return false;
+
+  try {
+    const candidate = new URL(href);
+    const canonical = new URL(CALORIECUE_APP_STORE_URL);
+    return (
+      candidate.origin === canonical.origin &&
+      candidate.pathname === canonical.pathname
+    );
+  } catch {
+    return false;
+  }
+}
+
 function getTextContent(children: ReactNode): string {
   if (typeof children === "string") return children;
   if (typeof children === "number") return String(children);
@@ -154,14 +174,31 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
     p: ({ children }) => (
       <p className="mb-4 leading-relaxed text-foreground/90">{children}</p>
     ),
-    a: ({ href, children }) => (
-      <Link
-        href={href ?? "#"}
-        className="text-primary hover:text-primary-dark underline underline-offset-2"
-      >
-        {children}
-      </Link>
-    ),
+    a: ({ href, children, className, ...anchorProps }) => {
+      if (isCalorieCueAppStoreUrl(href)) {
+        return (
+          <TrackedAppStoreLink
+            {...anchorProps}
+            href={href}
+            location="blog_inline"
+            contentSlug={contentSlug}
+            className={
+              className
+                ? `${MARKDOWN_LINK_CLASS_NAME} ${className}`
+                : MARKDOWN_LINK_CLASS_NAME
+            }
+          >
+            {children}
+          </TrackedAppStoreLink>
+        );
+      }
+
+      return (
+        <Link href={href ?? "#"} className={MARKDOWN_LINK_CLASS_NAME}>
+          {children}
+        </Link>
+      );
+    },
     ul: ({ children }) => (
       <ul className="mb-4 pl-6 space-y-2 list-disc">{children}</ul>
     ),

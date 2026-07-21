@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/cheat-sheet-download/route";
 
 const mocks = vi.hoisted(() => ({
@@ -27,6 +27,15 @@ vi.mock("@/lib/cheat-sheet/CheatSheetDocument", () => ({
 }));
 
 const originalApiKey = process.env.RESEND_API_KEY;
+const EXPECTED_CONTACT_RESOLUTION_TIMEOUT_MS = 1_000;
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve };
+}
 
 function request(email = "Reader@Example.com") {
   return {
@@ -42,6 +51,10 @@ describe("POST /api/cheat-sheet-download", () => {
     process.env.RESEND_API_KEY = "test-key";
     mocks.renderPdf.mockResolvedValue(Buffer.from("pdf"));
     mocks.emailSend.mockResolvedValue({ data: { id: "email-1" }, error: null });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   afterAll(() => {
@@ -89,6 +102,51 @@ describe("POST /api/cheat-sheet-download", () => {
     });
     expect(mocks.contactCreate).not.toHaveBeenCalled();
     expect(mocks.emailSend).toHaveBeenCalledTimes(1);
+  });
+
+  it("starts email delivery before deferred contact resolution completes", async () => {
+    const contactLookup = deferred<{
+      data: { id: string; email: string };
+      error: null;
+    }>();
+    mocks.contactGet.mockReturnValue(contactLookup.promise);
+
+    const responsePromise = POST(request());
+
+    await vi.waitFor(() => expect(mocks.contactGet).toHaveBeenCalledTimes(1));
+    expect(mocks.emailSend).toHaveBeenCalledTimes(1);
+
+    contactLookup.resolve({
+      data: { id: "existing-contact", email: "reader@example.com" },
+      error: null,
+    });
+    const response = await responsePromise;
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      success: true,
+      leadCreated: false,
+    });
+  });
+
+  it("bounds unresolved contact lookup and returns conservative success", async () => {
+    vi.useFakeTimers();
+    mocks.contactGet.mockReturnValue(new Promise(() => {}));
+
+    const responsePromise = POST(request());
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(mocks.emailSend).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(EXPECTED_CONTACT_RESOLUTION_TIMEOUT_MS);
+    const response = await responsePromise;
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      success: true,
+      leadCreated: false,
+    });
+    expect(mocks.contactCreate).not.toHaveBeenCalled();
   });
 
   it("still sends the PDF but does not claim a lead when contact creation fails", async () => {

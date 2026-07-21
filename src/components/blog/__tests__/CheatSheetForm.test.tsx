@@ -1,7 +1,9 @@
+import type { ComponentType } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import CheatSheetForm from "@/components/blog/CheatSheetForm";
+import { getMDXComponents } from "@/components/blog/MDXComponents";
 import { trackGenerateLead } from "@/lib/analytics";
 
 const fetchMock = vi.fn();
@@ -34,7 +36,9 @@ describe("CheatSheetForm", () => {
       ok: true,
       json: async () => ({ success: true, leadCreated: true }),
     });
-    render(<CheatSheetForm contentSlug="calorie-counting-cheat-sheet" />);
+    const components = getMDXComponents("calorie-counting-cheat-sheet");
+    const FactoryCheatSheetForm = components.CheatSheetForm as ComponentType;
+    render(<FactoryCheatSheetForm />);
 
     await submit("Reader@Example.com");
 
@@ -90,4 +94,28 @@ describe("CheatSheetForm", () => {
     );
     expect(trackGenerateLead).not.toHaveBeenCalled();
   });
+
+  it.each([
+    ["malformed", {}],
+    ["non-success", { success: false, leadCreated: true }],
+  ])(
+    "does not track or show success for an HTTP-200 %s payload",
+    async (_label, payload) => {
+      fetchMock.mockResolvedValue({
+        ok: true,
+        json: async () => payload,
+      });
+      render(<CheatSheetForm contentSlug="calorie-counting-cheat-sheet" />);
+
+      await submit("reader@example.com");
+
+      await waitFor(() =>
+        expect(
+          screen.getByText("Something went wrong. Please try again."),
+        ).toBeInTheDocument(),
+      );
+      expect(screen.queryByText(/check your inbox/i)).not.toBeInTheDocument();
+      expect(trackGenerateLead).not.toHaveBeenCalled();
+    },
+  );
 });

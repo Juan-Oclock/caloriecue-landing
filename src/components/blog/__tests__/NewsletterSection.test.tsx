@@ -48,6 +48,23 @@ describe("NewsletterSection", () => {
     });
   });
 
+  it("omits slug attribution for a successful listing-page submission", async () => {
+    mocks.insert.mockResolvedValue({ error: null });
+    render(<NewsletterSection />);
+
+    await submit("reader@example.com");
+
+    await waitFor(() =>
+      expect(screen.getByText(/you.re subscribed/i)).toBeInTheDocument(),
+    );
+    expect(trackGenerateLead).toHaveBeenCalledTimes(1);
+    expect(trackGenerateLead).toHaveBeenCalledWith({
+      leadType: "newsletter",
+      location: "blog_footer",
+      contentSlug: undefined,
+    });
+  });
+
   it("does not track an invalid email", async () => {
     render(<NewsletterSection />);
 

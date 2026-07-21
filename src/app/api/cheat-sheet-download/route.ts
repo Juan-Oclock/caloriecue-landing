@@ -13,6 +13,7 @@ function getResend() {
 }
 
 const AUDIENCE_ID = "511ab1c1-5a5c-4b58-9d22-8bf8aaf2e912";
+const CONTACT_RESOLUTION_TIMEOUT_MS = 1_000;
 const PRODUCTION_URL = "https://caloriecue.app";
 const APP_STORE_URL =
   "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
@@ -94,6 +95,59 @@ function getCheatSheetEmailHtml(downloadUrl: string) {
 </html>`;
 }
 
+async function resolveContact(
+  resend: ReturnType<typeof getResend>,
+  normalizedEmail: string,
+): Promise<boolean> {
+  try {
+    const existingContact = await resend.contacts.get({
+      email: normalizedEmail,
+      audienceId: AUDIENCE_ID,
+    });
+
+    if (existingContact.data) return false;
+
+    if (existingContact.error?.name === "not_found") {
+      const contactResult = await resend.contacts.create({
+        email: normalizedEmail,
+        audienceId: AUDIENCE_ID,
+      });
+
+      if (contactResult.error) {
+        console.error("Resend contact creation error:", contactResult.error);
+      }
+      return Boolean(contactResult.data);
+    }
+
+    if (existingContact.error) {
+      console.error("Resend contact lookup error:", existingContact.error);
+    }
+  } catch (contactError) {
+    console.error("Resend contact operation failed:", contactError);
+  }
+
+  return false;
+}
+
+function resolveContactWithinTimeout(
+  resend: ReturnType<typeof getResend>,
+  normalizedEmail: string,
+): Promise<boolean> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<boolean>((resolve) => {
+    timeoutId = setTimeout(
+      () => resolve(false),
+      CONTACT_RESOLUTION_TIMEOUT_MS,
+    );
+  });
+
+  return Promise.race([resolveContact(resend, normalizedEmail), timeout]).finally(
+    () => {
+      if (timeoutId !== undefined) clearTimeout(timeoutId);
+    },
+  );
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
@@ -125,35 +179,11 @@ export async function POST(req: NextRequest) {
     }
 
     const resend = getResend();
-
-    let leadCreated = false;
-
-    try {
-      const existingContact = await resend.contacts.get({
-        email: normalizedEmail,
-        audienceId: AUDIENCE_ID,
-      });
-
-      if (existingContact.data) {
-        leadCreated = false;
-      } else if (existingContact.error?.name === "not_found") {
-        const contactResult = await resend.contacts.create({
-          email: normalizedEmail,
-          audienceId: AUDIENCE_ID,
-        });
-
-        leadCreated = Boolean(contactResult.data);
-        if (contactResult.error) {
-          console.error("Resend contact creation error:", contactResult.error);
-        }
-      } else if (existingContact.error) {
-        console.error("Resend contact lookup error:", existingContact.error);
-      }
-    } catch (contactError) {
-      console.error("Resend contact operation failed:", contactError);
-    }
-
-    const sendResult = await resend.emails.send({
+    const contactResolution = resolveContactWithinTimeout(
+      resend,
+      normalizedEmail,
+    );
+    const emailDelivery = resend.emails.send({
       from: "CalorieCue <hello@track.caloriecue.app>",
       to: normalizedEmail,
       subject: "Your Calorie Counting Cheat Sheet (PDF inside)",
@@ -170,6 +200,7 @@ export async function POST(req: NextRequest) {
           }
         : {}),
     });
+    const sendResult = await emailDelivery;
 
     if (sendResult.error) {
       console.error("Resend send error:", sendResult.error);
@@ -179,6 +210,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const leadCreated = await contactResolution;
     return NextResponse.json({ success: true, leadCreated });
   } catch (error) {
     console.error("Cheat sheet download error:", error);
