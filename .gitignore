@@ -41,9 +41,17 @@ BLOG_IMPLEMENTATION_PLAN.md
 .claude/
 
 # Agent/local workflow artifacts
-.agents/
+.agents/*
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/caloriecue-social-video/
+!.agents/skills/caloriecue-social-video/**
 .codex/
 .superpowers/
+/.worktrees/
 docs/superpowers/
 AGENTS.md
 docs/spec/
+
+# Generated social-video media packages
+/social-video-assets/

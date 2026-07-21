@@ -1,9 +1,8 @@
 "use client";
 
-import {
-  trackAppStoreClick,
-  type AppStoreClickLocation,
-} from "@/lib/landing/analytics";
+import TrackedAppStoreLink from "@/components/TrackedAppStoreLink";
+import type { ReactNode } from "react";
+import type { AppStoreClickLocation } from "@/lib/analytics";
 
 const APP_STORE_URL = "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
 
@@ -24,23 +23,41 @@ function AppleLogo({ className = "w-5 h-5" }: { className?: string }) {
   );
 }
 
-export default function AppStoreButton({ variant = "hero", centered = false, hideTagline = false, className = "", location }: AppStoreButtonProps) {
-  const handleClick = () => {
-    if (location) trackAppStoreClick({ location });
-  };
+function StoreAnchor({
+  location,
+  className,
+  children,
+}: {
+  location?: AppStoreClickLocation;
+  className: string;
+  children: ReactNode;
+}) {
+  const sharedProps = {
+    href: APP_STORE_URL,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className,
+  } as const;
 
+  return location ? (
+    <TrackedAppStoreLink {...sharedProps} location={location}>
+      {children}
+    </TrackedAppStoreLink>
+  ) : (
+    <a {...sharedProps}>{children}</a>
+  );
+}
+
+export default function AppStoreButton({ variant = "hero", centered = false, hideTagline = false, className = "", location }: AppStoreButtonProps) {
   if (variant === "compact") {
     return (
-      <a
-        href={APP_STORE_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={handleClick}
+      <StoreAnchor
+        location={location}
         className={`inline-flex items-center gap-2 btn-primary text-sm py-2.5 px-5 hover:scale-[1.02] active:scale-[0.98] transition-transform ${className}`}
       >
         <AppleLogo className="w-4 h-4" />
         <span>Get the App</span>
-      </a>
+      </StoreAnchor>
     );
   }
 
@@ -67,11 +84,8 @@ export default function AppStoreButton({ variant = "hero", centered = false, hid
         <div className="absolute inset-0 rounded-xl bg-primary/20 animate-glow-pulse" aria-hidden="true" />
         <div className="absolute -inset-1 rounded-2xl bg-primary/10 animate-glow-pulse-outer" aria-hidden="true" />
 
-        <a
-          href={APP_STORE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={handleClick}
+        <StoreAnchor
+          location={location}
           className="relative block hover:scale-[1.03] active:scale-[0.98] transition-transform"
         >
           <div className="relative bg-black text-white px-6 py-3.5 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-shadow group">
@@ -82,7 +96,7 @@ export default function AppStoreButton({ variant = "hero", centered = false, hid
               <span className="text-xl font-semibold -mt-0.5">App Store</span>
             </div>
           </div>
-        </a>
+        </StoreAnchor>
       </div>
 
       {!hideTagline && (
