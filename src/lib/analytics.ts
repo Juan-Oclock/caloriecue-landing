@@ -1,8 +1,7 @@
-type GtagFn = (
-  command: "event",
-  eventName: string,
-  params?: Record<string, unknown>,
-) => void;
+import {
+  configureSafeAnalyticsContext,
+  type BrowserGtag,
+} from "@/lib/analytics-context";
 
 export interface AnalyticsAdapter {
   track: (eventName: string, payload?: Record<string, unknown>) => void;
@@ -11,8 +10,9 @@ export interface AnalyticsAdapter {
 const browserAnalytics: AnalyticsAdapter = {
   track(eventName, payload) {
     if (typeof window === "undefined") return;
-    const gtag = (window as unknown as { gtag?: GtagFn }).gtag;
+    const gtag = (window as unknown as { gtag?: BrowserGtag }).gtag;
     if (typeof gtag === "function") {
+      configureSafeAnalyticsContext(gtag);
       gtag("event", eventName, payload);
     }
   },

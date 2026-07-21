@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   trackAppStoreClick,
   trackGenerateLead,
@@ -12,6 +12,26 @@ function stubAdapter() {
 }
 
 describe("shared analytics", () => {
+  beforeEach(() => {
+    window.history.replaceState({}, "", "/");
+    Object.defineProperty(document, "referrer", {
+      configurable: true,
+      value: "",
+    });
+    Reflect.deleteProperty(window, "gtag");
+    Reflect.deleteProperty(window, "__calorieCueAnalyticsContext");
+  });
+
+  afterEach(() => {
+    window.history.replaceState({}, "", "/");
+    Object.defineProperty(document, "referrer", {
+      configurable: true,
+      value: "",
+    });
+    Reflect.deleteProperty(window, "gtag");
+    Reflect.deleteProperty(window, "__calorieCueAnalyticsContext");
+  });
+
   it("emits generate_lead with only allow-listed newsletter fields", () => {
     const { track, adapter } = stubAdapter();
 
@@ -49,6 +69,71 @@ describe("shared analytics", () => {
       lead_type: "newsletter",
       location: "blog_footer",
     });
+  });
+
+  it("sets sanitized page context before a browser lead event", () => {
+    const gtag = vi.fn();
+    Object.defineProperty(window, "gtag", {
+      configurable: true,
+      value: gtag,
+      writable: true,
+    });
+    window.history.replaceState(
+      {},
+      "",
+      "/unsubscribe?email=person%40example.com&token=secret-token&token_hash=secret-hash&code=oauth-code#private-fragment",
+    );
+    Object.defineProperty(document, "referrer", {
+      configurable: true,
+      value:
+        "https://referrer.example/source?email=ref%40example.com&token=ref-token#ref-fragment",
+    });
+
+    trackGenerateLead({
+      leadType: "newsletter",
+      location: "blog_footer",
+      contentSlug: "privacy-safe-analytics",
+    });
+
+    const safeContext = {
+      page_location: `${window.location.origin}/unsubscribe`,
+      page_referrer: "https://referrer.example/source",
+    };
+    expect(gtag.mock.calls).toEqual([
+      ["set", safeContext],
+      [
+        "config",
+        "G-4E4N33E19T",
+        { ...safeContext, send_page_view: false },
+      ],
+      [
+        "event",
+        "generate_lead",
+        {
+          lead_type: "newsletter",
+          location: "blog_footer",
+          content_slug: "privacy-safe-analytics",
+        },
+      ],
+    ]);
+    expect(Object.keys(gtag.mock.calls[2][2]).sort()).toEqual([
+      "content_slug",
+      "lead_type",
+      "location",
+    ]);
+    const serializedCalls = JSON.stringify(gtag.mock.calls);
+    for (const secret of [
+      "person@example.com",
+      "secret-token",
+      "secret-hash",
+      "oauth-code",
+      "private-fragment",
+      "ref@example.com",
+      "ref-token",
+      "ref-fragment",
+    ]) {
+      expect(serializedCalls).not.toContain(secret);
+    }
   });
 
   it("emits app_store_click with the blog placement and slug", () => {
