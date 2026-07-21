@@ -126,30 +126,50 @@ export async function POST(req: NextRequest) {
 
     const resend = getResend();
 
-    // Add contact to Blog Leads audience and send email in parallel.
-    const [, sendResult] = await Promise.all([
-      resend.contacts.create({
+    let leadCreated = false;
+
+    try {
+      const existingContact = await resend.contacts.get({
         email: normalizedEmail,
         audienceId: AUDIENCE_ID,
-      }),
-      resend.emails.send({
-        from: "CalorieCue <hello@track.caloriecue.app>",
-        to: normalizedEmail,
-        subject: "Your Calorie Counting Cheat Sheet (PDF inside)",
-        html: getCheatSheetEmailHtml(downloadUrl),
-        text: `Thanks for grabbing the CalorieCue Calorie Counting Cheat Sheet! Your PDF is attached. You can also download it here: ${downloadUrl}`,
-        ...(pdfBuffer
-          ? {
-              attachments: [
-                {
-                  filename: CHEAT_SHEET_PDF_FILENAME,
-                  content: pdfBuffer,
-                },
-              ],
-            }
-          : {}),
-      }),
-    ]);
+      });
+
+      if (existingContact.data) {
+        leadCreated = false;
+      } else if (existingContact.error?.name === "not_found") {
+        const contactResult = await resend.contacts.create({
+          email: normalizedEmail,
+          audienceId: AUDIENCE_ID,
+        });
+
+        leadCreated = Boolean(contactResult.data);
+        if (contactResult.error) {
+          console.error("Resend contact creation error:", contactResult.error);
+        }
+      } else if (existingContact.error) {
+        console.error("Resend contact lookup error:", existingContact.error);
+      }
+    } catch (contactError) {
+      console.error("Resend contact operation failed:", contactError);
+    }
+
+    const sendResult = await resend.emails.send({
+      from: "CalorieCue <hello@track.caloriecue.app>",
+      to: normalizedEmail,
+      subject: "Your Calorie Counting Cheat Sheet (PDF inside)",
+      html: getCheatSheetEmailHtml(downloadUrl),
+      text: `Thanks for grabbing the CalorieCue Calorie Counting Cheat Sheet! Your PDF is attached. You can also download it here: ${downloadUrl}`,
+      ...(pdfBuffer
+        ? {
+            attachments: [
+              {
+                filename: CHEAT_SHEET_PDF_FILENAME,
+                content: pdfBuffer,
+              },
+            ],
+          }
+        : {}),
+    });
 
     if (sendResult.error) {
       console.error("Resend send error:", sendResult.error);
@@ -159,7 +179,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, leadCreated });
   } catch (error) {
     console.error("Cheat sheet download error:", error);
     return NextResponse.json(
