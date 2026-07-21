@@ -2,8 +2,19 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { trackGenerateLead } from "@/lib/analytics";
 
-export default function CheatSheetForm() {
+type CheatSheetFormProps = {
+  contentSlug: string;
+};
+
+type CheatSheetResponse = {
+  success?: boolean;
+  leadCreated?: boolean;
+  error?: string;
+};
+
+export default function CheatSheetForm({ contentSlug }: CheatSheetFormProps) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -27,11 +38,19 @@ export default function CheatSheetForm() {
         body: JSON.stringify({ email: email.toLowerCase().trim() }),
       });
 
-      const data = await res.json();
+      const data = (await res.json()) as CheatSheetResponse;
 
-      if (!res.ok) {
+      if (!res.ok || data.success !== true) {
         setError(data.error || "Something went wrong. Please try again.");
         return;
+      }
+
+      if (data.leadCreated === true) {
+        trackGenerateLead({
+          leadType: "cheat_sheet",
+          location: "cheat_sheet_form",
+          contentSlug,
+        });
       }
 
       setSuccess(true);

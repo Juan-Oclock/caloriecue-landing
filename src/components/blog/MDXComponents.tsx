@@ -231,7 +231,7 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
     Callout,
     AppStoreLink: () => <AppStoreLink contentSlug={contentSlug} />,
     BlogImage,
-    CheatSheetForm,
+    CheatSheetForm: () => <CheatSheetForm contentSlug={contentSlug} />,
     ProteinPerCalorieCalculator,
     CaloriesPerGramCalculator,
   };
