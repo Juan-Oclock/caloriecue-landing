@@ -111,6 +111,59 @@ describe("POST /api/cheat-sheet-download", () => {
     expect(mocks.emailSend).toHaveBeenCalledTimes(1);
   });
 
+  it("still sends the PDF but does not claim a lead when contact lookup returns an error", async () => {
+    mocks.contactGet.mockResolvedValue({
+      data: null,
+      error: {
+        name: "application_error",
+        message: "Lookup failed",
+        statusCode: 500,
+      },
+    });
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      success: true,
+      leadCreated: false,
+    });
+    expect(mocks.contactCreate).not.toHaveBeenCalled();
+    expect(mocks.emailSend).toHaveBeenCalledTimes(1);
+  });
+
+  it("still sends the PDF but does not claim a lead when contact lookup rejects", async () => {
+    mocks.contactGet.mockRejectedValue(new Error("Lookup rejected"));
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      success: true,
+      leadCreated: false,
+    });
+    expect(mocks.contactCreate).not.toHaveBeenCalled();
+    expect(mocks.emailSend).toHaveBeenCalledTimes(1);
+  });
+
+  it("still sends the PDF but does not claim a lead when contact creation rejects", async () => {
+    mocks.contactGet.mockResolvedValue({
+      data: null,
+      error: { name: "not_found", message: "Not found", statusCode: 404 },
+    });
+    mocks.contactCreate.mockRejectedValue(new Error("Creation rejected"));
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      success: true,
+      leadCreated: false,
+    });
+    expect(mocks.contactCreate).toHaveBeenCalledTimes(1);
+    expect(mocks.emailSend).toHaveBeenCalledTimes(1);
+  });
+
   it("returns an error when email delivery fails and never reports a lead", async () => {
     mocks.contactGet.mockResolvedValue({
       data: null,
