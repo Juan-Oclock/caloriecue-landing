@@ -74,7 +74,7 @@ export default async function BlogPostPage({
 
   const { content } = await compileMDX({
     source: post.content,
-    components: getMDXComponents(),
+    components: getMDXComponents(post.slug),
     options: { mdxOptions: { remarkPlugins: [remarkGfm, remarkUnwrapImages] } },
   });
 

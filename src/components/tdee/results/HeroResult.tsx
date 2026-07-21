@@ -3,8 +3,6 @@
 import { motion } from "framer-motion";
 import AnimatedCounter from "@/components/AnimatedCounter";
 
-const APP_STORE_URL = "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
-
 const stagger = (i: number) => ({
   hidden: { opacity: 0, y: 16 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.35, delay: i * 0.06 } },
