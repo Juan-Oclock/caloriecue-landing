@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import TrackedAppStoreLink from "@/components/TrackedAppStoreLink";
 
 type BlogTldrProps = {
   body?: string;
@@ -22,14 +23,16 @@ function TldrCta({ utmContent }: { utmContent: string }) {
       <p className="mt-3 text-sm italic text-foreground/60">
         Track any meal in 3 seconds, even the messy ones.
       </p>
-      <a
+      <TrackedAppStoreLink
         href={href}
         target="_blank"
         rel="noopener noreferrer"
+        location="blog_tldr"
+        contentSlug={utmContent}
         className="mt-4 btn-primary !text-white !no-underline w-full sm:w-auto justify-center inline-flex items-center min-h-[44px] px-6"
       >
         Download CalorieCue — Free
-      </a>
+      </TrackedAppStoreLink>
     </>
   );
 }
@@ -54,14 +57,16 @@ export default function BlogTldr({ body, utmContent }: BlogTldrProps) {
             <p className="mt-3 text-sm italic text-foreground/60">
               Track any meal in 3 seconds, even the messy ones.
             </p>
-            <a
+            <TrackedAppStoreLink
               href={fallbackHref}
               target="_blank"
               rel="noopener noreferrer"
+              location="blog_tldr"
+              contentSlug={utmContent}
               className="mt-4 btn-primary !text-white !no-underline w-full sm:w-auto justify-center inline-flex items-center min-h-[44px] px-6"
             >
               Download CalorieCue — Free
-            </a>
+            </TrackedAppStoreLink>
           </>
         }
       >

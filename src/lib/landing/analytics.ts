@@ -1,88 +1,63 @@
 import type { Goal } from "./calculator";
 import type { ActivityLevel } from "@/lib/tdee/types";
+import {
+  trackEvent,
+  type AnalyticsAdapter,
+} from "@/lib/analytics";
+
+export {
+  trackAppStoreClick,
+} from "@/lib/analytics";
+export type {
+  AnalyticsAdapter,
+  AppStoreClickLocation,
+} from "@/lib/analytics";
 
 /**
  * Privacy-conscious analytics for the landing-page calculator.
  *
- * Per Decision Log #11, payloads MUST NOT include calorie targets,
- * weight, height, age, or any other anthropometric/derived health
- * data — we track engagement direction only, not nutrition analytics
- * that could be reverse-engineered into health data.
- *
- * Fires via window.gtag (GA4) if loaded; no-ops in tests or when GA
- * hasn't loaded yet. Tests inject a stub through the analytics arg.
+ * Payloads MUST NOT include calorie targets, weight, height, age, or any
+ * anthropometric or derived health data. The shared transport silently no-ops
+ * when GA is unavailable and isolates analytics failures from product behavior.
  */
 
-type GtagFn = (
-  command: "event",
-  eventName: string,
-  params?: Record<string, unknown>,
-) => void;
-
-export interface AnalyticsAdapter {
-  track: (eventName: string, payload?: Record<string, unknown>) => void;
-}
-
-const browserAnalytics: AnalyticsAdapter = {
-  track(eventName, payload) {
-    if (typeof window === "undefined") return;
-    const gtag = (window as unknown as { gtag?: GtagFn }).gtag;
-    if (typeof gtag === "function") {
-      gtag("event", eventName, payload);
-    }
-  },
-};
-
-// ---- Typed event helpers -------------------------------------------------
-
 export function trackCalculatorStarted(
-  adapter: AnalyticsAdapter = browserAnalytics,
+  adapter?: AnalyticsAdapter,
 ): void {
-  adapter.track("calculator_started");
+  trackEvent("calculator_started", undefined, adapter);
 }
 
 export function trackCalculatorCompleted(
   payload: { goal: Goal; activityLevel: ActivityLevel },
-  adapter: AnalyticsAdapter = browserAnalytics,
+  adapter?: AnalyticsAdapter,
 ): void {
-  // Intentionally narrow: ONLY goal and activityLevel. The payload object
-  // is constructed inline so static review and the regression test in
-  // InlineCalculator.test.tsx can verify no other keys leak in.
-  adapter.track("calculator_completed", {
-    goal: payload.goal,
-    activityLevel: payload.activityLevel,
-  });
+  trackEvent(
+    "calculator_completed",
+    {
+      goal: payload.goal,
+      activityLevel: payload.activityLevel,
+    },
+    adapter,
+  );
 }
 
 export function trackCalculatorCtaClicked(
   payload: { which: "app" | "guide"; goal: Goal },
-  adapter: AnalyticsAdapter = browserAnalytics,
+  adapter?: AnalyticsAdapter,
 ): void {
-  adapter.track("calculator_cta_clicked", {
-    which: payload.which,
-    goal: payload.goal,
-  });
-}
-
-/** Where on the page an App Store download was initiated. */
-export type AppStoreClickLocation =
-  | "hero"
-  | "final_cta"
-  | "nav"
-  | "pricing"
-  | "calculator"
-  | "blog";
-
-export function trackAppStoreClick(
-  payload: { location: AppStoreClickLocation },
-  adapter: AnalyticsAdapter = browserAnalytics,
-): void {
-  adapter.track("app_store_click", { location: payload.location });
+  trackEvent(
+    "calculator_cta_clicked",
+    {
+      which: payload.which,
+      goal: payload.goal,
+    },
+    adapter,
+  );
 }
 
 export function trackHeroGoalSelected(
   payload: { goal: Goal },
-  adapter: AnalyticsAdapter = browserAnalytics,
+  adapter?: AnalyticsAdapter,
 ): void {
-  adapter.track("hero_goal_selected", { goal: payload.goal });
+  trackEvent("hero_goal_selected", { goal: payload.goal }, adapter);
 }

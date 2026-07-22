@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import TrackedAppStoreLink from "@/components/TrackedAppStoreLink";
 
 const APP_STORE_URL = "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
 
@@ -38,17 +39,18 @@ export default function ImmediateActionCTA({ goalCal }: ImmediateActionCTAProps)
         ))}
       </ul>
 
-      <a
+      <TrackedAppStoreLink
         href={APP_STORE_URL}
         target="_blank"
         rel="noopener noreferrer"
+        location="calculator"
         className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-primary text-white font-semibold text-sm transition-all hover:bg-primary-dark active:scale-[0.99] shadow-soft hover:shadow-soft-lg"
       >
         Start tracking your calories
         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
         </svg>
-      </a>
+      </TrackedAppStoreLink>
     </motion.div>
   );
 }

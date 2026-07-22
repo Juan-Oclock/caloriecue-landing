@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import TrackedAppStoreLink from "@/components/TrackedAppStoreLink";
 
 interface MealItem {
   name: string;
@@ -289,14 +290,15 @@ export default function MealPlanCard({ calories, protein, carbs, fat }: MealPlan
             <div className="text-center pt-2 pb-1">
               <p className="text-xs text-muted-foreground/60">
                 Track your real meals in{" "}
-                <a
+                <TrackedAppStoreLink
                   href="https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503"
                   target="_blank"
                   rel="noopener noreferrer"
+                  location="calculator"
                   className="text-primary font-medium hover:text-primary-dark transition-colors"
                 >
                   CalorieCue
-                </a>
+                </TrackedAppStoreLink>
               </p>
             </div>
           </motion.div>
