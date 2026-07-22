@@ -6,6 +6,7 @@ import React, { type ReactNode } from "react";
 import CheatSheetForm from "./CheatSheetForm";
 import ProteinPerCalorieCalculator from "./ProteinPerCalorieCalculator";
 import CaloriesPerGramCalculator from "./CaloriesPerGramCalculator";
+import ProteinSwapExplorer from "./ProteinSwapExplorer";
 import TrackedAppStoreLink from "@/components/TrackedAppStoreLink";
 
 const CALORIECUE_APP_STORE_URL =
@@ -266,6 +267,7 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
       </td>
     ),
     Callout,
+    ProteinSwapExplorer,
     AppStoreLink: () => <AppStoreLink contentSlug={contentSlug} />,
     BlogImage,
     CheatSheetForm: () => <CheatSheetForm contentSlug={contentSlug} />,

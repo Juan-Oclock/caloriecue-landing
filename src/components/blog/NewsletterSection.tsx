@@ -93,7 +93,11 @@ export default function NewsletterSection({
             </span>
           </motion.div>
         ) : (
-          <form onSubmit={handleSubmit} className="max-w-md mx-auto">
+          <form
+            onSubmit={handleSubmit}
+            className="max-w-md mx-auto"
+            suppressHydrationWarning
+          >
             <div className="flex flex-col sm:flex-row gap-3">
               <input
                 type="email"
@@ -102,11 +106,13 @@ export default function NewsletterSection({
                 placeholder="Enter your email"
                 className="flex-1 px-5 py-3.5 rounded-xl bg-white/10 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-all"
                 disabled={loading}
+                suppressHydrationWarning
               />
               <button
                 type="submit"
                 disabled={loading}
                 className="px-6 py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
+                suppressHydrationWarning
               >
                 {loading ? (
                   <>

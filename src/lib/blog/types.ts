@@ -1,5 +1,6 @@
 export interface BlogPostMeta {
   title: string;
+  metaTitle?: string;
   slug: string;
   description: string;
   date: string;
