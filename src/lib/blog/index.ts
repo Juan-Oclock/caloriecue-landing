@@ -30,6 +30,7 @@ export function getAllPosts(): BlogPostMeta[] {
 
       return {
         title: data.title,
+        metaTitle: data.metaTitle,
         slug: filename.replace(/\.mdx$/, ""),
         description: data.description,
         date: data.date,
@@ -73,6 +74,7 @@ export function getPostBySlug(slug: string): BlogPost | null {
 
   return {
     title: data.title,
+    metaTitle: data.metaTitle,
     slug,
     description: data.description,
     date: data.date,

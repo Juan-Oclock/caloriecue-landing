@@ -70,7 +70,8 @@ export type AppStoreClickLocation =
   | "final_cta"
   | "nav"
   | "pricing"
-  | "calculator";
+  | "calculator"
+  | "blog";
 
 export function trackAppStoreClick(
   payload: { location: AppStoreClickLocation },
