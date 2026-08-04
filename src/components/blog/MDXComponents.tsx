@@ -7,6 +7,7 @@ import CheatSheetForm from "./CheatSheetForm";
 import ProteinPerCalorieCalculator from "./ProteinPerCalorieCalculator";
 import CaloriesPerGramCalculator from "./CaloriesPerGramCalculator";
 import ProteinSwapExplorer from "./ProteinSwapExplorer";
+import HomemadeRecipeCalorieCalculator from "./HomemadeRecipeCalorieCalculator";
 import TrackedAppStoreLink from "@/components/TrackedAppStoreLink";
 
 const CALORIECUE_APP_STORE_URL =
@@ -273,5 +274,6 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
     CheatSheetForm: () => <CheatSheetForm contentSlug={contentSlug} />,
     ProteinPerCalorieCalculator,
     CaloriesPerGramCalculator,
+    HomemadeRecipeCalorieCalculator,
   };
 }
