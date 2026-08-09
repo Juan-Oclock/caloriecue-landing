@@ -34,7 +34,7 @@ export function trackEvent(
   }
 }
 
-export type LeadType = "newsletter" | "cheat_sheet";
+export type LeadType = "newsletter" | "cheat_sheet" | "macro_cheat_sheet";
 export type LeadLocation = "blog_footer" | "cheat_sheet_form";
 
 export interface GenerateLeadInput {
