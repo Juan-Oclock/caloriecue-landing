@@ -180,7 +180,9 @@ const greekYogurtBreakfastItems: MealItem[] = [
 const chickenRiceItems: MealItem[] = [
   { name: "4 oz roasted chicken breast", macros: { calories: 187, protein: 35, carbs: 0, fat: 4 } },
   { name: "1 cup cooked white rice", macros: { calories: 205, protein: 4, carbs: 45, fat: 0 } },
-  { name: "1 cup steamed broccoli", macros: { calories: 55, protein: 4, carbs: 11, fat: 1 } },
+  // USDA SR Legacy FDC 169967: "Broccoli, cooked, boiled, drained,
+  // without salt." Its 1/2-cup portion is 78 g, so one cup is 156 g.
+  { name: "1 cup boiled broccoli, drained", macros: { calories: 55, protein: 4, carbs: 11, fat: 1 } },
   { name: "1 tsp olive oil", macros: { calories: 40, protein: 0, carbs: 0, fat: 5 } },
 ];
 
