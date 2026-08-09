@@ -194,7 +194,7 @@ describe("macro tracking cheat sheet", () => {
       "Macro Tracking Cheat Sheet: Protein, Carb and Fat Foods (Free PDF)",
     );
     expect(post?.metaTitle).toBe(
-      "Macro Tracking Cheat Sheet: Free PDF | CalorieCue",
+      "Macro Tracking Cheat Sheet: Free PDF",
     );
     expect(post?.description.length).toBeLessThanOrEqual(160);
     expect(post?.tags).toContain("macro-tracking");
