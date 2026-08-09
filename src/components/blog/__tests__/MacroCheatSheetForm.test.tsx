@@ -33,6 +33,31 @@ describe("MacroCheatSheetForm", () => {
     expect(screen.getByLabelText("Email address")).toBeInTheDocument();
   });
 
+  it("keeps email and validation-error associations unique per form instance", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <MacroCheatSheetForm contentSlug="first-article" />
+        <MacroCheatSheetForm contentSlug="second-article" />
+      </>,
+    );
+
+    const emails = screen.getAllByLabelText("Email address");
+    const labels = screen.getAllByText("Email address", { selector: "label" });
+
+    expect(new Set(emails.map((email) => email.id)).size).toBe(2);
+    expect(labels.map((label) => label.htmlFor)).toEqual(
+      emails.map((email) => email.id),
+    );
+
+    await user.type(emails[0], "not-an-email");
+    await user.click(screen.getAllByRole("button", { name: "Send Me the PDF" })[0]);
+
+    const error = screen.getByRole("alert");
+    expect(emails[0]).toHaveAttribute("aria-describedby", error.id);
+    expect(emails[1]).not.toHaveAttribute("aria-describedby");
+  });
+
   it("delivers the macro cheat sheet and tracks a newly created lead", async () => {
     fetchMock.mockResolvedValue({
       ok: true,
@@ -46,8 +71,9 @@ describe("MacroCheatSheetForm", () => {
     await submit("Reader@Example.com");
 
     await waitFor(() =>
-      expect(screen.getByText(/check your inbox/i)).toBeInTheDocument(),
+      expect(screen.getByRole("status")).toHaveTextContent(/check your inbox/i),
     );
+    expect(screen.getByRole("status")).toHaveAttribute("aria-live", "polite");
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/macro-cheat-sheet-download",
       expect.objectContaining({
@@ -105,6 +131,15 @@ describe("MacroCheatSheetForm", () => {
       expect(
         screen.getByText("Failed to send email. Please try again."),
       ).toBeInTheDocument(),
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Failed to send email. Please try again.",
+    );
+    expect(screen.getByLabelText("Email address")).not.toHaveAttribute(
+      "aria-invalid",
+    );
+    expect(screen.getByLabelText("Email address")).not.toHaveAttribute(
+      "aria-describedby",
     );
     expect(trackGenerateLead).not.toHaveBeenCalled();
   });

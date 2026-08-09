@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { motion } from "framer-motion";
 import { trackGenerateLead } from "@/lib/analytics";
 
@@ -14,23 +14,26 @@ type MacroCheatSheetResponse = {
   error?: string;
 };
 
-const EMAIL_INPUT_ID = "macro-cheat-sheet-email";
-const EMAIL_ERROR_ID = "macro-cheat-sheet-email-error";
-
 export default function MacroCheatSheetForm({
   contentSlug,
 }: MacroCheatSheetFormProps) {
+  const formId = useId();
+  const emailInputId = `${formId}-email`;
+  const validationErrorId = `${formId}-email-error`;
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
+  const [validationError, setValidationError] = useState("");
+  const [deliveryError, setDeliveryError] = useState("");
+  const error = validationError || deliveryError;
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError("");
+    setValidationError("");
+    setDeliveryError("");
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Please enter a valid email address");
+      setValidationError("Please enter a valid email address");
       return;
     }
 
@@ -45,7 +48,7 @@ export default function MacroCheatSheetForm({
       const data = (await response.json()) as MacroCheatSheetResponse;
 
       if (!response.ok || data.success !== true) {
-        setError(data.error || "Something went wrong. Please try again.");
+        setDeliveryError(data.error || "Something went wrong. Please try again.");
         return;
       }
 
@@ -60,7 +63,7 @@ export default function MacroCheatSheetForm({
       setSuccess(true);
       setEmail("");
     } catch {
-      setError("Something went wrong. Please try again.");
+      setDeliveryError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -99,6 +102,8 @@ export default function MacroCheatSheetForm({
 
       {success ? (
         <motion.div
+          role="status"
+          aria-live="polite"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="flex items-center gap-2 bg-green-50 text-green-700 px-4 py-3 rounded-xl border border-green-200 mt-4"
@@ -122,19 +127,22 @@ export default function MacroCheatSheetForm({
       ) : (
         <form onSubmit={handleSubmit} noValidate className="mt-4">
           <div className="flex flex-col sm:flex-row gap-3">
-            <label htmlFor={EMAIL_INPUT_ID} className="sr-only">
+            <label htmlFor={emailInputId} className="sr-only">
               Email address
             </label>
             <input
-              id={EMAIL_INPUT_ID}
+              id={emailInputId}
               type="email"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                setValidationError("");
+              }}
               placeholder="Enter your email"
               className="flex-1 px-4 py-3 rounded-xl bg-white border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all text-sm"
               disabled={loading}
-              aria-invalid={error ? true : undefined}
-              aria-describedby={error ? EMAIL_ERROR_ID : undefined}
+              aria-invalid={validationError ? true : undefined}
+              aria-describedby={validationError ? validationErrorId : undefined}
             />
             <button
               type="submit"
@@ -171,7 +179,7 @@ export default function MacroCheatSheetForm({
           </div>
           {error ? (
             <motion.p
-              id={EMAIL_ERROR_ID}
+              id={validationErrorId}
               role="alert"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
