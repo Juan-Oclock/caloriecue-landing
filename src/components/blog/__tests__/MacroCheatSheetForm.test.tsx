@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import MacroCheatSheetForm from "@/components/blog/MacroCheatSheetForm";
@@ -16,11 +16,7 @@ vi.mock("@/lib/analytics", async (importOriginal) => {
 async function submit(email: string) {
   const user = userEvent.setup();
   await user.type(screen.getByPlaceholderText("Enter your email"), email);
-  const form = screen
-    .getByRole("button", { name: "Send Me the PDF" })
-    .closest("form");
-  if (!form) throw new Error("Macro cheat-sheet form not found");
-  fireEvent.submit(form);
+  await user.click(screen.getByRole("button", { name: "Send Me the PDF" }));
 }
 
 describe("MacroCheatSheetForm", () => {
@@ -30,6 +26,12 @@ describe("MacroCheatSheetForm", () => {
   });
 
   afterEach(() => vi.unstubAllGlobals());
+
+  it("gives the email field a durable accessible name", () => {
+    render(<MacroCheatSheetForm contentSlug="article" />);
+
+    expect(screen.getByLabelText("Email address")).toBeInTheDocument();
+  });
 
   it("delivers the macro cheat sheet and tracks a newly created lead", async () => {
     fetchMock.mockResolvedValue({
@@ -80,7 +82,12 @@ describe("MacroCheatSheetForm", () => {
 
     await submit("not-an-email");
 
-    expect(screen.getByText("Please enter a valid email address")).toBeInTheDocument();
+    const email = screen.getByLabelText("Email address");
+    const error = screen.getByRole("alert");
+
+    expect(error).toHaveTextContent("Please enter a valid email address");
+    expect(email).toHaveAttribute("aria-invalid", "true");
+    expect(email).toHaveAttribute("aria-describedby", error.id);
     expect(fetchMock).not.toHaveBeenCalled();
     expect(trackGenerateLead).not.toHaveBeenCalled();
   });

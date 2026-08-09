@@ -14,6 +14,9 @@ type MacroCheatSheetResponse = {
   error?: string;
 };
 
+const EMAIL_INPUT_ID = "macro-cheat-sheet-email";
+const EMAIL_ERROR_ID = "macro-cheat-sheet-email-error";
+
 export default function MacroCheatSheetForm({
   contentSlug,
 }: MacroCheatSheetFormProps) {
@@ -117,15 +120,21 @@ export default function MacroCheatSheetForm({
           </span>
         </motion.div>
       ) : (
-        <form onSubmit={handleSubmit} className="mt-4">
+        <form onSubmit={handleSubmit} noValidate className="mt-4">
           <div className="flex flex-col sm:flex-row gap-3">
+            <label htmlFor={EMAIL_INPUT_ID} className="sr-only">
+              Email address
+            </label>
             <input
+              id={EMAIL_INPUT_ID}
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="Enter your email"
               className="flex-1 px-4 py-3 rounded-xl bg-white border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all text-sm"
               disabled={loading}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? EMAIL_ERROR_ID : undefined}
             />
             <button
               type="submit"
@@ -162,6 +171,8 @@ export default function MacroCheatSheetForm({
           </div>
           {error ? (
             <motion.p
+              id={EMAIL_ERROR_ID}
+              role="alert"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               className="mt-3 text-sm text-red-500"
