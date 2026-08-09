@@ -27,6 +27,18 @@ const nextConfig: NextConfig = {
       './public/app-icons/1024.png',
       './public/mockup-caloriecue.png',
     ],
+    '/api/macro-cheat-sheet/pdf': [
+      './public/fonts/**',
+      './public/caloriecue_logo.png',
+      './public/app-icons/1024.png',
+      './public/mockup-caloriecue.png',
+    ],
+    '/api/macro-cheat-sheet-download': [
+      './public/fonts/**',
+      './public/caloriecue_logo.png',
+      './public/app-icons/1024.png',
+      './public/mockup-caloriecue.png',
+    ],
   },
 
   // Serve optimized image formats
