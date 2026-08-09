@@ -185,3 +185,35 @@ describe('GSC-backed SEO refreshes', () => {
     expect(post?.content).toContain('/blog/best-calorie-tracker-app');
   });
 });
+
+describe("macro tracking cheat sheet", () => {
+  it("owns printable macro-food-list intent without duplicating the tutorial", () => {
+    const post = getPostBySlug("macro-tracking-cheat-sheet");
+    expect(post).toBeDefined();
+    expect(post?.title).toBe(
+      "Macro Tracking Cheat Sheet: Protein, Carb and Fat Foods (Free PDF)",
+    );
+    expect(post?.metaTitle).toBe(
+      "Macro Tracking Cheat Sheet: Free PDF | CalorieCue",
+    );
+    expect(post?.description.length).toBeLessThanOrEqual(160);
+    expect(post?.tags).toContain("macro-tracking");
+    expect(post?.faq).toHaveLength(6);
+    expect(post?.content).toContain("<MacroCheatSheetForm />");
+    expect(post?.content).toContain("<AppStoreLink />");
+    expect(post?.content).toContain("/blog/how-to-count-macros");
+    expect(post?.content).toContain("/blog/calories-per-gram");
+    expect(post?.content).toContain("/blog/protein-per-calorie");
+    expect(post?.content).toContain("/tdee-calculator");
+    expect(post?.content.trim().split(/\s+/).length).toBeGreaterThanOrEqual(2_000);
+  });
+
+  it("links adjacent guides to the distinct printable intent", () => {
+    expect(getPostBySlug("how-to-count-macros")?.content).toContain(
+      "/blog/macro-tracking-cheat-sheet",
+    );
+    expect(getPostBySlug("calorie-counting-cheat-sheet")?.content).toContain(
+      "/blog/macro-tracking-cheat-sheet",
+    );
+  });
+});
