@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -26,6 +26,25 @@ describe("MacroCheatSheetForm", () => {
   });
 
   afterEach(() => vi.unstubAllGlobals());
+
+  it("keeps wide article tables horizontally scrollable on narrow screens", () => {
+    const components = getMDXComponents("macro-tracking-cheat-sheet");
+    const Table = components.table as ComponentType<{ children: ReactNode }>;
+
+    render(
+      <Table>
+        <tbody>
+          <tr>
+            <td>Food</td>
+            <td>Serving</td>
+            <td>Calories</td>
+          </tr>
+        </tbody>
+      </Table>,
+    );
+
+    expect(screen.getByRole("table")).toHaveClass("min-w-max");
+  });
 
   it("gives the email field a durable accessible name", () => {
     render(<MacroCheatSheetForm contentSlug="article" />);

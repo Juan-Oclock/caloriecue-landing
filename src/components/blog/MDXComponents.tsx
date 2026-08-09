@@ -255,7 +255,7 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
     ),
     table: ({ children }) => (
       <div className="overflow-x-auto my-6">
-        <table className="text-sm border-collapse w-max">{children}</table>
+        <table className="text-sm border-collapse min-w-max">{children}</table>
       </div>
     ),
     th: ({ children }) => (
