@@ -24,6 +24,9 @@ vi.mock("@/lib/macro-cheat-sheet/MacroCheatSheetDocument", () => ({
 }));
 
 const originalApiKey = process.env.RESEND_API_KEY;
+const originalVercelUrl = process.env.VERCEL_URL;
+const originalVercelBranchUrl = process.env.VERCEL_BRANCH_URL;
+const originalVercelProductionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
 const EXPECTED_CONTACT_RESOLUTION_TIMEOUT_MS = 1_000;
 
 function deferred<T>() {
@@ -34,11 +37,15 @@ function deferred<T>() {
   return { promise, resolve };
 }
 
-function request(email = "Reader@Example.com", headers = new Headers()) {
+function request(
+  email: unknown = "Reader@Example.com",
+  headers = new Headers(),
+  nextUrl = new URL("https://caloriecue.app/api/macro-cheat-sheet-download"),
+) {
   return {
     json: vi.fn().mockResolvedValue({ email }),
     headers,
-    nextUrl: new URL("https://caloriecue.app/api/macro-cheat-sheet-download"),
+    nextUrl,
   } as unknown as NextRequest;
 }
 
@@ -46,6 +53,9 @@ describe("POST /api/macro-cheat-sheet-download", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.RESEND_API_KEY = "test-key";
+    delete process.env.VERCEL_URL;
+    delete process.env.VERCEL_BRANCH_URL;
+    delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
     mocks.renderPdf.mockResolvedValue(Buffer.from("macro-pdf"));
     mocks.emailSend.mockResolvedValue({ data: { id: "email-1" }, error: null });
   });
@@ -57,6 +67,15 @@ describe("POST /api/macro-cheat-sheet-download", () => {
   afterAll(() => {
     if (originalApiKey === undefined) delete process.env.RESEND_API_KEY;
     else process.env.RESEND_API_KEY = originalApiKey;
+    if (originalVercelUrl === undefined) delete process.env.VERCEL_URL;
+    else process.env.VERCEL_URL = originalVercelUrl;
+    if (originalVercelBranchUrl === undefined) delete process.env.VERCEL_BRANCH_URL;
+    else process.env.VERCEL_BRANCH_URL = originalVercelBranchUrl;
+    if (originalVercelProductionUrl === undefined) {
+      delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    } else {
+      process.env.VERCEL_PROJECT_PRODUCTION_URL = originalVercelProductionUrl;
+    }
   });
 
   it("returns 400 for an invalid email", async () => {
@@ -68,6 +87,38 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     });
     expect(mocks.renderPdf).not.toHaveBeenCalled();
     expect(mocks.emailSend).not.toHaveBeenCalled();
+  });
+
+  it.each([null, 42, true, {}, [], ["reader@example.com"]])(
+    "returns 400 when email has malformed type %#",
+    async (email) => {
+      const response = await POST(request(email));
+
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({
+        error: "Please enter a valid email address",
+      });
+      expect(mocks.renderPdf).not.toHaveBeenCalled();
+      expect(mocks.emailSend).not.toHaveBeenCalled();
+    },
+  );
+
+  it("trims surrounding whitespace before validating and normalizing email", async () => {
+    mocks.contactGet.mockResolvedValue({
+      data: { id: "existing-contact", email: "reader@example.com" },
+      error: null,
+    });
+
+    const response = await POST(request("  Reader@Example.com \n"));
+
+    expect(response.status).toBe(200);
+    expect(mocks.contactGet).toHaveBeenCalledWith({
+      email: "reader@example.com",
+      audienceId: "511ab1c1-5a5c-4b58-9d22-8bf8aaf2e912",
+    });
+    expect(mocks.emailSend).toHaveBeenCalledWith(
+      expect.objectContaining({ to: "reader@example.com" }),
+    );
   });
 
   it("returns 500 when RESEND_API_KEY is missing", async () => {
@@ -117,6 +168,9 @@ describe("POST /api/macro-cheat-sheet-download", () => {
         ],
       }),
     );
+    const payload = mocks.emailSend.mock.calls[0][0];
+    expect(payload.html).toContain("PDF is attached to this email");
+    expect(payload.text).toContain("Your PDF is attached");
   });
 
   it("returns leadCreated false for an existing contact", async () => {
@@ -225,6 +279,11 @@ describe("POST /api/macro-cheat-sheet-download", () => {
       }),
     );
     expect(mocks.emailSend.mock.calls[0][0]).not.toHaveProperty("attachments");
+    const payload = mocks.emailSend.mock.calls[0][0];
+    expect(payload.html.toLowerCase()).not.toContain("attach");
+    expect(payload.text.toLowerCase()).not.toContain("attach");
+    expect(payload.html).toContain("Use the download button below");
+    expect(payload.text).toContain("Download your copy here:");
   });
 
   it("returns 500 when Resend delivery fails and never claims success", async () => {
@@ -258,6 +317,7 @@ describe("POST /api/macro-cheat-sheet-download", () => {
       "x-forwarded-host": "macro-preview.vercel.app",
       "x-forwarded-proto": "https",
     });
+    process.env.VERCEL_URL = "macro-preview.vercel.app";
 
     const response = await POST(request("Reader@Example.com", headers));
 
@@ -268,6 +328,62 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     );
     expect(payload.text).toContain(
       "https://macro-preview.vercel.app/api/macro-cheat-sheet/pdf",
+    );
+  });
+
+  it.each([
+    ["unapproved host", "https", "caloriecue.app.attacker.example"],
+    ["userinfo host", "https", "caloriecue.app@attacker.example"],
+    ["unapproved Vercel project", "https", "attacker.vercel.app"],
+    ["unsafe protocol", "javascript", "caloriecue.app"],
+    ["comma-separated host", "https", "caloriecue.app, attacker.example"],
+    ["comma-separated protocol", "https, javascript", "caloriecue.app"],
+  ])("rejects a hostile forwarded %s", async (_case, proto, host) => {
+    mocks.contactGet.mockResolvedValue({
+      data: { id: "existing-contact", email: "reader@example.com" },
+      error: null,
+    });
+    const headers = new Headers({
+      "x-forwarded-host": host,
+      "x-forwarded-proto": proto,
+    });
+
+    const response = await POST(request("Reader@Example.com", headers));
+
+    expect(response.status).toBe(200);
+    const payload = mocks.emailSend.mock.calls[0][0];
+    expect(payload.html).toContain(
+      "https://caloriecue.app/api/macro-cheat-sheet/pdf",
+    );
+    expect(payload.text).toContain(
+      "https://caloriecue.app/api/macro-cheat-sheet/pdf",
+    );
+    expect(payload.html).not.toContain("attacker");
+    expect(payload.text).not.toContain("attacker");
+    expect(payload.html).not.toContain("javascript:");
+    expect(payload.text).not.toContain("javascript:");
+  });
+
+  it("uses a localhost request origin for local development", async () => {
+    mocks.contactGet.mockResolvedValue({
+      data: { id: "existing-contact", email: "reader@example.com" },
+      error: null,
+    });
+    const localRequestUrl = new URL(
+      "http://localhost:3000/api/macro-cheat-sheet-download",
+    );
+
+    const response = await POST(
+      request("Reader@Example.com", new Headers(), localRequestUrl),
+    );
+
+    expect(response.status).toBe(200);
+    const payload = mocks.emailSend.mock.calls[0][0];
+    expect(payload.html).toContain(
+      "http://localhost:3000/api/macro-cheat-sheet/pdf",
+    );
+    expect(payload.text).toContain(
+      "http://localhost:3000/api/macro-cheat-sheet/pdf",
     );
   });
 });

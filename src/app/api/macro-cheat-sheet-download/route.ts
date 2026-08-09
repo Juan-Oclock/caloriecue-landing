@@ -18,20 +18,121 @@ const PRODUCTION_URL = "https://caloriecue.app";
 const APP_STORE_URL =
   "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
 
-function getBaseUrl(req: NextRequest): string {
-  const forwardedHost = req.headers.get("x-forwarded-host");
-  if (forwardedHost) {
-    const proto = req.headers.get("x-forwarded-proto") ?? "https";
-    return `${proto}://${forwardedHost}`;
-  }
-  try {
-    return req.nextUrl.origin;
-  } catch {
-    return PRODUCTION_URL;
-  }
+function getSingleHeaderValue(value: string | null): string | null {
+  if (!value || value.includes(",")) return null;
+  const trimmedValue = value.trim();
+  return trimmedValue || null;
 }
 
-function getMacroCheatSheetEmailHtml(downloadUrl: string) {
+function getApprovedVercelHosts(): Set<string> {
+  const hosts = new Set<string>();
+  for (const value of [
+    process.env.VERCEL_URL,
+    process.env.VERCEL_BRANCH_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  ]) {
+    if (!value || value.includes(",")) continue;
+    try {
+      const url = new URL(
+        value.includes("://") ? value : `https://${value}`,
+      );
+      if (
+        url.protocol === "https:" &&
+        url.hostname.endsWith(".vercel.app") &&
+        !url.username &&
+        !url.password &&
+        url.pathname === "/" &&
+        !url.search &&
+        !url.hash
+      ) {
+        hosts.add(url.host.toLowerCase());
+      }
+    } catch {
+      // Ignore malformed deployment environment values.
+    }
+  }
+  return hosts;
+}
+
+function getApprovedOrigin(protocol: string, host: string): URL | null {
+  if (protocol !== "https" && protocol !== "http") return null;
+
+  try {
+    const url = new URL(`${protocol}://${host}`);
+    if (
+      url.protocol !== `${protocol}:` ||
+      url.host.toLowerCase() !== host.toLowerCase() ||
+      url.username ||
+      url.password ||
+      url.pathname !== "/" ||
+      url.search ||
+      url.hash
+    ) {
+      return null;
+    }
+
+    if (url.origin === PRODUCTION_URL) return url;
+
+    const isLocalDevelopmentHost =
+      url.hostname === "localhost" ||
+      url.hostname === "127.0.0.1" ||
+      url.hostname === "[::1]";
+    if (isLocalDevelopmentHost && process.env.NODE_ENV !== "production") {
+      return url;
+    }
+
+    if (
+      url.protocol === "https:" &&
+      getApprovedVercelHosts().has(url.host.toLowerCase())
+    ) {
+      return url;
+    }
+  } catch {
+    // Fall through to the trusted production URL.
+  }
+
+  return null;
+}
+
+function getBaseUrl(req: NextRequest): URL {
+  const forwardedHost = getSingleHeaderValue(
+    req.headers.get("x-forwarded-host"),
+  );
+  const forwardedProtocol = getSingleHeaderValue(
+    req.headers.get("x-forwarded-proto"),
+  );
+  if (forwardedHost && forwardedProtocol) {
+    const forwardedOrigin = getApprovedOrigin(
+      forwardedProtocol,
+      forwardedHost,
+    );
+    if (forwardedOrigin) return forwardedOrigin;
+  }
+
+  try {
+    const requestOrigin = getApprovedOrigin(
+      req.nextUrl.protocol.slice(0, -1),
+      req.nextUrl.host,
+    );
+    if (requestOrigin) return requestOrigin;
+  } catch {
+    // Fall through to the trusted production URL.
+  }
+
+  return new URL(PRODUCTION_URL);
+}
+
+function getMacroCheatSheetEmailHtml(
+  downloadUrl: string,
+  hasAttachment: boolean,
+) {
+  const deliverySummary = hasAttachment
+    ? "Your download includes five printable reference sheets plus a cover — attached and ready to go."
+    : "Your download includes five printable reference sheets plus a cover — ready to download.";
+  const deliveryInstructions = hasAttachment
+    ? "Your <strong>PDF is attached to this email</strong> — save it, print it, or keep it on your phone. You can also download it again any time with the button below."
+    : "Your PDF is ready. Use the download button below to save it, print it, or keep it on your phone.";
+
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -43,12 +144,12 @@ function getMacroCheatSheetEmailHtml(downloadUrl: string) {
   <div style="max-width:600px;margin:0 auto;background-color:#ffffff;border-radius:12px;overflow:hidden;margin-top:20px;margin-bottom:20px;">
     <div style="background:linear-gradient(135deg,#E05A3A,#FF7F5C);padding:40px 24px;text-align:center;">
       <h1 style="color:#ffffff;font-size:24px;margin:0 0 8px 0;">Your Macro Tracking Cheat Sheet</h1>
-      <p style="color:rgba(255,255,255,0.9);font-size:14px;margin:0;">Your download includes five printable reference sheets plus a cover — attached and ready to go.</p>
+      <p style="color:rgba(255,255,255,0.9);font-size:14px;margin:0;">${deliverySummary}</p>
     </div>
 
     <div style="padding:32px 24px;">
       <p style="font-size:15px;color:#333;line-height:1.6;margin:0 0 24px 0;">
-        Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! Your <strong>PDF is attached to this email</strong> — save it, print it, or keep it on your phone. You can also download it again any time with the button below.
+        Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! ${deliveryInstructions}
       </p>
 
       <div style="text-align:center;margin:32px 0;">
@@ -138,8 +239,10 @@ function resolveContactWithinTimeout(
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
+    const normalizedEmail =
+      typeof email === "string" ? email.trim().toLowerCase() : "";
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       return NextResponse.json(
         { error: "Please enter a valid email address" },
         { status: 400 },
@@ -153,8 +256,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
-    const downloadUrl = `${getBaseUrl(req)}/api/macro-cheat-sheet/pdf`;
+    const downloadUrl = new URL(
+      "/api/macro-cheat-sheet/pdf",
+      getBaseUrl(req),
+    ).toString();
 
     let pdfBuffer: Buffer | null = null;
     try {
@@ -175,8 +280,11 @@ export async function POST(req: NextRequest) {
       from: "CalorieCue <hello@track.caloriecue.app>",
       to: normalizedEmail,
       subject: "Your Macro Tracking Cheat Sheet (PDF inside)",
-      html: getMacroCheatSheetEmailHtml(downloadUrl),
-      text: `Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! Your PDF is attached. You can also download it here: ${downloadUrl}`,
+      html: getMacroCheatSheetEmailHtml(downloadUrl, pdfBuffer !== null),
+      text:
+        pdfBuffer !== null
+          ? `Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! Your PDF is attached. You can also download it here: ${downloadUrl}`
+          : `Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! Download your copy here: ${downloadUrl}`,
       ...(pdfBuffer
         ? {
             attachments: [
