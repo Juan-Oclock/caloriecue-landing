@@ -556,12 +556,25 @@ export function MacroCheatSheetDocument() {
 }
 
 let cachedBuffer: Buffer | null = null;
+let renderPromise: Promise<Buffer> | null = null;
 
 export async function renderMacroCheatSheetPdf(): Promise<Buffer> {
-  if (!cachedBuffer) {
-    cachedBuffer = await renderToBuffer(<MacroCheatSheetDocument />);
+  if (cachedBuffer) {
+    return cachedBuffer;
   }
-  return cachedBuffer;
+
+  if (!renderPromise) {
+    renderPromise = renderToBuffer(<MacroCheatSheetDocument />)
+      .then((buffer) => {
+        cachedBuffer = buffer;
+        return buffer;
+      })
+      .finally(() => {
+        renderPromise = null;
+      });
+  }
+
+  return renderPromise;
 }
 
 export const MACRO_CHEAT_SHEET_PDF_FILENAME =

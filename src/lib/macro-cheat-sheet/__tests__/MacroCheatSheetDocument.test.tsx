@@ -40,9 +40,39 @@ describe("macro cheat sheet data", () => {
       );
     }
   });
+
+  it("keeps the required mixed-food set in a stable order", () => {
+    expect(mixedFoods.map((food) => food.name)).toEqual([
+      "Whole eggs",
+      "Salmon",
+      "Tofu",
+      "Tempeh",
+      "Lentils",
+      "Black beans",
+      "Greek yogurt",
+      "Cottage cheese",
+      "Almonds",
+      "Peanut butter",
+      "Chia seeds",
+      "Edamame",
+    ]);
+  });
 });
 
 describe("MacroCheatSheetDocument", () => {
+  it(
+    "deduplicates concurrent PDF renders",
+    async () => {
+      const [first, second] = await Promise.all([
+        renderMacroCheatSheetPdf(),
+        renderMacroCheatSheetPdf(),
+      ]);
+
+      expect(first).toBe(second);
+    },
+    20_000,
+  );
+
   it(
     "renders a PDF buffer with the stable filename",
     async () => {

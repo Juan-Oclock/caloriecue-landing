@@ -55,8 +55,8 @@ export function sumMacros(values: MacroTotals[]): MacroTotals {
 // vitamins A and D" (FDC 171269), and "Whey protein isolate, unflavored"
 // (FDC 1844993).
 // plant proteins — "Tofu, raw, firm, prepared with calcium sulfate" (FDC
-// 172475), "Tempeh" (FDC 174272), "Vital wheat gluten" (FDC
-// 168147; used for prepared seitan estimate), "Lentils, mature seeds,
+// 172475), "Tempeh" (FDC 174272), "Vital wheat gluten" (FDC 168147),
+// "Lentils, mature seeds,
 // cooked, boiled, without salt" (FDC 172421), "Beans, black, mature seeds,
 // cooked, boiled, without salt" (FDC 173735), "Edamame, frozen, prepared" (FDC
 // 168411), and "Textured vegetable protein, dry" (FDC 2707451).
@@ -73,7 +73,7 @@ export const proteinFoods: MacroFood[] = [
   { name: "Shrimp", serving: "4 oz cooked", calories: 112, protein: 24, carbs: 0, fat: 2 },
   { name: "Atlantic salmon", serving: "4 oz cooked, dry heat", calories: 234, protein: 25, carbs: 0, fat: 14 },
   { name: "Whole egg", serving: "1 large, hard-boiled", calories: 78, protein: 6, carbs: 1, fat: 5 },
-  { name: "Egg whites", serving: "3 large, cooked without added fat", calories: 51, protein: 11, carbs: 1, fat: 0 },
+  { name: "Egg whites", serving: "3 large, raw, fresh", calories: 51, protein: 11, carbs: 1, fat: 0 },
   { name: "Greek yogurt (nonfat)", serving: "1 cup, plain", calories: 130, protein: 23, carbs: 9, fat: 0 },
   { name: "Greek yogurt (2%)", serving: "1 cup, plain", calories: 170, protein: 20, carbs: 9, fat: 5 },
   { name: "Cottage cheese (2%)", serving: "1 cup, low-fat", calories: 183, protein: 24, carbs: 11, fat: 5 },
@@ -81,7 +81,11 @@ export const proteinFoods: MacroFood[] = [
   { name: "Whey isolate", serving: "1 scoop (30 g powder)", calories: 110, protein: 25, carbs: 1, fat: 0 },
   { name: "Firm tofu", serving: "4 oz, drained, raw", calories: 92, protein: 10, carbs: 2, fat: 6 },
   { name: "Tempeh", serving: "4 oz, cooked", calories: 221, protein: 22, carbs: 9, fat: 13 },
-  { name: "Seitan", serving: "3 oz, cooked, plain", calories: 141, protein: 25, carbs: 12, fat: 2 },
+  // Reproducible plain seitan yield: 28.35 g FDC 168147 vital wheat gluten
+  // plus 56.65 g water produces one 85 g (3 oz) serving. Water contributes no
+  // macros; 370 kcal, 75.16 P, 13.79 C, and 1.85 F per 100 g dry scales and
+  // rounds to the values below. Home recipes with broth/add-ins will differ.
+  { name: "Seitan", serving: "3 oz cooked, from 1 oz dry gluten + water", calories: 105, protein: 21, carbs: 4, fat: 1 },
   { name: "Lentils", serving: "1 cup cooked, boiled, unsalted", calories: 230, protein: 18, carbs: 40, fat: 1 },
   { name: "Black beans", serving: "1 cup cooked, boiled, unsalted", calories: 227, protein: 15, carbs: 41, fat: 1 },
   { name: "Edamame", serving: "1 cup cooked, shelled", calories: 188, protein: 18, carbs: 14, fat: 8 },
@@ -104,7 +108,7 @@ export const proteinFoods: MacroFood[] = [
 // ready-to-eat, wheat, puffed, fortified" (FDC 173913).
 export const carbFoods: MacroFood[] = [
   { name: "White rice", serving: "1 cup cooked, long-grain", calories: 205, protein: 4, carbs: 45, fat: 0 },
-  { name: "Brown rice", serving: "1 cup cooked, long-grain", calories: 216, protein: 5, carbs: 45, fat: 2 },
+  { name: "Brown rice", serving: "1 cup cooked, medium-grain", calories: 218, protein: 5, carbs: 46, fat: 2 },
   { name: "Oats", serving: "1/2 cup dry, rolled", calories: 152, protein: 5, carbs: 27, fat: 3 },
   { name: "Quinoa", serving: "1 cup cooked", calories: 222, protein: 8, carbs: 39, fat: 4 },
   { name: "White potato", serving: "1 medium baked, flesh and skin", calories: 161, protein: 4, carbs: 37, fat: 0 },
@@ -149,21 +153,21 @@ export const fatFoods: MacroFood[] = [
   { name: "Dark chocolate", serving: "1 oz, 70-85% cacao", calories: 170, protein: 2, carbs: 13, fat: 12 },
 ];
 
-// Mixed-food entries intentionally reuse the same FDC-backed serving records
-// above so a food's full P/C/F profile does not change between sections.
+// Explicit FDC-backed records keep this required order independent of the
+// protein and fat reference arrays.
 export const mixedFoods: MacroFood[] = [
-  { ...proteinFoods[11], name: "Whole eggs" },
-  proteinFoods[10],
-  proteinFoods[18],
-  proteinFoods[19],
-  proteinFoods[21],
-  proteinFoods[22],
-  proteinFoods[14],
-  proteinFoods[15],
-  fatFoods[3],
-  fatFoods[6],
-  fatFoods[7],
-  proteinFoods[23],
+  { name: "Whole eggs", serving: "1 large, hard-boiled", calories: 78, protein: 6, carbs: 1, fat: 5 },
+  { name: "Salmon", serving: "4 oz Atlantic, cooked, dry heat", calories: 234, protein: 25, carbs: 0, fat: 14 },
+  { name: "Tofu", serving: "4 oz firm, drained, raw", calories: 92, protein: 10, carbs: 2, fat: 6 },
+  { name: "Tempeh", serving: "4 oz, cooked", calories: 221, protein: 22, carbs: 9, fat: 13 },
+  { name: "Lentils", serving: "1 cup cooked, boiled, unsalted", calories: 230, protein: 18, carbs: 40, fat: 1 },
+  { name: "Black beans", serving: "1 cup cooked, boiled, unsalted", calories: 227, protein: 15, carbs: 41, fat: 1 },
+  { name: "Greek yogurt", serving: "1 cup, plain, 2% fat", calories: 170, protein: 20, carbs: 9, fat: 5 },
+  { name: "Cottage cheese", serving: "1 cup, low-fat, 2% milkfat", calories: 183, protein: 24, carbs: 11, fat: 5 },
+  { name: "Almonds", serving: "1 oz (about 23), raw", calories: 164, protein: 6, carbs: 6, fat: 14 },
+  { name: "Peanut butter", serving: "2 tbsp, smooth, unsalted", calories: 191, protein: 7, carbs: 7, fat: 16 },
+  { name: "Chia seeds", serving: "2 tbsp (28 g), dried", calories: 138, protein: 5, carbs: 12, fat: 9 },
+  { name: "Edamame", serving: "1 cup cooked, shelled", calories: 188, protein: 18, carbs: 14, fat: 8 },
 ];
 
 const greekYogurtBreakfastItems: MealItem[] = [
