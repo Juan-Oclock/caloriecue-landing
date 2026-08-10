@@ -8,6 +8,19 @@
 
 **Tech Stack:** Next.js 15 App Router, React 19, TypeScript, MDX, `@react-pdf/renderer`, Resend, GA4 `gtag`, Vitest, Testing Library, Tailwind CSS, ImageGen, `sips`.
 
+## Final hardening addendum (2026-08-10)
+
+This addendum supersedes the earlier illustrative snippets where they differ:
+
+- Food rows use one typed FoodData Central source contract (FDC ID, exact description, data type, serving grams, per-100g macros, and preparation state), with published macros derived by scale-and-round. The official archive audit replaces the unavailable historical branded whey fixture with the current generic FNDDS record FDC 2710745.
+- The public mail route reads at most 4,096 bytes as unknown JSON, validates `{ email, website }`, caps normalized email at 254 characters, rejects the honeypot, and fails closed when no valid forwarded client IP is available.
+- A generated Supabase migration owns HMAC-only fixed-window counters and an atomic service-role-only RPC: IP 10/15 minutes and normalized email 3/hour. RLS is enabled, public/anon/authenticated privileges are revoked, and the RPC has an empty fixed `search_path`. No remote migration is part of this plan.
+- Deadlines are 1.5 seconds for rate limiting, 5 seconds for each PDF caller with a shared render and 30-second circuit cooldown, 8 seconds for Resend, and 10 seconds for the browser fetch. Retryable service failures return `503` and `Retry-After`; exhausted limits return `429` and `Retry-After`.
+- Success is `{ success: true, leadCreated, deliveryMode: "attached" | "link_only" }`. Link-only subject/body/UI copy never claims an attachment. Email has no untracked App Store CTA; the article keeps its tracked React CTA.
+- The first form belongs after the `What Is Inside the Printable Macro Tracking Sheet?` preview (before the next H2), and the second remains in the download section. This avoids an H1-to-form-H3 outline jump.
+- Frontmatter stores `metaTitle: "Macro Tracking Cheat Sheet: Free PDF"`; the root layout's `%s | CalorieCue` template produces the rendered browser title.
+- The PDF declares `en-US` and page bookmarks. React PDF 4.5.1 does not provide a stable semantic-tagging API for these tables, so the HTML article is the accessible equivalent.
+
 ## Global Constraints
 
 - Work only on `codex/macro-tracking-cheat-sheet`; never involve the long-lived `content/draft` branch.
@@ -353,7 +366,7 @@ git commit -m "feat: serve macro cheat sheet PDF"
 
 **Interfaces:**
 - Consumes: PDF renderer and filename from Task 1.
-- Produces: `POST(req: NextRequest): Promise<NextResponse>` accepting `{ email: string }` and returning `{ success: true, leadCreated: boolean }` or `{ error: string }`.
+- Produces: `POST(req: NextRequest): Promise<NextResponse>` accepting bounded unknown JSON that validates to `{ email: string, website?: string }` and returning `{ success: true, leadCreated: boolean, deliveryMode: "attached" | "link_only" }` or `{ error: string }`.
 - Uses: the existing Resend audience ID `511ab1c1-5a5c-4b58-9d22-8bf8aaf2e912`.
 
 - [ ] **Step 1: Write failing API tests with explicit Resend and PDF mocks**
@@ -606,7 +619,7 @@ describe("macro tracking cheat sheet", () => {
       "Macro Tracking Cheat Sheet: Protein, Carb and Fat Foods (Free PDF)",
     );
     expect(post?.metaTitle).toBe(
-      "Macro Tracking Cheat Sheet: Free PDF | CalorieCue",
+      "Macro Tracking Cheat Sheet: Free PDF",
     );
     expect(post?.description.length).toBeLessThanOrEqual(160);
     expect(post?.tags).toContain("macro-tracking");
@@ -642,7 +655,7 @@ Expected: FAIL because the slug does not exist.
 ```mdx
 ---
 title: "Macro Tracking Cheat Sheet: Protein, Carb and Fat Foods (Free PDF)"
-metaTitle: "Macro Tracking Cheat Sheet: Free PDF | CalorieCue"
+metaTitle: "Macro Tracking Cheat Sheet: Free PDF"
 description: "Download a free macro tracking cheat sheet with protein, carb and fat food lists, meal-building examples, portion sizes and a printable 7-day log."
 date: "2026-08-09"
 author: "CalorieCue Team"
@@ -822,7 +835,7 @@ Expected: all commands exit `0`; Next.js statically generates `/blog/macro-track
 
 - [ ] **Step 3: Download and visually inspect the actual PDF**
 
-Start `npm run dev`, then save `http://localhost:3000/api/macro-cheat-sheet/pdf` to `/tmp/caloriecue-macro-tracking-cheat-sheet.pdf`. Use the PDF inspection skill to render and inspect all six pages. Confirm:
+Start `npm run dev -- --port 3001`, then save `http://localhost:3001/api/macro-cheat-sheet/pdf` to `/tmp/caloriecue-macro-tracking-cheat-sheet.pdf`. Use the PDF inspection skill to render and inspect all six pages. Port 3000 remains untouched for the unrelated Taqvo service. Confirm:
 
 - exactly six pages;
 - no clipped rows, repeated headings, blank images, or overflow;
@@ -834,7 +847,7 @@ Start `npm run dev`, then save `http://localhost:3000/api/macro-cheat-sheet/pdf`
 
 - [ ] **Step 4: Inspect the rendered article at desktop and mobile widths**
 
-Open `http://localhost:3000/blog/macro-tracking-cheat-sheet` with the frontend browser-testing workflow. Verify the 1376 × 768 cover crop, one H1, table horizontal behavior, both form instances, callouts, tracked App Store link, FAQs, and absence of hydration/console errors at desktop and mobile breakpoints.
+Open `http://localhost:3001/blog/macro-tracking-cheat-sheet` with the Chrome workflow. Verify the 1376 × 768 cover crop, one H1, table horizontal behavior, both form instances, callouts, tracked App Store link, FAQs, and absence of hydration/console errors at desktop and mobile breakpoints.
 
 - [ ] **Step 5: Test both form response branches without sending production email**
 

@@ -14,7 +14,7 @@ The selected topic combines those signals. It extends the protein/macronutrient 
 
 - **Slug:** `macro-tracking-cheat-sheet`
 - **H1/title:** `Macro Tracking Cheat Sheet: Protein, Carb and Fat Foods (Free PDF)`
-- **Meta title:** `Macro Tracking Cheat Sheet: Free PDF | CalorieCue`
+- **Meta title:** store `Macro Tracking Cheat Sheet: Free PDF` in frontmatter; the root Next.js title template renders `Macro Tracking Cheat Sheet: Free PDF | CalorieCue` in the document.
 - **Primary query:** `macro tracking cheat sheet`
 - **Secondary queries:** `macro cheat sheet`, `macro food list`, `macronutrient food list`, `protein carbs and fats food list`, `printable macro tracker`, `macro chart`
 - **Search intent:** informational reference plus downloadable tool.
@@ -113,6 +113,7 @@ The deliverable is **five printable reference pages plus a cover** (six physical
 - Use FDA or federal nutrition-label guidance for the calorie-per-gram rule and label interpretation.
 - Use an authoritative nutrition reference for acceptable macronutrient distribution ranges only as background; do not turn those population ranges into individualized targets.
 - Every food entry must specify its preparation state where it materially affects the values: raw, cooked, drained, skinless, fat percentage, or prepared with added oil.
+- Every published food row carries reproducible FoodData Central metadata: FDC ID, exact USDA description, data type, serving grams, per-100g calories/P/C/F, and preparation state. Displayed values are derived by scaling and rounding that metadata.
 - Round values for quick-reference use and include a visible note that brands and preparation methods vary.
 - Avoid medical claims, promises about body-composition outcomes, and false precision.
 - Verify every external link before publication and prefer primary sources over commercial nutrition blogs.
@@ -122,29 +123,32 @@ The deliverable is **five printable reference pages plus a cover** (six physical
 The new asset matches the existing calorie cheat sheet's conversion model while remaining operationally isolated from it.
 
 1. The reader submits a validated email through `MacroCheatSheetForm`.
-2. The client posts to `/api/macro-cheat-sheet-download`.
-3. The Node route attempts to render and attach the macro PDF, sends a branded Resend email, and adds a new address to the existing audience.
-4. The email includes both the attachment and a deployment-aware fallback link to `/api/macro-cheat-sheet/pdf`.
-5. The form shows success only after Resend accepts the email.
-6. If the address was newly added to the audience, the client records `generate_lead` with `lead_type: macro_cheat_sheet`, `location: cheat_sheet_form`, and `content_slug: macro-tracking-cheat-sheet`.
-7. The article's App Store links continue to use the existing tracked `app_store_click` behavior and blog content slug.
+2. The client normalizes the address once, includes an empty honeypot field, and posts bounded JSON to `/api/macro-cheat-sheet-download` with a 10-second browser deadline.
+3. The Node route validates a bounded unknown body, derives a trusted client IP, and atomically consumes HMAC-keyed IP and normalized-email windows through a service-role-only Supabase RPC before doing any PDF, contact, or email work.
+4. The route attempts to render and attach the macro PDF, sends a branded Resend email, and adds a new address to the existing audience.
+5. Attached delivery includes both the attachment and a deployment-aware fallback link to `/api/macro-cheat-sheet/pdf`; render failure sends a truthfully titled link-only email.
+6. The successful response includes `deliveryMode: "attached" | "link_only"`, and the form branches its success copy accordingly only after Resend accepts the email.
+7. If the address was newly added to the audience, the client records `generate_lead` with `lead_type: macro_cheat_sheet`, `location: cheat_sheet_form`, and `content_slug: macro-tracking-cheat-sheet`.
+8. The article's App Store links continue to use the existing tracked `app_store_click` behavior and blog content slug. Email contains no direct, untracked App Store CTA.
 
 The existing calorie-cheat-sheet form and API routes remain unchanged. The second lead magnet will use its own renderer, form, routes, email copy, and tests. A larger shared lead-magnet framework is deferred until a third asset makes that abstraction worthwhile.
 
 ## Failure handling
 
-- Invalid or missing email returns `400` with the same user-facing validation behavior as the current form.
+- Malformed, non-object, or invalid JSON and invalid/missing email return `400`; over-limit bodies return `413` before downstream work.
+- The Supabase-backed limiter uses 10 requests per IP per 15 minutes and 3 per normalized email per hour. A limit returns `429` plus `Retry-After`; missing IP, configuration, database failure, or a 1.5-second limiter timeout fails closed with retryable `503`.
 - Missing Resend configuration returns `500` without exposing environment details.
 - Contact lookup/creation remains non-blocking and time-bounded so newsletter enrollment cannot delay email delivery.
-- If PDF attachment rendering fails, send the email with the fallback download link rather than failing the request.
+- PDF calls have a five-second deadline, preserve one shared underlying render, and use a 30-second circuit cooldown so a hang cannot fan out into parallel renders. If attachment rendering fails or times out, send a subject/body that promise only the fallback download link.
+- Resend delivery has an eight-second deadline; a deadline returns retryable `503`. The client has its own ten-second abort deadline and restores the form with an announced retry message.
 - If email delivery fails, do not display success and do not fire the lead event.
 - The PDF download route returns a stable filename, `Content-Type: application/pdf`, inline disposition, and cache headers appropriate for static content.
-- PDF rendering is memoized per warm server instance.
+- Successful PDF rendering is memoized per warm server instance. The PDF declares `en-US` and page bookmarks; `@react-pdf/renderer` 4.5.1 does not expose stable semantic tagging primitives, so the HTML article remains the accessible version of the core reference tables.
 
 ## Metadata and structured data
 
 - **Title:** `Macro Tracking Cheat Sheet: Protein, Carb and Fat Foods (Free PDF)`
-- **Meta title:** `Macro Tracking Cheat Sheet: Free PDF | CalorieCue`
+- **Meta title:** raw frontmatter `Macro Tracking Cheat Sheet: Free PDF`; rendered document title `Macro Tracking Cheat Sheet: Free PDF | CalorieCue` via the root layout template.
 - **Meta description:** `Download a free macro tracking cheat sheet with protein, carb and fat food lists, meal-building examples, portion sizes and a printable 7-day log.`
 - **Date:** use the publication date at implementation time.
 - **Tags:** `macro-tracking`, `nutrition`, `reference`, `printable`, `tools`, `protein`, `beginner`
