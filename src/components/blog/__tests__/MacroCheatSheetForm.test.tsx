@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import MacroCheatSheetForm from "@/components/blog/MacroCheatSheetForm";
@@ -25,7 +25,10 @@ describe("MacroCheatSheetForm", () => {
     vi.stubGlobal("fetch", fetchMock);
   });
 
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
 
   it("keeps wide article tables horizontally scrollable on narrow screens", () => {
     const components = getMDXComponents("macro-tracking-cheat-sheet");
@@ -80,7 +83,11 @@ describe("MacroCheatSheetForm", () => {
   it("delivers the macro cheat sheet and tracks a newly created lead", async () => {
     fetchMock.mockResolvedValue({
       ok: true,
-      json: async () => ({ success: true, leadCreated: true }),
+      json: async () => ({
+        success: true,
+        leadCreated: true,
+        deliveryMode: "attached",
+      }),
     });
     const components = getMDXComponents("macro-tracking-cheat-sheet");
     const Form = components.MacroCheatSheetForm as ComponentType;
@@ -92,12 +99,14 @@ describe("MacroCheatSheetForm", () => {
     await waitFor(() =>
       expect(screen.getByRole("status")).toHaveTextContent(/check your inbox/i),
     );
+    expect(screen.getByRole("status")).toHaveTextContent(/pdf is attached/i);
     expect(screen.getByRole("status")).toHaveAttribute("aria-live", "polite");
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/macro-cheat-sheet-download",
       expect.objectContaining({
         method: "POST",
-        body: JSON.stringify({ email: "reader@example.com" }),
+        body: JSON.stringify({ email: "reader@example.com", website: "" }),
+        signal: expect.any(AbortSignal),
       }),
     );
     expect(trackGenerateLead).toHaveBeenCalledWith({
@@ -110,7 +119,11 @@ describe("MacroCheatSheetForm", () => {
   it("shows delivery success without tracking a repeat contact", async () => {
     fetchMock.mockResolvedValue({
       ok: true,
-      json: async () => ({ success: true, leadCreated: false }),
+      json: async () => ({
+        success: true,
+        leadCreated: false,
+        deliveryMode: "link_only",
+      }),
     });
     render(<MacroCheatSheetForm contentSlug="macro-tracking-cheat-sheet" />);
 
@@ -119,7 +132,31 @@ describe("MacroCheatSheetForm", () => {
     await waitFor(() =>
       expect(screen.getByText(/check your inbox/i)).toBeInTheDocument(),
     );
+    expect(screen.getByRole("status")).toHaveTextContent(/download link/i);
+    expect(screen.getByRole("status")).not.toHaveTextContent(/attached/i);
     expect(trackGenerateLead).not.toHaveBeenCalled();
+  });
+
+  it("normalizes whitespace before client validation and serialization", async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        leadCreated: false,
+        deliveryMode: "attached",
+      }),
+    });
+    render(<MacroCheatSheetForm contentSlug="article" />);
+
+    await submit("  Reader@Example.com  ");
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/macro-cheat-sheet-download",
+      expect.objectContaining({
+        body: JSON.stringify({ email: "reader@example.com", website: "" }),
+      }),
+    );
   });
 
   it("does not call the API or analytics for invalid input", async () => {
@@ -166,6 +203,11 @@ describe("MacroCheatSheetForm", () => {
   it.each([
     ["malformed", {}],
     ["non-success", { success: false, leadCreated: true }],
+    ["missing delivery mode", { success: true, leadCreated: false }],
+    [
+      "unknown delivery mode",
+      { success: true, leadCreated: false, deliveryMode: "maybe" },
+    ],
   ])(
     "does not track or show success for an HTTP-200 %s payload",
     async (_label, payload) => {
@@ -203,10 +245,39 @@ describe("MacroCheatSheetForm", () => {
 
     resolveFetch!({
       ok: true,
-      json: async () => ({ success: true, leadCreated: false }),
+      json: async () => ({
+        success: true,
+        leadCreated: false,
+        deliveryMode: "attached",
+      }),
     });
     await waitFor(() =>
       expect(screen.getByText(/check your inbox/i)).toBeInTheDocument(),
     );
+  });
+
+  it("aborts a hung browser request, re-enables the form, and announces retry", async () => {
+    vi.useFakeTimers();
+    fetchMock.mockReturnValue(new Promise(() => {}));
+    render(<MacroCheatSheetForm contentSlug="article" />);
+
+    fireEvent.change(screen.getByLabelText("Email address"), {
+      target: { value: "reader@example.com" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send Me the PDF" }));
+    expect(screen.getByRole("button", { name: "Sending..." })).toBeDisabled();
+
+    await act(async () => {
+      vi.advanceTimersByTime(10_000);
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole("button", { name: "Send Me the PDF" })).toBeEnabled();
+    expect(screen.getByLabelText("Email address")).toBeEnabled();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "The request timed out. Please try again.",
+    );
+    const signal = fetchMock.mock.calls[0][1]?.signal as AbortSignal;
+    expect(signal.aborted).toBe(true);
   });
 });

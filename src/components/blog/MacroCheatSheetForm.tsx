@@ -11,8 +11,11 @@ type MacroCheatSheetFormProps = {
 type MacroCheatSheetResponse = {
   success?: boolean;
   leadCreated?: boolean;
+  deliveryMode?: "attached" | "link_only";
   error?: string;
 };
+
+const REQUEST_TIMEOUT_MS = 10_000;
 
 export default function MacroCheatSheetForm({
   contentSlug,
@@ -21,8 +24,11 @@ export default function MacroCheatSheetForm({
   const emailInputId = `${formId}-email`;
   const validationErrorId = `${formId}-email-error`;
   const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [deliveryMode, setDeliveryMode] = useState<
+    "attached" | "link_only" | null
+  >(null);
   const [validationError, setValidationError] = useState("");
   const [deliveryError, setDeliveryError] = useState("");
   const error = validationError || deliveryError;
@@ -31,23 +37,46 @@ export default function MacroCheatSheetForm({
     event.preventDefault();
     setValidationError("");
     setDeliveryError("");
+    const normalizedEmail = email.trim().toLowerCase();
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (
+      !normalizedEmail ||
+      normalizedEmail.length > 254 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
+    ) {
       setValidationError("Please enter a valid email address");
       return;
     }
 
     setLoading(true);
+    const controller = new AbortController();
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
     try {
-      const response = await fetch("/api/macro-cheat-sheet-download", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.toLowerCase().trim() }),
+      const timeout = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          controller.abort();
+          reject(new DOMException("Request timed out", "AbortError"));
+        }, REQUEST_TIMEOUT_MS);
       });
+      const response = await Promise.race([
+        fetch("/api/macro-cheat-sheet-download", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: normalizedEmail, website }),
+          signal: controller.signal,
+        }),
+        timeout,
+      ]);
       const data = (await response.json()) as MacroCheatSheetResponse;
 
-      if (!response.ok || data.success !== true) {
+      if (
+        !response.ok ||
+        data.success !== true ||
+        typeof data.leadCreated !== "boolean" ||
+        (data.deliveryMode !== "attached" &&
+          data.deliveryMode !== "link_only")
+      ) {
         setDeliveryError(data.error || "Something went wrong. Please try again.");
         return;
       }
@@ -60,11 +89,17 @@ export default function MacroCheatSheetForm({
         });
       }
 
-      setSuccess(true);
+      setDeliveryMode(data.deliveryMode);
       setEmail("");
+      setWebsite("");
     } catch {
-      setDeliveryError("Something went wrong. Please try again.");
+      setDeliveryError(
+        controller.signal.aborted
+          ? "The request timed out. Please try again."
+          : "Something went wrong. Please try again.",
+      );
     } finally {
+      if (timeoutId !== undefined) clearTimeout(timeoutId);
       setLoading(false);
     }
   };
@@ -100,7 +135,7 @@ export default function MacroCheatSheetForm({
         </div>
       </div>
 
-      {success ? (
+      {deliveryMode ? (
         <motion.div
           role="status"
           aria-live="polite"
@@ -120,12 +155,28 @@ export default function MacroCheatSheetForm({
             />
           </svg>
           <span className="font-medium text-sm">
-            Check your inbox! We&apos;ve emailed your macro tracking cheat sheet
-            PDF (attached).
+            {deliveryMode === "attached"
+              ? "Check your inbox! Your macro tracking cheat sheet PDF is attached."
+              : "Check your inbox! We emailed your macro tracking cheat sheet download link."}
           </span>
         </motion.div>
       ) : (
         <form onSubmit={handleSubmit} noValidate className="mt-4">
+          <div
+            aria-hidden="true"
+            className="absolute -left-[10000px] h-px w-px overflow-hidden"
+          >
+            <label htmlFor={`${formId}-website`}>Website</label>
+            <input
+              id={`${formId}-website`}
+              name="website"
+              type="text"
+              value={website}
+              onChange={(event) => setWebsite(event.target.value)}
+              autoComplete="off"
+              tabIndex={-1}
+            />
+          </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <label htmlFor={emailInputId} className="sr-only">
               Email address

@@ -1,4 +1,4 @@
-import type { NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/macro-cheat-sheet-download/route";
 
@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   contactCreate: vi.fn(),
   emailSend: vi.fn(),
   renderPdf: vi.fn(),
+  rateLimit: vi.fn(),
 }));
 
 vi.mock("resend", () => ({
@@ -21,6 +22,10 @@ vi.mock("resend", () => ({
 vi.mock("@/lib/macro-cheat-sheet/MacroCheatSheetDocument", () => ({
   MACRO_CHEAT_SHEET_PDF_FILENAME: "caloriecue-macro-tracking-cheat-sheet.pdf",
   renderMacroCheatSheetPdf: mocks.renderPdf,
+}));
+
+vi.mock("@/lib/macro-cheat-sheet/rate-limit", () => ({
+  checkMacroCheatSheetRateLimit: mocks.rateLimit,
 }));
 
 const originalApiKey = process.env.RESEND_API_KEY;
@@ -42,11 +47,24 @@ function request(
   headers = new Headers(),
   nextUrl = new URL("https://caloriecue.app/api/macro-cheat-sheet-download"),
 ) {
-  return {
-    json: vi.fn().mockResolvedValue({ email }),
-    headers,
-    nextUrl,
-  } as unknown as NextRequest;
+  return requestBody(JSON.stringify({ email }), headers, nextUrl);
+}
+
+function requestBody(
+  body: string,
+  headers = new Headers(),
+  nextUrl = new URL("https://caloriecue.app/api/macro-cheat-sheet-download"),
+) {
+  const requestHeaders = new Headers(headers);
+  if (!requestHeaders.has("x-forwarded-for")) {
+    requestHeaders.set("x-forwarded-for", "203.0.113.9");
+  }
+  requestHeaders.set("content-type", "application/json");
+  return new NextRequest(nextUrl, {
+    method: "POST",
+    headers: requestHeaders,
+    body,
+  });
 }
 
 describe("POST /api/macro-cheat-sheet-download", () => {
@@ -58,6 +76,7 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
     mocks.renderPdf.mockResolvedValue(Buffer.from("macro-pdf"));
     mocks.emailSend.mockResolvedValue({ data: { id: "email-1" }, error: null });
+    mocks.rateLimit.mockResolvedValue({ allowed: true, retryAfterSeconds: 0 });
   });
 
   afterEach(() => {
@@ -103,6 +122,127 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     },
   );
 
+  it.each([
+    ["malformed JSON", "{"],
+    ["top-level null", "null"],
+    ["a string body", JSON.stringify("reader@example.com")],
+    ["an array body", JSON.stringify(["reader@example.com"])],
+  ])("returns 400 for %s without starting downstream work", async (_case, body) => {
+    const response = await POST(requestBody(body));
+
+    expect(response.status).toBe(400);
+    expect(mocks.rateLimit).not.toHaveBeenCalled();
+    expect(mocks.renderPdf).not.toHaveBeenCalled();
+    expect(mocks.contactGet).not.toHaveBeenCalled();
+    expect(mocks.contactCreate).not.toHaveBeenCalled();
+    expect(mocks.emailSend).not.toHaveBeenCalled();
+  });
+
+  it("rejects oversized bodies and email values before downstream work", async () => {
+    const oversizedBody = await POST(
+      requestBody(
+        JSON.stringify({
+          email: "reader@example.com",
+          padding: "x".repeat(5_000),
+        }),
+      ),
+    );
+    const oversizedEmail = await POST(request(`${"a".repeat(245)}@example.com`));
+
+    expect(oversizedBody.status).toBe(413);
+    expect(oversizedEmail.status).toBe(400);
+    expect(mocks.rateLimit).not.toHaveBeenCalled();
+    expect(mocks.renderPdf).not.toHaveBeenCalled();
+    expect(mocks.contactGet).not.toHaveBeenCalled();
+    expect(mocks.contactCreate).not.toHaveBeenCalled();
+    expect(mocks.emailSend).not.toHaveBeenCalled();
+  });
+
+  it("rejects a filled honeypot without rendering, contacts, or delivery", async () => {
+    const response = await POST(
+      requestBody(
+        JSON.stringify({ email: "reader@example.com", website: "spam.example" }),
+      ),
+    );
+
+    expect(response.status).toBe(400);
+    expect(mocks.rateLimit).not.toHaveBeenCalled();
+    expect(mocks.renderPdf).not.toHaveBeenCalled();
+    expect(mocks.contactGet).not.toHaveBeenCalled();
+    expect(mocks.contactCreate).not.toHaveBeenCalled();
+    expect(mocks.emailSend).not.toHaveBeenCalled();
+  });
+
+  it("returns 429 with Retry-After when either distributed window is full", async () => {
+    mocks.rateLimit.mockResolvedValue({
+      allowed: false,
+      retryAfterSeconds: 731,
+    });
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(429);
+    expect(response.headers.get("retry-after")).toBe("731");
+    expect(mocks.renderPdf).not.toHaveBeenCalled();
+    expect(mocks.contactGet).not.toHaveBeenCalled();
+    expect(mocks.contactCreate).not.toHaveBeenCalled();
+    expect(mocks.emailSend).not.toHaveBeenCalled();
+  });
+
+  it("fails closed with a retryable response when rate limiting is unavailable", async () => {
+    mocks.rateLimit.mockRejectedValue(new Error("rate limit unavailable"));
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("retry-after")).toBe("60");
+    expect(await response.json()).toEqual({
+      error: "Download delivery is temporarily unavailable. Please try again.",
+    });
+    expect(mocks.renderPdf).not.toHaveBeenCalled();
+    expect(mocks.contactGet).not.toHaveBeenCalled();
+    expect(mocks.contactCreate).not.toHaveBeenCalled();
+    expect(mocks.emailSend).not.toHaveBeenCalled();
+  });
+
+  it("uses the first valid Vercel-forwarded IP and does not send raw identity downstream", async () => {
+    mocks.contactGet.mockResolvedValue({
+      data: { id: "existing-contact", email: "reader@example.com" },
+      error: null,
+    });
+    const headers = new Headers({
+      "x-vercel-forwarded-for": "unknown, 198.51.100.24, 198.51.100.25",
+      "x-forwarded-for": "203.0.113.9",
+    });
+
+    const response = await POST(request("Reader@Example.com", headers));
+
+    expect(response.status).toBe(200);
+    expect(mocks.rateLimit).toHaveBeenCalledWith({
+      normalizedEmail: "reader@example.com",
+      ipAddress: "198.51.100.24",
+    });
+  });
+
+  it("fails closed when no valid client IP is available", async () => {
+    const noIpRequest = new NextRequest(
+      "https://caloriecue.app/api/macro-cheat-sheet-download",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: "reader@example.com" }),
+      },
+    );
+
+    const response = await POST(noIpRequest);
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("retry-after")).toBe("60");
+    expect(mocks.rateLimit).not.toHaveBeenCalled();
+    expect(mocks.renderPdf).not.toHaveBeenCalled();
+    expect(mocks.emailSend).not.toHaveBeenCalled();
+  });
+
   it("trims surrounding whitespace before validating and normalizing email", async () => {
     mocks.contactGet.mockResolvedValue({
       data: { id: "existing-contact", email: "reader@example.com" },
@@ -147,7 +287,11 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     const response = await POST(request());
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ success: true, leadCreated: true });
+    expect(await response.json()).toEqual({
+      success: true,
+      leadCreated: true,
+      deliveryMode: "attached",
+    });
     expect(mocks.contactGet).toHaveBeenCalledWith({
       email: "reader@example.com",
       audienceId: "511ab1c1-5a5c-4b58-9d22-8bf8aaf2e912",
@@ -182,7 +326,11 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     const response = await POST(request());
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ success: true, leadCreated: false });
+    expect(await response.json()).toEqual({
+      success: true,
+      leadCreated: false,
+      deliveryMode: "attached",
+    });
     expect(mocks.contactCreate).not.toHaveBeenCalled();
     expect(mocks.emailSend).toHaveBeenCalledTimes(1);
   });
@@ -214,7 +362,11 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     const response = await POST(request());
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ success: true, leadCreated: false });
+    expect(await response.json()).toEqual({
+      success: true,
+      leadCreated: false,
+      deliveryMode: "attached",
+    });
     expect(mocks.emailSend).toHaveBeenCalledTimes(1);
   });
 
@@ -231,7 +383,11 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     const response = await responsePromise;
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ success: true, leadCreated: false });
+    expect(await response.json()).toEqual({
+      success: true,
+      leadCreated: false,
+      deliveryMode: "attached",
+    });
     expect(mocks.contactCreate).not.toHaveBeenCalled();
   });
 
@@ -254,7 +410,11 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     const response = await responsePromise;
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ success: true, leadCreated: false });
+    expect(await response.json()).toEqual({
+      success: true,
+      leadCreated: false,
+      deliveryMode: "attached",
+    });
   });
 
   it("sends a link-only email when PDF rendering fails", async () => {
@@ -267,7 +427,11 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     const response = await POST(request());
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ success: true, leadCreated: false });
+    expect(await response.json()).toEqual({
+      success: true,
+      leadCreated: false,
+      deliveryMode: "link_only",
+    });
     expect(mocks.emailSend).toHaveBeenCalledWith(
       expect.objectContaining({
         html: expect.stringContaining(
@@ -280,10 +444,32 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     );
     expect(mocks.emailSend.mock.calls[0][0]).not.toHaveProperty("attachments");
     const payload = mocks.emailSend.mock.calls[0][0];
+    expect(payload.subject).toBe("Your Macro Tracking Cheat Sheet download link");
+    expect(payload.subject.toLowerCase()).not.toMatch(/attach|inside/);
     expect(payload.html.toLowerCase()).not.toContain("attach");
     expect(payload.text.toLowerCase()).not.toContain("attach");
     expect(payload.html).toContain("Use the download button below");
     expect(payload.text).toContain("Download your copy here:");
+    expect(payload.html).not.toContain("apps.apple.com");
+  });
+
+  it("returns a retryable service error when Resend delivery misses its deadline", async () => {
+    vi.useFakeTimers();
+    mocks.contactGet.mockResolvedValue({
+      data: { id: "existing-contact", email: "reader@example.com" },
+      error: null,
+    });
+    mocks.emailSend.mockReturnValue(new Promise(() => {}));
+
+    const responsePromise = POST(request());
+    await vi.advanceTimersByTimeAsync(8_000);
+    const response = await responsePromise;
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("retry-after")).toBe("60");
+    expect(await response.json()).toEqual({
+      error: "Email delivery timed out. Please try again.",
+    });
   });
 
   it("returns 500 when Resend delivery fails and never claims success", async () => {

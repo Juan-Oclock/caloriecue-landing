@@ -1,22 +1,29 @@
+import { isIP } from "node:net";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import {
   MACRO_CHEAT_SHEET_PDF_FILENAME,
   renderMacroCheatSheetPdf,
 } from "@/lib/macro-cheat-sheet/MacroCheatSheetDocument";
+import { checkMacroCheatSheetRateLimit } from "@/lib/macro-cheat-sheet/rate-limit";
 
 // @react-pdf/renderer (used to build the attached PDF) needs the Node runtime.
 export const runtime = "nodejs";
 
+const AUDIENCE_ID = "511ab1c1-5a5c-4b58-9d22-8bf8aaf2e912";
+const CONTACT_RESOLUTION_TIMEOUT_MS = 1_000;
+const EMAIL_DELIVERY_TIMEOUT_MS = 8_000;
+const MAX_REQUEST_BYTES = 4_096;
+const MAX_EMAIL_LENGTH = 254;
+const RETRY_AFTER_SECONDS = 60;
+const PRODUCTION_URL = "https://caloriecue.app";
+
+class RequestBodyTooLargeError extends Error {}
+class EmailDeliveryTimeoutError extends Error {}
+
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
 }
-
-const AUDIENCE_ID = "511ab1c1-5a5c-4b58-9d22-8bf8aaf2e912";
-const CONTACT_RESOLUTION_TIMEOUT_MS = 1_000;
-const PRODUCTION_URL = "https://caloriecue.app";
-const APP_STORE_URL =
-  "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
 
 function getSingleHeaderValue(value: string | null): string | null {
   if (!value || value.includes(",")) return null;
@@ -33,9 +40,7 @@ function getApprovedVercelHosts(): Set<string> {
   ]) {
     if (!value || value.includes(",")) continue;
     try {
-      const url = new URL(
-        value.includes("://") ? value : `https://${value}`,
-      );
+      const url = new URL(value.includes("://") ? value : `https://${value}`);
       if (
         url.protocol === "https:" &&
         url.hostname.endsWith(".vercel.app") &&
@@ -122,6 +127,65 @@ function getBaseUrl(req: NextRequest): URL {
   return new URL(PRODUCTION_URL);
 }
 
+function getClientIp(req: NextRequest): string | null {
+  for (const headerName of [
+    "x-vercel-forwarded-for",
+    "x-forwarded-for",
+    "x-real-ip",
+  ]) {
+    const value = req.headers.get(headerName);
+    if (!value || value.length > 512) continue;
+
+    for (const candidate of value.split(",").slice(0, 8)) {
+      const address = candidate.trim();
+      if (address.length <= 45 && isIP(address) !== 0) return address;
+    }
+  }
+
+  return null;
+}
+
+async function readBoundedRequestBody(req: NextRequest): Promise<string> {
+  const contentLength = req.headers.get("content-length");
+  if (
+    contentLength &&
+    /^\d+$/.test(contentLength) &&
+    Number(contentLength) > MAX_REQUEST_BYTES
+  ) {
+    throw new RequestBodyTooLargeError();
+  }
+
+  if (!req.body) return "";
+
+  const reader = req.body.getReader();
+  const decoder = new TextDecoder();
+  let totalBytes = 0;
+  let body = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    totalBytes += value.byteLength;
+    if (totalBytes > MAX_REQUEST_BYTES) {
+      await reader.cancel();
+      throw new RequestBodyTooLargeError();
+    }
+    body += decoder.decode(value, { stream: true });
+  }
+
+  return body + decoder.decode();
+}
+
+function retryableServiceResponse(error: string) {
+  return NextResponse.json(
+    { error },
+    {
+      status: 503,
+      headers: { "Retry-After": String(RETRY_AFTER_SECONDS) },
+    },
+  );
+}
+
 function getMacroCheatSheetEmailHtml(
   downloadUrl: string,
   hasAttachment: boolean,
@@ -141,40 +205,24 @@ function getMacroCheatSheetEmailHtml(
   <title>Your Macro Tracking Cheat Sheet</title>
 </head>
 <body style="margin:0;padding:0;background-color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-  <div style="max-width:600px;margin:0 auto;background-color:#ffffff;border-radius:12px;overflow:hidden;margin-top:20px;margin-bottom:20px;">
+  <div style="max-width:600px;margin:20px auto;background-color:#ffffff;border-radius:12px;overflow:hidden;">
     <div style="background:linear-gradient(135deg,#E05A3A,#FF7F5C);padding:40px 24px;text-align:center;">
       <h1 style="color:#ffffff;font-size:24px;margin:0 0 8px 0;">Your Macro Tracking Cheat Sheet</h1>
       <p style="color:rgba(255,255,255,0.9);font-size:14px;margin:0;">${deliverySummary}</p>
     </div>
-
     <div style="padding:32px 24px;">
-      <p style="font-size:15px;color:#333;line-height:1.6;margin:0 0 24px 0;">
-        Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! ${deliveryInstructions}
-      </p>
-
+      <p style="font-size:15px;color:#333;line-height:1.6;margin:0 0 24px 0;">Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! ${deliveryInstructions}</p>
       <div style="text-align:center;margin:32px 0;">
         <a href="${downloadUrl}" style="display:inline-block;background:#E05A3A;color:#ffffff;font-weight:600;font-size:16px;padding:14px 32px;border-radius:10px;text-decoration:none;">Download the PDF</a>
       </div>
-
-      <p style="font-size:13px;color:#666;line-height:1.6;margin:0 0 12px 0;">
-        <strong>Inside your cheat sheet:</strong>
-      </p>
-      <ul style="font-size:13px;color:#666;line-height:1.8;padding-left:20px;margin:0 0 32px 0;">
+      <p style="font-size:13px;color:#666;line-height:1.6;margin:0 0 12px 0;"><strong>Inside your cheat sheet:</strong></p>
+      <ul style="font-size:13px;color:#666;line-height:1.8;padding-left:20px;margin:0;">
         <li>A quick start for setting and tracking your macros</li>
         <li>Three food charts for protein, carbs, and fats</li>
         <li>A meal builder for putting balanced plates together</li>
         <li>A printable seven-day macro tracking log</li>
       </ul>
-
-      <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
-
-      <div style="text-align:center;">
-        <p style="font-size:14px;color:#333;font-weight:600;margin:0 0 8px 0;">Track macros in 3 seconds</p>
-        <p style="font-size:13px;color:#666;margin:0 0 16px 0;">Snap a photo. Get instant calories &amp; macros. Done.</p>
-        <a href="${APP_STORE_URL}" style="display:inline-block;background:#1a1a1a;color:#ffffff;font-weight:600;font-size:14px;padding:10px 24px;border-radius:8px;text-decoration:none;">Download CalorieCue</a>
-      </div>
     </div>
-
     <div style="background-color:#f9f9f9;padding:16px 24px;text-align:center;">
       <p style="font-size:11px;color:#999;margin:0;">CalorieCue — AI Photo Calorie Tracker &bull; caloriecue.app</p>
     </div>
@@ -236,26 +284,105 @@ function resolveContactWithinTimeout(
   );
 }
 
-export async function POST(req: NextRequest) {
+async function deliverEmailWithinTimeout<T>(
+  delivery: PromiseLike<T>,
+): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(
+      () => reject(new EmailDeliveryTimeoutError()),
+      EMAIL_DELIVERY_TIMEOUT_MS,
+    );
+  });
+
   try {
-    const { email } = await req.json();
-    const normalizedEmail =
-      typeof email === "string" ? email.trim().toLowerCase() : "";
+    return await Promise.race([Promise.resolve(delivery), timeout]);
+  } finally {
+    if (timeoutId !== undefined) clearTimeout(timeoutId);
+  }
+}
 
-    if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+export async function POST(req: NextRequest) {
+  let parsedBody: unknown;
+  try {
+    parsedBody = JSON.parse(await readBoundedRequestBody(req));
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
       return NextResponse.json(
-        { error: "Please enter a valid email address" },
-        { status: 400 },
+        { error: "Request body is too large" },
+        { status: 413 },
       );
     }
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
 
-    if (!process.env.RESEND_API_KEY) {
+  if (
+    typeof parsedBody !== "object" ||
+    parsedBody === null ||
+    Array.isArray(parsedBody)
+  ) {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+
+  const { email, website } = parsedBody as Record<string, unknown>;
+  if (website !== undefined && typeof website !== "string") {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+  if (typeof website === "string" && website.length > 0) {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+
+  const normalizedEmail =
+    typeof email === "string" ? email.trim().toLowerCase() : "";
+  if (
+    !normalizedEmail ||
+    normalizedEmail.length > MAX_EMAIL_LENGTH ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
+  ) {
+    return NextResponse.json(
+      { error: "Please enter a valid email address" },
+      { status: 400 },
+    );
+  }
+
+  const ipAddress = getClientIp(req);
+  if (!ipAddress) {
+    return retryableServiceResponse(
+      "Download delivery is temporarily unavailable. Please try again.",
+    );
+  }
+
+  try {
+    const decision = await checkMacroCheatSheetRateLimit({
+      normalizedEmail,
+      ipAddress,
+    });
+    if (!decision.allowed) {
       return NextResponse.json(
-        { error: "Email service not configured" },
-        { status: 500 },
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.max(1, decision.retryAfterSeconds)),
+          },
+        },
       );
     }
+  } catch (error) {
+    console.error("Macro cheat sheet rate-limit error:", error);
+    return retryableServiceResponse(
+      "Download delivery is temporarily unavailable. Please try again.",
+    );
+  }
 
+  if (!process.env.RESEND_API_KEY) {
+    return NextResponse.json(
+      { error: "Email service not configured" },
+      { status: 500 },
+    );
+  }
+
+  try {
     const downloadUrl = new URL(
       "/api/macro-cheat-sheet/pdf",
       getBaseUrl(req),
@@ -271,6 +398,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const deliveryMode = pdfBuffer ? "attached" : "link_only";
     const resend = getResend();
     const contactResolution = resolveContactWithinTimeout(
       resend,
@@ -279,12 +407,13 @@ export async function POST(req: NextRequest) {
     const emailDelivery = resend.emails.send({
       from: "CalorieCue <hello@track.caloriecue.app>",
       to: normalizedEmail,
-      subject: "Your Macro Tracking Cheat Sheet (PDF inside)",
+      subject: pdfBuffer
+        ? "Your Macro Tracking Cheat Sheet (PDF inside)"
+        : "Your Macro Tracking Cheat Sheet download link",
       html: getMacroCheatSheetEmailHtml(downloadUrl, pdfBuffer !== null),
-      text:
-        pdfBuffer !== null
-          ? `Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! Your PDF is attached. You can also download it here: ${downloadUrl}`
-          : `Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! Download your copy here: ${downloadUrl}`,
+      text: pdfBuffer
+        ? `Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! Your PDF is attached. You can also download it here: ${downloadUrl}`
+        : `Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! Download your copy here: ${downloadUrl}`,
       ...(pdfBuffer
         ? {
             attachments: [
@@ -296,7 +425,18 @@ export async function POST(req: NextRequest) {
           }
         : {}),
     });
-    const sendResult = await emailDelivery;
+
+    let sendResult;
+    try {
+      sendResult = await deliverEmailWithinTimeout(emailDelivery);
+    } catch (error) {
+      if (error instanceof EmailDeliveryTimeoutError) {
+        return retryableServiceResponse(
+          "Email delivery timed out. Please try again.",
+        );
+      }
+      throw error;
+    }
 
     if (sendResult.error) {
       console.error("Resend send error:", sendResult.error);
@@ -307,7 +447,7 @@ export async function POST(req: NextRequest) {
     }
 
     const leadCreated = await contactResolution;
-    return NextResponse.json({ success: true, leadCreated });
+    return NextResponse.json({ success: true, leadCreated, deliveryMode });
   } catch (error) {
     console.error("Macro cheat sheet download error:", error);
     return NextResponse.json(
