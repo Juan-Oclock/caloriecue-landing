@@ -185,3 +185,62 @@ describe('GSC-backed SEO refreshes', () => {
     expect(post?.content).toContain('/blog/best-calorie-tracker-app');
   });
 });
+
+describe("macro tracking cheat sheet", () => {
+  it("owns printable macro-food-list intent without duplicating the tutorial", () => {
+    const post = getPostBySlug("macro-tracking-cheat-sheet");
+    expect(post).toBeDefined();
+    expect(post?.title).toBe(
+      "Macro Tracking Cheat Sheet: Protein, Carb and Fat Foods (Free PDF)",
+    );
+    expect(post?.metaTitle).toBe(
+      "Macro Tracking Cheat Sheet: Free PDF",
+    );
+    expect(post?.description.length).toBeLessThanOrEqual(160);
+    expect(post?.tags).toContain("macro-tracking");
+    expect(post?.faq).toHaveLength(6);
+    expect(post?.content).toContain("<MacroCheatSheetForm />");
+    expect(post?.content).toContain("<AppStoreLink />");
+    expect(post?.content).toContain("/blog/how-to-count-macros");
+    expect(post?.content).toContain("/blog/calories-per-gram");
+    expect(post?.content).toContain("/blog/protein-per-calorie");
+    expect(post?.content).toContain("/blog/calorie-counting-vs-macro-counting");
+    expect(post?.content).toContain("/blog/high-protein-low-calorie-foods");
+    expect(post?.content).toContain("/blog/high-protein-meals-under-500-calories");
+    expect(post?.content).toContain("/tdee-calculator");
+    expect(post?.content.match(/<MacroCheatSheetForm \/>/g)).toHaveLength(2);
+
+    const firstForm = post?.content.indexOf("<MacroCheatSheetForm />") ?? -1;
+    const previewHeading =
+      post?.content.indexOf("## What Is Inside the Printable Macro Tracking Sheet?") ??
+      -1;
+    const nextHeading =
+      post?.content.indexOf("## How to Use a Protein, Carb and Fat Food List") ??
+      -1;
+    expect(firstForm).toBeGreaterThan(previewHeading);
+    expect(firstForm).toBeLessThan(nextHeading);
+
+    expect(post?.content).toContain(
+      "| Firm tofu | 4 oz, drained, raw | 163 | 20g | 3g | 10g |",
+    );
+    expect(post?.content).toContain(
+      "| Tempeh | 4 oz (USDA preparation unspecified) | 218 | 23g | 9g | 12g |",
+    );
+    expect(post?.content).toContain(
+      "| **Meal total** | **442** | **31g** | **62g** | **8g** |",
+    );
+    expect(post?.content).toContain(
+      "| **Meal total** | **376** | **28g** | **38g** | **13g** |",
+    );
+    expect(post?.content.trim().split(/\s+/).length).toBeGreaterThanOrEqual(2_000);
+  });
+
+  it("links adjacent guides to the distinct printable intent", () => {
+    expect(getPostBySlug("how-to-count-macros")?.content).toContain(
+      "/blog/macro-tracking-cheat-sheet",
+    );
+    expect(getPostBySlug("calorie-counting-cheat-sheet")?.content).toContain(
+      "/blog/macro-tracking-cheat-sheet",
+    );
+  });
+});

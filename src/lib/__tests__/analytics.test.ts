@@ -71,6 +71,25 @@ describe("shared analytics", () => {
     });
   });
 
+  it("emits a distinct macro cheat sheet lead", () => {
+    const { track, adapter } = stubAdapter();
+
+    trackGenerateLead(
+      {
+        leadType: "macro_cheat_sheet",
+        location: "cheat_sheet_form",
+        contentSlug: "macro-tracking-cheat-sheet",
+      },
+      adapter,
+    );
+
+    expect(track).toHaveBeenCalledWith("generate_lead", {
+      lead_type: "macro_cheat_sheet",
+      location: "cheat_sheet_form",
+      content_slug: "macro-tracking-cheat-sheet",
+    });
+  });
+
   it("sets sanitized page context before a browser lead event", () => {
     const gtag = vi.fn();
     Object.defineProperty(window, "gtag", {

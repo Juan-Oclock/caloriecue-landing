@@ -4,6 +4,7 @@ import { slugify } from "@/lib/blog";
 import type { MDXComponents as MDXComponentsType } from "mdx/types";
 import React, { type ReactNode } from "react";
 import CheatSheetForm from "./CheatSheetForm";
+import MacroCheatSheetForm from "./MacroCheatSheetForm";
 import ProteinPerCalorieCalculator from "./ProteinPerCalorieCalculator";
 import CaloriesPerGramCalculator from "./CaloriesPerGramCalculator";
 import ProteinSwapExplorer from "./ProteinSwapExplorer";
@@ -254,7 +255,7 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
     ),
     table: ({ children }) => (
       <div className="overflow-x-auto my-6">
-        <table className="text-sm border-collapse w-max">{children}</table>
+        <table className="text-sm border-collapse min-w-max">{children}</table>
       </div>
     ),
     th: ({ children }) => (
@@ -272,6 +273,9 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
     AppStoreLink: () => <AppStoreLink contentSlug={contentSlug} />,
     BlogImage,
     CheatSheetForm: () => <CheatSheetForm contentSlug={contentSlug} />,
+    MacroCheatSheetForm: () => (
+      <MacroCheatSheetForm contentSlug={contentSlug} />
+    ),
     ProteinPerCalorieCalculator,
     CaloriesPerGramCalculator,
     HomemadeRecipeCalorieCalculator,
