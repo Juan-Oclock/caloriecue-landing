@@ -1,3 +1,4 @@
+-- Persists privacy-preserving delivery rate-limit counters.
 create table public.macro_cheat_sheet_rate_limits (
   bucket_type text not null check (bucket_type in ('ip', 'email')),
   key_hash text not null check (key_hash ~ '^[0-9a-f]{64}$'),
