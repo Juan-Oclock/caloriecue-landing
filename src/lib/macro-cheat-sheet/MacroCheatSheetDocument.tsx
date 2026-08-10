@@ -19,6 +19,7 @@ import {
   type MacroTotals,
   type MealExample,
 } from "./data";
+import { createPdfRenderCoordinator } from "./pdf-render-coordinator";
 
 registerFonts();
 
@@ -417,7 +418,7 @@ function MacroTable({ foods, compact = false, efficiency = false }: { foods: Mac
 function MacroCoverPage({ logo: coverLogo }: { logo: string | null }) {
   const pills = ["Protein foods", "Carb foods", "Fat foods", "Meal builder", "7-day log"];
   return (
-    <Page size="LETTER" style={styles.cover}>
+    <Page size="LETTER" style={styles.cover} bookmark="Cover">
       <View style={styles.coverAccent} />
       <View style={styles.coverBrand}>
         {coverLogo ? <Image src={coverLogo} style={styles.coverLogo} /> : <Text style={styles.brandMark}>C</Text>}
@@ -446,7 +447,7 @@ function MacroQuickStartPage() {
     ["Review the week", "Use averages; one imperfect day does not define consistency."],
   ];
   return (
-    <Page size="LETTER" style={styles.page}>
+    <Page size="LETTER" style={styles.page} bookmark="Macro quick start">
       <PageHeader title="Macro quick start" intro="Use your own targets. This sheet organizes foods and meals; it does not prescribe a universal macro ratio." sheet="PRINTABLE SHEET 1" />
       <Text style={styles.sectionTitle}>The 4 / 4 / 9 calorie equation</Text>
       <View style={styles.equationRow}>
@@ -473,7 +474,7 @@ function MacroQuickStartPage() {
 
 function ProteinReferencePage({ foods }: { foods: MacroFood[] }) {
   return (
-    <Page size="LETTER" style={styles.page}>
+    <Page size="LETTER" style={styles.page} bookmark="Protein food reference">
       <PageHeader title="Protein food reference" intro="Values are rounded estimates. Match the listed cooked, drained, fat-percentage, or prepared state when logging." sheet="PRINTABLE SHEET 2" />
       <MacroTable foods={foods} efficiency />
       <Text style={styles.legend}>E = protein-efficient: at least 0.10 g protein per kcal. The marker is a numeric filter, not a judgment about food quality. Brands, cuts, fat percentage, serving size, and added cooking fat can change every value. P = protein, C = carbohydrate, F = fat.</Text>
@@ -484,7 +485,7 @@ function ProteinReferencePage({ foods }: { foods: MacroFood[] }) {
 
 function CarbFatReferencePage({ carbFoods: carbs, fatFoods: fats, mixedFoods: mixed }: { carbFoods: MacroFood[]; fatFoods: MacroFood[]; mixedFoods: MacroFood[] }) {
   return (
-    <Page size="LETTER" style={styles.page}>
+    <Page size="LETTER" style={styles.page} bookmark="Carb, fat and mixed-food reference">
       <PageHeader title="Carb, fat & mixed-food reference" intro="Use the dominant macro to build a meal, then count the complete P / C / F profile when tracking." sheet="PRINTABLE SHEET 3" />
       <View style={styles.compactSections}>
         <View style={[styles.compactCol, styles.compactColLeft]}><Text style={styles.sectionTitle}>Carbohydrate-dominant foods</Text><MacroTable foods={carbs} compact /></View>
@@ -508,7 +509,7 @@ function MealBuilderPage({ meals }: { meals: MealExample[] }) {
     ["4 · Produce / volume", "Add fruit or vegetables; count their full macros too."],
   ];
   return (
-    <Page size="LETTER" style={styles.page}>
+    <Page size="LETTER" style={styles.page} bookmark="Meal builder">
       <PageHeader title="Build a repeatable meal" intro="Combine one clear anchor with portions you can reproduce. Examples demonstrate the method; they are not prescriptions." sheet="PRINTABLE SHEET 4" />
       <View style={styles.stepRow}>{steps.map(([title, copy], index) => <View key={title} style={[styles.stepCard, index === steps.length - 1 ? styles.stepCardLast : {}]}><Text style={styles.stepNumber}>STEP {index + 1}</Text><Text style={styles.stepTitle}>{title}</Text><Text style={styles.stepCopy}>{copy}</Text></View>)}</View>
       <Text style={styles.sectionTitle}>Three worked meals</Text>
@@ -524,7 +525,7 @@ function MealBuilderPage({ meals }: { meals: MealExample[] }) {
 function MacroLogPage({ days, appMockup: mockup }: { days: readonly string[]; appMockup: string | null }) {
   const averages = ["Calories", "Protein (P)", "Carbohydrates (C)", "Fat (F)"];
   return (
-    <Page size="LETTER" style={styles.page}>
+    <Page size="LETTER" style={styles.page} bookmark="Seven-day macro log">
       <PageHeader title="Seven-day macro log" intro="Record each day's totals, then use the weekly averages to see the pattern behind normal daily variation." sheet="PRINTABLE SHEET 5" />
       <View style={styles.logTable}>
         <View style={styles.logHeader}><Text style={[styles.logHeaderText, { width: 58 }]}>Day</Text><Text style={[styles.logHeaderText, { width: 62 }]}>Calories</Text><Text style={[styles.logHeaderText, { width: 62 }]}>P · g</Text><Text style={[styles.logHeaderText, { width: 62 }]}>C · g</Text><Text style={[styles.logHeaderText, { width: 62 }]}>F · g</Text><Text style={[styles.logHeaderText, { flex: 1 }]}>Notes</Text></View>
@@ -544,7 +545,7 @@ function MacroLogPage({ days, appMockup: mockup }: { days: readonly string[]; ap
 
 export function MacroCheatSheetDocument() {
   return (
-    <Document title="Macro Tracking Cheat Sheet" author="CalorieCue" subject="Protein, carbohydrate and fat food reference with macro log">
+    <Document language="en-US" title="Macro Tracking Cheat Sheet" author="CalorieCue" subject="Protein, carbohydrate and fat food reference with macro log">
       <MacroCoverPage logo={logo} />
       <MacroQuickStartPage />
       <ProteinReferencePage foods={proteinFoods} />
@@ -555,26 +556,14 @@ export function MacroCheatSheetDocument() {
   );
 }
 
-let cachedBuffer: Buffer | null = null;
-let renderPromise: Promise<Buffer> | null = null;
+const pdfRenderCoordinator = createPdfRenderCoordinator({
+  render: () => renderToBuffer(<MacroCheatSheetDocument />),
+  timeoutMs: 5_000,
+  circuitCooldownMs: 30_000,
+});
 
 export async function renderMacroCheatSheetPdf(): Promise<Buffer> {
-  if (cachedBuffer) {
-    return cachedBuffer;
-  }
-
-  if (!renderPromise) {
-    renderPromise = renderToBuffer(<MacroCheatSheetDocument />)
-      .then((buffer) => {
-        cachedBuffer = buffer;
-        return buffer;
-      })
-      .finally(() => {
-        renderPromise = null;
-      });
-  }
-
-  return renderPromise;
+  return pdfRenderCoordinator.render();
 }
 
 export const MACRO_CHEAT_SHEET_PDF_FILENAME =

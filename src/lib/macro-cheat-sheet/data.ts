@@ -5,9 +5,21 @@ export type MacroTotals = {
   fat: number;
 };
 
+export type FoodDataType = "SR Legacy" | "Foundation" | "Survey (FNDDS)";
+
+export type FoodSource = {
+  fdcId: number;
+  description: string;
+  dataType: FoodDataType;
+  servingGrams: number;
+  per100g: MacroTotals;
+  preparationState: string;
+};
+
 export type MacroFood = MacroTotals & {
   name: string;
   serving: string;
+  source: FoodSource;
   note?: string;
 };
 
@@ -34,188 +46,163 @@ export function sumMacros(values: MacroTotals[]): MacroTotals {
   );
 }
 
-// Rounded household-serving estimates. USDA FoodData Central records selected:
-// poultry/meat — "Chicken, broilers or fryers, breast, meat only, cooked,
-// roasted" (FDC 171477), "Turkey, whole, breast, meat only, cooked, roasted"
-// (FDC 171496), "Turkey, ground, 93% lean, 7% fat, pan-broiled crumbles"
-// (FDC 172851), "Beef, ground, 90% lean meat / 10% fat, crumbles, cooked,
-// pan-browned" (FDC 171794), "Beef, top sirloin, steak, separable lean only,
-// trimmed to 0 fat, choice, cooked, broiled" (FDC 168635), and "Pork, fresh,
-// tenderloin, separable lean only, cooked,
-// roasted" (FDC 168250).
-// seafood — "Fish, tuna, light, canned in water, drained solids" (FDC
-// 334194), "Fish, cod, Pacific, cooked, dry heat" (FDC 171990), "Fish,
-// tilapia, cooked, dry heat" (FDC 175177), "Crustaceans, shrimp, cooked"
-// (FDC 175180), and "Fish, salmon, Atlantic, farmed, cooked, dry heat"
-// (FDC 175168).
-// eggs/dairy/powder — "Egg, whole, cooked, hard-boiled" (FDC 173424),
-// "Egg, white, raw, fresh" (FDC 172183), "Yogurt, Greek, plain, nonfat"
-// (FDC 330137), "Yogurt, Greek, plain, lowfat" (FDC 170903), "Cheese,
-// cottage, lowfat, 2% milkfat" (FDC 328841), "Milk, nonfat, fluid, with added
-// vitamins A and D" (FDC 171269), and "Whey protein isolate, unflavored"
-// (FDC 1844993).
-// plant proteins — "Tofu, raw, firm, prepared with calcium sulfate" (FDC
-// 172475), "Tempeh" (FDC 174272), "Vital wheat gluten" (FDC 168147),
-// "Lentils, mature seeds,
-// cooked, boiled, without salt" (FDC 172421), "Beans, black, mature seeds,
-// cooked, boiled, without salt" (FDC 173735), "Edamame, frozen, prepared" (FDC
-// 168411), and "Textured vegetable protein, dry" (FDC 2707451).
-export const proteinFoods: MacroFood[] = [
-  { name: "Chicken breast", serving: "4 oz cooked, skinless, roasted", calories: 187, protein: 35, carbs: 0, fat: 4 },
-  { name: "Turkey breast", serving: "4 oz cooked, skinless, roasted", calories: 153, protein: 34, carbs: 0, fat: 2 },
-  { name: "Ground turkey (93%)", serving: "4 oz cooked, pan-browned", calories: 203, protein: 27, carbs: 0, fat: 10 },
-  { name: "Ground beef (90%)", serving: "4 oz cooked, pan-browned", calories: 230, protein: 28, carbs: 0, fat: 13 },
-  { name: "Top sirloin", serving: "4 oz cooked, broiled, lean only", calories: 207, protein: 34, carbs: 0, fat: 8 },
-  { name: "Pork tenderloin", serving: "4 oz cooked, roasted, lean only", calories: 167, protein: 30, carbs: 0, fat: 5 },
-  { name: "Light tuna", serving: "4 oz canned in water, drained", calories: 132, protein: 29, carbs: 0, fat: 1 },
-  { name: "Pacific cod", serving: "4 oz cooked, dry heat", calories: 101, protein: 23, carbs: 0, fat: 1 },
-  { name: "Tilapia", serving: "4 oz cooked, dry heat", calories: 145, protein: 30, carbs: 0, fat: 3 },
-  { name: "Shrimp", serving: "4 oz cooked", calories: 112, protein: 24, carbs: 0, fat: 2 },
-  { name: "Atlantic salmon", serving: "4 oz cooked, dry heat", calories: 234, protein: 25, carbs: 0, fat: 14 },
-  { name: "Whole egg", serving: "1 large, hard-boiled", calories: 78, protein: 6, carbs: 1, fat: 5 },
-  { name: "Egg whites", serving: "3 large, raw, fresh", calories: 51, protein: 11, carbs: 1, fat: 0 },
-  { name: "Greek yogurt (nonfat)", serving: "1 cup, plain", calories: 130, protein: 23, carbs: 9, fat: 0 },
-  { name: "Greek yogurt (2%)", serving: "1 cup, plain", calories: 170, protein: 20, carbs: 9, fat: 5 },
-  { name: "Cottage cheese (2%)", serving: "1 cup, low-fat", calories: 183, protein: 24, carbs: 11, fat: 5 },
-  { name: "Skim milk", serving: "1 cup, fluid", calories: 83, protein: 8, carbs: 12, fat: 0 },
-  { name: "Whey isolate", serving: "1 scoop (30 g powder)", calories: 110, protein: 25, carbs: 1, fat: 0 },
-  { name: "Firm tofu", serving: "4 oz, drained, raw", calories: 92, protein: 10, carbs: 2, fat: 6 },
-  { name: "Tempeh", serving: "4 oz, cooked", calories: 221, protein: 22, carbs: 9, fat: 13 },
-  // Reproducible plain seitan yield: 28.35 g FDC 168147 vital wheat gluten
-  // plus 56.65 g water produces one 85 g (3 oz) serving. Water contributes no
-  // macros; 370 kcal, 75.16 P, 13.79 C, and 1.85 F per 100 g dry scales and
-  // rounds to the values below. Home recipes with broth/add-ins will differ.
-  { name: "Seitan", serving: "3 oz cooked, from 1 oz dry gluten + water", calories: 105, protein: 21, carbs: 4, fat: 1 },
-  { name: "Lentils", serving: "1 cup cooked, boiled, unsalted", calories: 230, protein: 18, carbs: 40, fat: 1 },
-  { name: "Black beans", serving: "1 cup cooked, boiled, unsalted", calories: 227, protein: 15, carbs: 41, fat: 1 },
-  { name: "Edamame", serving: "1 cup cooked, shelled", calories: 188, protein: 18, carbs: 14, fat: 8 },
-  { name: "Textured vegetable protein", serving: "1/2 cup dry (48 g)", calories: 157, protein: 24, carbs: 16, fat: 1 },
-];
+function macros(
+  calories: number,
+  protein: number,
+  carbs: number,
+  fat: number,
+): MacroTotals {
+  return { calories, protein, carbs, fat };
+}
 
-// USDA FoodData Central SR Legacy records: "Rice, white, long-grain,
-// regular, enriched, cooked" (FDC 168878), "Rice, brown, medium-grain,
-// cooked" (FDC 168875), "Oats" (FDC 173904), "Quinoa, cooked" (FDC
-// 168917), "Potatoes, baked, flesh and skin" (FDC 170030), "Sweet potato,
-// cooked, baked in skin" (FDC 168483), "Bread, whole-wheat, commercially
-// prepared" (FDC 172688), "Bagels, plain, enriched" (FDC 175051), "Tortilla,
-// corn, shelf stable" (FDC 2707823), "Pasta, cooked, enriched, without added
-// salt" (FDC 169737), "Couscous, cooked" (FDC 169700),
-// "Chickpeas, cooked, boiled, without salt" (FDC 173757), "Beans, black,
-// cooked, boiled, without salt" (FDC 173735), "Bananas, raw" (FDC 173944),
-// "Apples, raw, with skin" (FDC 171688), "Blueberries, raw" (FDC 171711),
-// "Corn, sweet, yellow, cooked, boiled, drained" (FDC 169999), "Peas,
-// green, frozen, cooked, boiled, drained, with salt" (FDC 170105), and "Cereals
-// ready-to-eat, wheat, puffed, fortified" (FDC 173913).
-export const carbFoods: MacroFood[] = [
-  { name: "White rice", serving: "1 cup cooked, long-grain", calories: 205, protein: 4, carbs: 45, fat: 0 },
-  { name: "Brown rice", serving: "1 cup cooked, medium-grain", calories: 218, protein: 5, carbs: 46, fat: 2 },
-  { name: "Oats", serving: "1/2 cup dry, rolled", calories: 152, protein: 5, carbs: 27, fat: 3 },
-  { name: "Quinoa", serving: "1 cup cooked", calories: 222, protein: 8, carbs: 39, fat: 4 },
-  { name: "White potato", serving: "1 medium baked, flesh and skin", calories: 161, protein: 4, carbs: 37, fat: 0 },
-  { name: "Sweet potato", serving: "1 medium baked in skin", calories: 103, protein: 2, carbs: 24, fat: 0 },
-  { name: "Whole-wheat bread", serving: "1 slice, commercially prepared", calories: 81, protein: 4, carbs: 14, fat: 1 },
-  { name: "Plain bagel", serving: "1 medium, enriched", calories: 277, protein: 11, carbs: 55, fat: 2 },
-  { name: "Corn tortilla", serving: "2 small (about 52 g), warmed", calories: 114, protein: 3, carbs: 24, fat: 2 },
-  { name: "Pasta", serving: "1 cup cooked, enriched, unsalted", calories: 221, protein: 8, carbs: 43, fat: 1 },
-  { name: "Couscous", serving: "1 cup cooked", calories: 176, protein: 6, carbs: 36, fat: 0 },
-  { name: "Chickpeas", serving: "1 cup cooked, boiled, unsalted", calories: 269, protein: 15, carbs: 45, fat: 4 },
-  { name: "Black beans", serving: "1 cup cooked, boiled, unsalted", calories: 227, protein: 15, carbs: 41, fat: 1 },
-  { name: "Banana", serving: "1 medium, raw", calories: 105, protein: 1, carbs: 27, fat: 0 },
-  { name: "Apple", serving: "1 medium, raw, with skin", calories: 95, protein: 0, carbs: 25, fat: 0 },
-  { name: "Blueberries", serving: "1 cup, raw", calories: 84, protein: 1, carbs: 21, fat: 0 },
-  { name: "Sweet corn", serving: "1 cup cooked, boiled, drained", calories: 143, protein: 5, carbs: 31, fat: 2 },
-  { name: "Green peas", serving: "1 cup frozen, cooked, boiled, drained", calories: 124, protein: 8, carbs: 23, fat: 0 },
-  { name: "Puffed wheat cereal", serving: "1 cup, ready-to-eat", calories: 55, protein: 2, carbs: 12, fat: 0 },
-];
+function sourcedFood(
+  name: string,
+  serving: string,
+  source: FoodSource,
+): MacroFood {
+  const scale = source.servingGrams / 100;
+  return {
+    name,
+    serving,
+    calories: Math.round(source.per100g.calories * scale),
+    protein: Math.round(source.per100g.protein * scale),
+    carbs: Math.round(source.per100g.carbs * scale),
+    fat: Math.round(source.per100g.fat * scale),
+    source,
+  };
+}
 
-// USDA FoodData Central SR Legacy records: "Oil, olive, salad or cooking"
-// (FDC 171413), "Butter, salted" (FDC 173410), "Avocados, raw, all
-// commercial varieties" (FDC 171705), "Nuts, almonds" (FDC 170567),
-// "Nuts, walnuts, English" (FDC 170187), "Peanuts, all types, raw" (FDC
-// 172430), "Peanut butter, smooth style, without salt"
-// (FDC 172470), "Seeds, chia seeds, dried" (FDC 170554), "Seeds, flaxseed"
-// (FDC 169414), "Seeds, sesame butter, tahini, roasted" (FDC 170189), "Salad
-// dressing, mayonnaise, regular" (FDC 171009), "Cheese, cheddar" (FDC
-// 173414), and "Chocolate, dark, 70-85% cacao solids" (FDC 170273).
-export const fatFoods: MacroFood[] = [
-  { name: "Olive oil", serving: "1 tbsp, measured", calories: 119, protein: 0, carbs: 0, fat: 14 },
-  { name: "Butter", serving: "1 tbsp, salted", calories: 102, protein: 0, carbs: 0, fat: 12 },
-  { name: "Avocado", serving: "1/2 medium, raw", calories: 120, protein: 2, carbs: 6, fat: 11 },
-  { name: "Almonds", serving: "1 oz (about 23), raw", calories: 164, protein: 6, carbs: 6, fat: 14 },
-  { name: "Walnuts", serving: "1 oz, raw", calories: 185, protein: 4, carbs: 4, fat: 19 },
-  { name: "Peanuts", serving: "1 oz, raw", calories: 161, protein: 7, carbs: 5, fat: 14 },
-  { name: "Peanut butter", serving: "2 tbsp, smooth, unsalted", calories: 191, protein: 7, carbs: 7, fat: 16 },
-  { name: "Chia seeds", serving: "2 tbsp (28 g), dried", calories: 138, protein: 5, carbs: 12, fat: 9 },
-  { name: "Flaxseed", serving: "2 tbsp (20 g), ground", calories: 107, protein: 4, carbs: 6, fat: 8 },
-  { name: "Tahini", serving: "1 tbsp, sesame paste", calories: 89, protein: 3, carbs: 3, fat: 8 },
-  { name: "Mayonnaise", serving: "1 tbsp, regular", calories: 94, protein: 0, carbs: 0, fat: 10 },
-  { name: "Cheddar", serving: "1 oz", calories: 114, protein: 7, carbs: 1, fat: 9 },
-  { name: "Dark chocolate", serving: "1 oz, 70-85% cacao", calories: 170, protein: 2, carbs: 13, fat: 12 },
-];
+function srFood(
+  name: string,
+  serving: string,
+  fdcId: number,
+  description: string,
+  servingGrams: number,
+  per100g: MacroTotals,
+  preparationState: string,
+): MacroFood {
+  return sourcedFood(name, serving, {
+    fdcId,
+    description,
+    dataType: "SR Legacy",
+    servingGrams,
+    per100g,
+    preparationState,
+  });
+}
 
-// Explicit FDC-backed records keep this required order independent of the
-// protein and fat reference arrays.
+function republish(
+  food: MacroFood,
+  name: string,
+  serving = food.serving,
+): MacroFood {
+  return { ...food, name, serving };
+}
+
+const chickenBreast = srFood("Chicken breast", "4 oz cooked, skinless, roasted", 171477, "Chicken, broilers or fryers, breast, meat only, cooked, roasted", 113.398, macros(165, 31, 0, 3.57), "cooked, roasted, meat only");
+const turkeyBreast = srFood("Turkey breast", "4 oz cooked, skinless, roasted", 171496, "Turkey, whole, breast, meat only, cooked, roasted", 113.398, macros(147, 30.1, 0, 2.08), "cooked, roasted, meat only");
+const groundTurkey = srFood("Ground turkey (93%)", "4 oz cooked, pan-broiled", 172851, "Turkey, ground, 93% lean, 7% fat, pan-broiled crumbles", 113.398, macros(213, 27.1, 0, 11.6), "93% lean, pan-broiled crumbles");
+const groundBeef = srFood("Ground beef (90%)", "4 oz cooked, pan-browned", 171794, "Beef, ground, 90% lean meat / 10% fat, crumbles, cooked, pan-browned", 113.398, macros(230, 28.4, 0, 12), "90% lean, cooked, pan-browned");
+const sirloin = srFood("Top sirloin", "4 oz cooked, broiled, lean only", 168635, "Beef, top sirloin, steak, separable lean only, trimmed to 0\" fat, choice, cooked, broiled", 113.398, macros(188, 30.3, 0, 6.55), "choice, cooked, broiled, lean only");
+const porkTenderloin = srFood("Pork tenderloin", "4 oz cooked, roasted, lean only", 168250, "Pork, fresh, loin, tenderloin, separable lean only, cooked, roasted", 113.398, macros(143, 26.2, 0, 3.51), "cooked, roasted, lean only");
+const tuna = sourcedFood("Light tuna", "4 oz canned in water, drained", { fdcId: 334194, description: "Fish, tuna, light, canned in water, drained solids", dataType: "Foundation", servingGrams: 113.398, per100g: macros(90, 19, 0.08, 0.94), preparationState: "canned in water, drained solids" });
+const cod = srFood("Pacific cod", "4 oz cooked, dry heat", 171990, "Fish, cod, Pacific, cooked, dry heat (may contain additives to retain moisture)", 113.398, macros(85, 18.7, 0, 0.5), "cooked, dry heat");
+const tilapia = srFood("Tilapia", "4 oz cooked, dry heat", 175177, "Fish, tilapia, cooked, dry heat", 113.398, macros(128, 26.2, 0, 2.65), "cooked, dry heat");
+const shrimp = srFood("Shrimp", "4 oz cooked", 175180, "Crustaceans, shrimp, cooked", 113.398, macros(99, 24, 0.2, 0.28), "cooked");
+const salmon = srFood("Atlantic salmon", "4 oz cooked, dry heat", 175168, "Fish, salmon, Atlantic, farmed, cooked, dry heat", 113.398, macros(206, 22.1, 0, 12.4), "farmed, cooked, dry heat");
+const wholeEgg = srFood("Whole egg", "1 large, hard-boiled", 173424, "Egg, whole, cooked, hard-boiled", 50, macros(155, 12.6, 1.12, 10.6), "hard-boiled");
+const eggWhites = srFood("Egg whites", "3 large, raw, fresh", 172183, "Egg, white, raw, fresh", 99, macros(52, 10.9, 0.73, 0.17), "raw, fresh");
+const nonfatGreekYogurt = sourcedFood("Greek yogurt (nonfat)", "1 cup (227 g), plain", { fdcId: 330137, description: "Yogurt, Greek, plain, nonfat", dataType: "Foundation", servingGrams: 227, per100g: macros(61, 10.3, 3.64, 0.37), preparationState: "plain, nonfat" });
+const lowfatGreekYogurt = srFood("Greek yogurt (2%)", "1 cup (227 g), plain", 170903, "Yogurt, Greek, plain, lowfat", 227, macros(73, 9.95, 3.94, 1.92), "plain, lowfat");
+const cottageCheese = sourcedFood("Cottage cheese (2%)", "1 cup (220 g), low-fat", { fdcId: 328841, description: "Cheese, cottage, lowfat, 2% milkfat", dataType: "Foundation", servingGrams: 220, per100g: macros(84, 11, 4.31, 2.3), preparationState: "lowfat, 2% milkfat" });
+const skimMilk = srFood("Skim milk", "1 cup, fluid", 171269, "Milk, nonfat, fluid, with added vitamin A and vitamin D (fat free or skim)", 245, macros(34, 3.37, 4.96, 0.08), "fluid, nonfat");
+const whey = sourcedFood("Whey protein powder", "1 scoop (31 g powder)", { fdcId: 2710745, description: "Nutritional powder mix, protein, NFS", dataType: "Survey (FNDDS)", servingGrams: 31, per100g: macros(352, 78.1, 6.25, 1.56), preparationState: "dry powder, not further specified" });
+const tofu = srFood("Firm tofu", "4 oz, drained, raw", 172475, "Tofu, raw, firm, prepared with calcium sulfate", 113.398, macros(144, 17.3, 2.78, 8.72), "raw, firm, drained");
+const tempeh = srFood("Tempeh", "4 oz (USDA preparation unspecified)", 174272, "Tempeh", 113.398, macros(192, 20.3, 7.64, 10.8), "not specified by USDA");
+const seitan = srFood("Seitan", "3 oz cooked, from 1 oz dry gluten + water", 168147, "Vital wheat gluten", 28.35, macros(370, 75.2, 13.8, 1.85), "28.35 g dry gluten combined with water; cooked yield 85 g");
+const lentils = srFood("Lentils", "1 cup cooked, boiled, unsalted", 172421, "Lentils, mature seeds, cooked, boiled, without salt", 198, macros(116, 9.02, 20.1, 0.38), "cooked, boiled, without salt");
+const blackBeans = srFood("Black beans", "1 cup cooked, boiled, unsalted", 173735, "Beans, black, mature seeds, cooked, boiled, without salt", 172, macros(132, 8.86, 23.7, 0.54), "cooked, boiled, without salt");
+const edamame = srFood("Edamame", "1 cup cooked, shelled", 168411, "Edamame, frozen, prepared", 155, macros(121, 11.9, 8.91, 5.2), "frozen, prepared, shelled");
+const tvp = sourcedFood("Textured vegetable protein", "1/2 cup dry (48 g)", { fdcId: 2707451, description: "Textured vegetable protein, dry", dataType: "Survey (FNDDS)", servingGrams: 48, per100g: macros(366, 51.1, 32.9, 3.33), preparationState: "dry" });
+
+export const proteinFoods: MacroFood[] = [chickenBreast, turkeyBreast, groundTurkey, groundBeef, sirloin, porkTenderloin, tuna, cod, tilapia, shrimp, salmon, wholeEgg, eggWhites, nonfatGreekYogurt, lowfatGreekYogurt, cottageCheese, skimMilk, whey, tofu, tempeh, seitan, lentils, blackBeans, edamame, tvp];
+
+const whiteRice = srFood("White rice", "1 cup cooked, long-grain", 168878, "Rice, white, long-grain, regular, enriched, cooked", 158, macros(130, 2.69, 28.2, 0.28), "cooked");
+const brownRice = srFood("Brown rice", "1 cup cooked, medium-grain", 168875, "Rice, brown, medium-grain, cooked (Includes foods for USDA's Food Distribution Program)", 195, macros(112, 2.32, 23.5, 0.83), "cooked");
+const oats = srFood("Oats", "1/2 cup dry (40 g), rolled", 173904, "Cereals, oats, regular and quick, not fortified, dry", 40, macros(379, 13.2, 67.7, 6.52), "dry");
+const quinoa = srFood("Quinoa", "1 cup cooked", 168917, "Quinoa, cooked", 185, macros(120, 4.4, 21.3, 1.92), "cooked");
+const potato = srFood("White potato", "1 medium (173 g), baked, flesh and skin", 170030, "Potatoes, Russet, flesh and skin, baked", 173, macros(95, 2.63, 21.4, 0.13), "baked, flesh and skin");
+const sweetPotato = srFood("Sweet potato", "1 medium baked in skin", 168483, "Sweet potato, cooked, baked in skin, flesh, without salt", 114, macros(90, 2.01, 20.7, 0.15), "baked in skin, flesh, without salt");
+const wheatBread = srFood("Whole-wheat bread", "1 slice (32 g), commercially prepared", 172688, "Bread, whole-wheat, commercially prepared", 32, macros(252, 12.4, 42.7, 3.5), "commercially prepared");
+const bagel = srFood("Plain bagel", "1 medium (105 g), unenriched", 175051, "Bagels, plain, unenriched, without calcium propionate(includes onion, poppy, sesame)", 105, macros(275, 10.5, 53.4, 1.6), "plain, unenriched");
+const tortilla = sourcedFood("Corn tortilla", "2 small (52 g)", { fdcId: 2707823, description: "Tortilla, corn", dataType: "Survey (FNDDS)", servingGrams: 52, per100g: macros(218, 5.7, 44.6, 2.85), preparationState: "as served; custom 52 g portion" });
+const pasta = srFood("Pasta", "1 cup cooked (140 g), enriched, unsalted", 169737, "Pasta, cooked, enriched, without added salt", 140, macros(158, 5.8, 30.9, 0.93), "cooked, enriched, without added salt");
+const couscous = srFood("Couscous", "1 cup cooked", 169700, "Couscous, cooked", 157, macros(112, 3.79, 23.2, 0.16), "cooked");
+const chickpeas = srFood("Chickpeas", "1 cup cooked, boiled, unsalted", 173757, "Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, without salt", 164, macros(164, 8.86, 27.4, 2.59), "cooked, boiled, without salt");
+const banana = srFood("Banana", "1 medium, raw", 173944, "Bananas, raw", 118, macros(89, 1.09, 22.8, 0.33), "raw");
+const apple = srFood("Apple", "1 medium, raw, with skin", 171688, "Apples, raw, with skin (Includes foods for USDA's Food Distribution Program)", 182, macros(52, 0.26, 13.8, 0.17), "raw, with skin");
+const blueberries = srFood("Blueberries", "1 cup, raw", 171711, "Blueberries, raw", 148, macros(57, 0.74, 14.5, 0.33), "raw");
+const corn = srFood("Sweet corn", "1 cup cooked, boiled, drained", 169999, "Corn, sweet, yellow, cooked, boiled, drained, without salt", 149, macros(96, 3.41, 21, 1.5), "cooked, boiled, drained, without salt");
+const peas = srFood("Green peas", "1 cup (160 g), frozen, boiled, drained", 170105, "Peas, green, frozen, cooked, boiled, drained, with salt", 160, macros(78, 5.15, 14.3, 0.27), "frozen, cooked, boiled, drained, with salt");
+const puffedWheat = srFood("Puffed wheat cereal", "1 cup (12 g), ready-to-eat", 173913, "Cereals ready-to-eat, wheat, puffed, fortified", 12, macros(364, 14.7, 79.6, 1.2), "ready-to-eat, fortified");
+
+export const carbFoods: MacroFood[] = [whiteRice, brownRice, oats, quinoa, potato, sweetPotato, wheatBread, bagel, tortilla, pasta, couscous, chickpeas, republish(blackBeans, "Black beans"), banana, apple, blueberries, corn, peas, puffedWheat];
+
+const oliveOil = srFood("Olive oil", "1 tbsp, measured", 171413, "Oil, olive, salad or cooking", 13.5, macros(884, 0, 0, 100), "salad or cooking oil");
+const butter = srFood("Butter", "1 tbsp, salted", 173410, "Butter, salted", 14.2, macros(717, 0.85, 0.06, 81.1), "salted");
+const avocado = srFood("Avocado", "1/2 avocado (about 101 g), raw", 171705, "Avocados, raw, all commercial varieties", 100.5, macros(160, 2, 8.53, 14.7), "raw; half of USDA 201 g whole portion");
+const almonds = srFood("Almonds", "1 oz (about 23), raw", 170567, "Nuts, almonds", 28.35, macros(579, 21.2, 21.6, 49.9), "raw");
+const walnuts = srFood("Walnuts", "1 oz, raw", 170187, "Nuts, walnuts, english", 28.35, macros(654, 15.2, 13.7, 65.2), "raw");
+const peanuts = srFood("Peanuts", "1 oz, raw", 172430, "Peanuts, all types, raw", 28.35, macros(567, 25.8, 16.1, 49.2), "raw");
+const peanutButter = srFood("Peanut butter", "2 tbsp, smooth, unsalted", 172470, "Peanut butter, smooth style, without salt", 32, macros(598, 22.2, 22.3, 51.4), "smooth, without salt");
+const chia = srFood("Chia seeds", "2 tbsp (28 g), dried", 170554, "Seeds, chia seeds, dried", 28, macros(486, 16.5, 42.1, 30.7), "dried; custom 28 g portion");
+const flax = srFood("Flaxseed", "2 tbsp (14 g), ground", 169414, "Seeds, flaxseed", 14, macros(534, 18.3, 28.9, 42.2), "ground; two USDA 7 g tablespoon portions");
+const tahini = srFood("Tahini", "1 tbsp, roasted sesame paste", 170189, "Seeds, sesame butter, tahini, from roasted and toasted kernels (most common type)", 15, macros(595, 17, 21.2, 53.8), "roasted and toasted sesame paste");
+const mayonnaise = srFood("Mayonnaise", "1 tbsp, regular", 171009, "Salad dressing, mayonnaise, regular", 13.8, macros(680, 0.96, 0.57, 74.8), "regular");
+const cheddar = srFood("Cheddar", "1 oz", 173414, "Cheese, cheddar (Includes foods for USDA's Food Distribution Program)", 28.35, macros(403, 22.9, 3.37, 33.3), "cheddar cheese");
+const darkChocolate = srFood("Dark chocolate", "1 oz, 70–85% cacao", 170273, "Chocolate, dark, 70-85% cacao solids", 28.35, macros(598, 7.79, 45.9, 42.6), "70–85% cacao solids");
+
+export const fatFoods: MacroFood[] = [oliveOil, butter, avocado, almonds, walnuts, peanuts, peanutButter, chia, flax, tahini, mayonnaise, cheddar, darkChocolate];
+
 export const mixedFoods: MacroFood[] = [
-  { name: "Whole eggs", serving: "1 large, hard-boiled", calories: 78, protein: 6, carbs: 1, fat: 5 },
-  { name: "Salmon", serving: "4 oz Atlantic, cooked, dry heat", calories: 234, protein: 25, carbs: 0, fat: 14 },
-  { name: "Tofu", serving: "4 oz firm, drained, raw", calories: 92, protein: 10, carbs: 2, fat: 6 },
-  { name: "Tempeh", serving: "4 oz, cooked", calories: 221, protein: 22, carbs: 9, fat: 13 },
-  { name: "Lentils", serving: "1 cup cooked, boiled, unsalted", calories: 230, protein: 18, carbs: 40, fat: 1 },
-  { name: "Black beans", serving: "1 cup cooked, boiled, unsalted", calories: 227, protein: 15, carbs: 41, fat: 1 },
-  { name: "Greek yogurt", serving: "1 cup, plain, 2% fat", calories: 170, protein: 20, carbs: 9, fat: 5 },
-  { name: "Cottage cheese", serving: "1 cup, low-fat, 2% milkfat", calories: 183, protein: 24, carbs: 11, fat: 5 },
-  { name: "Almonds", serving: "1 oz (about 23), raw", calories: 164, protein: 6, carbs: 6, fat: 14 },
-  { name: "Peanut butter", serving: "2 tbsp, smooth, unsalted", calories: 191, protein: 7, carbs: 7, fat: 16 },
-  { name: "Chia seeds", serving: "2 tbsp (28 g), dried", calories: 138, protein: 5, carbs: 12, fat: 9 },
-  { name: "Edamame", serving: "1 cup cooked, shelled", calories: 188, protein: 18, carbs: 14, fat: 8 },
+  republish(wholeEgg, "Whole eggs"),
+  republish(salmon, "Salmon", "4 oz Atlantic, cooked, dry heat"),
+  republish(tofu, "Tofu", "4 oz firm, drained, raw"),
+  tempeh,
+  lentils,
+  blackBeans,
+  republish(lowfatGreekYogurt, "Greek yogurt", "1 cup (227 g), plain, lowfat"),
+  republish(cottageCheese, "Cottage cheese", "1 cup (220 g), low-fat, 2% milkfat"),
+  almonds,
+  peanutButter,
+  chia,
+  edamame,
 ];
 
 const greekYogurtBreakfastItems: MealItem[] = [
-  { name: "1 cup nonfat Greek yogurt", macros: { calories: 130, protein: 23, carbs: 9, fat: 0 } },
-  { name: "1/2 cup dry rolled oats", macros: { calories: 152, protein: 5, carbs: 27, fat: 3 } },
-  { name: "1 cup blueberries", macros: { calories: 84, protein: 1, carbs: 21, fat: 0 } },
-  { name: "1 tbsp chia seeds", macros: { calories: 69, protein: 2, carbs: 6, fat: 4 } },
+  { name: "1 cup nonfat Greek yogurt", macros: macros(138, 23, 8, 1) },
+  { name: "1/2 cup dry rolled oats", macros: macros(152, 5, 27, 3) },
+  { name: "1 cup blueberries", macros: macros(84, 1, 21, 0) },
+  { name: "1 tbsp chia seeds", macros: macros(68, 2, 6, 4) },
 ];
 
 const chickenRiceItems: MealItem[] = [
-  { name: "4 oz roasted chicken breast", macros: { calories: 187, protein: 35, carbs: 0, fat: 4 } },
-  { name: "1 cup cooked white rice", macros: { calories: 205, protein: 4, carbs: 45, fat: 0 } },
-  // USDA SR Legacy FDC 169967: "Broccoli, cooked, boiled, drained,
-  // without salt." Its 1/2-cup portion is 78 g, so one cup is 156 g.
-  { name: "1 cup boiled broccoli, drained", macros: { calories: 55, protein: 4, carbs: 11, fat: 1 } },
-  { name: "1 tsp olive oil", macros: { calories: 40, protein: 0, carbs: 0, fat: 5 } },
+  { name: "4 oz roasted chicken breast", macros: macros(187, 35, 0, 4) },
+  { name: "1 cup cooked white rice", macros: macros(205, 4, 45, 0) },
+  { name: "1 cup boiled broccoli, drained", macros: macros(55, 4, 11, 1) },
+  { name: "1 tsp olive oil", macros: macros(40, 0, 0, 5) },
 ];
 
 const cottageCheeseSnackItems: MealItem[] = [
-  { name: "1 cup 2% cottage cheese", macros: { calories: 183, protein: 24, carbs: 11, fat: 5 } },
-  { name: "1 medium apple", macros: { calories: 95, protein: 0, carbs: 25, fat: 0 } },
-  { name: "1 tbsp peanut butter", macros: { calories: 96, protein: 4, carbs: 4, fat: 8 } },
+  { name: "1 cup 2% cottage cheese", macros: macros(185, 24, 9, 5) },
+  { name: "1 medium apple", macros: macros(95, 0, 25, 0) },
+  { name: "1 tbsp peanut butter", macros: macros(96, 4, 4, 8) },
 ];
 
 export const mealExamples: MealExample[] = [
-  {
-    name: "Greek-yogurt breakfast",
-    items: greekYogurtBreakfastItems,
-    total: sumMacros(greekYogurtBreakfastItems.map((item) => item.macros)),
-  },
-  {
-    name: "Chicken-rice lunch / dinner",
-    items: chickenRiceItems,
-    total: sumMacros(chickenRiceItems.map((item) => item.macros)),
-  },
-  {
-    name: "Cottage-cheese snack",
-    items: cottageCheeseSnackItems,
-    total: sumMacros(cottageCheeseSnackItems.map((item) => item.macros)),
-  },
+  { name: "Greek-yogurt breakfast", items: greekYogurtBreakfastItems, total: sumMacros(greekYogurtBreakfastItems.map((item) => item.macros)) },
+  { name: "Chicken-rice lunch / dinner", items: chickenRiceItems, total: sumMacros(chickenRiceItems.map((item) => item.macros)) },
+  { name: "Cottage-cheese snack", items: cottageCheeseSnackItems, total: sumMacros(cottageCheeseSnackItems.map((item) => item.macros)) },
 ];
 
-export const logDays = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-] as const;
+export const logDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
