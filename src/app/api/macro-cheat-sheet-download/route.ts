@@ -422,7 +422,6 @@ export async function POST(req: NextRequest) {
     const deliveryMode = pdfBuffer ? "attached" : "link_only";
     const idempotencyKey = createDeliveryIdempotencyKey({
       normalizedEmail,
-      deliveryMode,
     });
     const resend = getResend();
     const contactResolution = resolveContactWithinBudget(

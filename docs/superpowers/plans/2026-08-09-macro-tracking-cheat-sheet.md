@@ -458,7 +458,7 @@ Cover all of these cases with named tests:
 6. attached and link-only delivery use distinct truthful subjects, bodies, payloads, and success modes, and email has no App Store URL;
 7. forwarded origins accept only canonical production, configured Vercel hosts, or local development and reject hostile values;
 8. cumulative near-limit stages stop at the one 12-second request budget;
-9. a Resend promise settling after its local deadline returns uncertain delivery, and a same-email/mode retry supplies the exact same HMAC idempotency key with no raw email;
+9. a link-only Resend promise settling after its local deadline returns uncertain delivery, and an attached retry for the same normalized email supplies the exact same campaign/version HMAC key with no raw email;
 10. client/server ordering proves 12 seconds server + 3 seconds transport margin = 15 seconds client.
 
 - [ ] **Step 2: Run the route test and verify the missing-module failure**
@@ -475,7 +475,7 @@ Create one `ServerRequestBudget` at route entry. Body parsing cannot pass its ab
 
 The email must state `five printable reference sheets plus a cover`, list the quick start, three food charts, meal builder, and seven-day log, and retain the deployment-aware download button. Attached delivery uses subject `Your Macro Tracking Cheat Sheet (PDF inside)` and includes the PDF. Render failure uses subject `Your Macro Tracking Cheat Sheet download link`, contains no attachment claim, and has no attachment payload. Neither email mode includes a direct App Store CTA; the tracked App Store conversion stays in the article.
 
-Call the installed Resend SDK as `resend.emails.send(payload, { idempotencyKey })`. Derive a key from normalized email and delivery mode with HMAC-SHA256 and the existing rate-limit secret. Keep the key stable across clock boundaries and let Resend's rolling 24-hour key retention define the retry window; the key contains no raw email and remains within Resend's 256-character maximum. If Resend misses its local/remaining deadline, return retryable `503` plus `deliveryStatus: "uncertain"` and instruct the reader to check the inbox before retrying; a late success and retry then reuse the provider key rather than duplicate delivery. Do not call or modify the calorie route.
+Call the installed Resend SDK as `resend.emails.send(payload, { idempotencyKey })`. Derive a key from immutable campaign/version plus normalized email only with HMAC-SHA256 and the existing rate-limit secret. Do not include mutable attachment/link-only outcome: a timed-out link-only request may retry after the PDF renderer recovers, and both provider calls must deduplicate under one key. Keep the key stable across clock boundaries and let Resend's rolling 24-hour key retention define the retry window; it contains no raw email and remains within Resend's 256-character maximum. If Resend misses its local/remaining deadline, return retryable `503` plus `deliveryStatus: "uncertain"` and instruct the reader to check the inbox before retrying. Do not call or modify the calorie route.
 
 - [ ] **Step 4: Run the macro and legacy delivery suites**
 
@@ -871,7 +871,7 @@ Run: `npm run verify:static-routes`
 
 Expected: all commands exit `0`; Next.js statically generates `/blog/macro-tracking-cheat-sheet` and both API routes compile for the Node runtime.
 
-Release order is a separate, approval-gated operation: apply and verify `20260809233743_macro_cheat_sheet_rate_limits.sql` in the target Supabase environment first; configure a stable minimum-32-random-byte `MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET` plus the existing service-role and Resend secrets in Development, Preview, and Production as applicable; only then deploy the application. To roll back, redeploy the prior application first and retain the additive table/RPC until no deployed version calls it. Do not apply a remote migration or deploy while executing this local plan.
+Release order is a separate, approval-gated operation: apply and verify `20260809233743_macro_cheat_sheet_rate_limits.sql` in the target Supabase environment first; then configure the same environment's Supabase URL, matching service-role key, minimum-32-random-byte limiter secret, and Resend key before deploying the application. Production is enabled by default. Preview/local remain disabled unless explicitly approved with their own isolated non-production Supabase projects and credentials—never Production service-role credentials. To roll back, redeploy the prior application first and retain the additive table/RPC until no deployed version calls it. Do not apply a remote migration or deploy while executing this local plan.
 
 - [ ] **Step 3: Download and visually inspect the actual PDF**
 

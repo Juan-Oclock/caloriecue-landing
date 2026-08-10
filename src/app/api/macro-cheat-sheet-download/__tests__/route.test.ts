@@ -36,8 +36,8 @@ const originalVercelBranchUrl = process.env.VERCEL_BRANCH_URL;
 const originalVercelProductionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
 const EXPECTED_CONTACT_RESOLUTION_TIMEOUT_MS = 1_000;
 const TEST_RATE_LIMIT_SECRET = "0123456789abcdef0123456789abcdef";
-const EXPECTED_ATTACHED_IDEMPOTENCY_KEY =
-  "macro-cheat-sheet/v1/attached/d2ee135c69383821964e1134b505ee649c5c2cafcb9b504b05fe85715c625f5d";
+const EXPECTED_DELIVERY_IDEMPOTENCY_KEY =
+  "macro-cheat-sheet/v1/f09cbbbf968f6e462c482dc9eb24d19484050e418b9b78ea4325fa412541adba";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -469,7 +469,7 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     expect(payload.html).not.toContain("apps.apple.com");
   });
 
-  it("reports uncertain delivery and reuses a privacy-safe idempotency key after a late Resend success across midnight", async () => {
+  it("reuses one privacy-safe campaign key when an uncertain link-only attempt retries with an attachment", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-08-10T23:59:55.000Z"));
     mocks.contactGet.mockResolvedValue({
@@ -480,6 +480,7 @@ describe("POST /api/macro-cheat-sheet-download", () => {
       data: { id: string };
       error: null;
     }>();
+    mocks.renderPdf.mockRejectedValueOnce(new Error("First render failed"));
     mocks.emailSend.mockReturnValueOnce(lateDelivery.promise);
 
     const responsePromise = POST(request(" Reader@Example.com "));
@@ -499,11 +500,19 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     const retryResponse = await POST(request("reader@example.com"));
     expect(retryResponse.status).toBe(200);
     expect(mocks.emailSend).toHaveBeenCalledTimes(2);
+    expect(mocks.emailSend.mock.calls[0][0]).not.toHaveProperty("attachments");
+    expect(mocks.emailSend.mock.calls[0][0].subject).toBe(
+      "Your Macro Tracking Cheat Sheet download link",
+    );
+    expect(mocks.emailSend.mock.calls[1][0]).toHaveProperty("attachments");
+    expect(mocks.emailSend.mock.calls[1][0].subject).toBe(
+      "Your Macro Tracking Cheat Sheet (PDF inside)",
+    );
 
     const firstOptions = mocks.emailSend.mock.calls[0][1];
     const retryOptions = mocks.emailSend.mock.calls[1][1];
     expect(firstOptions).toEqual({
-      idempotencyKey: EXPECTED_ATTACHED_IDEMPOTENCY_KEY,
+      idempotencyKey: EXPECTED_DELIVERY_IDEMPOTENCY_KEY,
     });
     expect(retryOptions).toEqual(firstOptions);
     expect(JSON.stringify(firstOptions)).not.toContain("reader@example.com");

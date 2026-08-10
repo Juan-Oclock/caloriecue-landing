@@ -1,6 +1,8 @@
 import { createHmac } from "node:crypto";
 
 const MINIMUM_SECRET_BYTES = 32;
+const DELIVERY_CAMPAIGN = "macro-cheat-sheet";
+const DELIVERY_VERSION = "v1";
 
 export class MacroCheatSheetSecretUnavailableError extends Error {
   constructor() {
@@ -21,16 +23,14 @@ export function getMacroCheatSheetSecret(): string {
 
 export function createDeliveryIdempotencyKey({
   normalizedEmail,
-  deliveryMode,
 }: {
   normalizedEmail: string;
-  deliveryMode: "attached" | "link_only";
 }): string {
   const digest = createHmac("sha256", getMacroCheatSheetSecret())
     .update(
-      `delivery:${normalizedEmail.trim().toLowerCase()}:${deliveryMode}`,
+      `delivery:${DELIVERY_CAMPAIGN}:${DELIVERY_VERSION}:${normalizedEmail.trim().toLowerCase()}`,
     )
     .digest("hex");
 
-  return `macro-cheat-sheet/v1/${deliveryMode}/${digest}`;
+  return `${DELIVERY_CAMPAIGN}/${DELIVERY_VERSION}/${digest}`;
 }
