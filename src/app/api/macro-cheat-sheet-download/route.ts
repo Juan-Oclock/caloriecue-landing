@@ -5,14 +5,23 @@ import {
   MACRO_CHEAT_SHEET_PDF_FILENAME,
   renderMacroCheatSheetPdf,
 } from "@/lib/macro-cheat-sheet/MacroCheatSheetDocument";
+import {
+  CONTACT_STAGE_BUDGET_MS,
+  PDF_RENDER_STAGE_BUDGET_MS,
+  RATE_LIMIT_STAGE_BUDGET_MS,
+  RESEND_STAGE_BUDGET_MS,
+  SERVER_REQUEST_BUDGET_MS,
+  ServerRequestBudget,
+  ServerRequestBudgetExceededError,
+  UNCERTAIN_DELIVERY_MESSAGE,
+} from "@/lib/macro-cheat-sheet/delivery-budget";
+import { createDeliveryIdempotencyKey } from "@/lib/macro-cheat-sheet/delivery-security";
 import { checkMacroCheatSheetRateLimit } from "@/lib/macro-cheat-sheet/rate-limit";
 
 // @react-pdf/renderer (used to build the attached PDF) needs the Node runtime.
 export const runtime = "nodejs";
 
 const AUDIENCE_ID = "511ab1c1-5a5c-4b58-9d22-8bf8aaf2e912";
-const CONTACT_RESOLUTION_TIMEOUT_MS = 1_000;
-const EMAIL_DELIVERY_TIMEOUT_MS = 8_000;
 const MAX_REQUEST_BYTES = 4_096;
 const MAX_EMAIL_LENGTH = 254;
 const RETRY_AFTER_SECONDS = 60;
@@ -186,6 +195,19 @@ function retryableServiceResponse(error: string) {
   );
 }
 
+function uncertainDeliveryResponse() {
+  return NextResponse.json(
+    {
+      error: UNCERTAIN_DELIVERY_MESSAGE,
+      deliveryStatus: "uncertain" as const,
+    },
+    {
+      status: 503,
+      headers: { "Retry-After": String(RETRY_AFTER_SECONDS) },
+    },
+  );
+}
+
 function getMacroCheatSheetEmailHtml(
   downloadUrl: string,
   hasAttachment: boolean,
@@ -265,52 +287,42 @@ async function resolveContact(
   return false;
 }
 
-function resolveContactWithinTimeout(
+async function resolveContactWithinBudget(
   resend: ReturnType<typeof getResend>,
   normalizedEmail: string,
+  requestBudget: ServerRequestBudget,
 ): Promise<boolean> {
-  let timeoutId: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<boolean>((resolve) => {
-    timeoutId = setTimeout(
-      () => resolve(false),
-      CONTACT_RESOLUTION_TIMEOUT_MS,
-    );
-  });
-
-  return Promise.race([resolveContact(resend, normalizedEmail), timeout]).finally(
-    () => {
-      if (timeoutId !== undefined) clearTimeout(timeoutId);
-    },
-  );
-}
-
-async function deliverEmailWithinTimeout<T>(
-  delivery: PromiseLike<T>,
-): Promise<T> {
-  let timeoutId: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timeoutId = setTimeout(
-      () => reject(new EmailDeliveryTimeoutError()),
-      EMAIL_DELIVERY_TIMEOUT_MS,
-    );
-  });
-
   try {
-    return await Promise.race([Promise.resolve(delivery), timeout]);
-  } finally {
-    if (timeoutId !== undefined) clearTimeout(timeoutId);
+    return await requestBudget.run(
+      "contact resolution",
+      CONTACT_STAGE_BUDGET_MS,
+      () => resolveContact(resend, normalizedEmail),
+    );
+  } catch {
+    return false;
   }
 }
 
 export async function POST(req: NextRequest) {
+  const requestBudget = new ServerRequestBudget();
   let parsedBody: unknown;
   try {
-    parsedBody = JSON.parse(await readBoundedRequestBody(req));
+    const body = await requestBudget.run(
+      "request body",
+      SERVER_REQUEST_BUDGET_MS,
+      () => readBoundedRequestBody(req),
+    );
+    parsedBody = JSON.parse(body);
   } catch (error) {
     if (error instanceof RequestBodyTooLargeError) {
       return NextResponse.json(
         { error: "Request body is too large" },
         { status: 413 },
+      );
+    }
+    if (error instanceof ServerRequestBudgetExceededError) {
+      return retryableServiceResponse(
+        "Download delivery is temporarily unavailable. Please try again.",
       );
     }
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
@@ -353,10 +365,15 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const decision = await checkMacroCheatSheetRateLimit({
-      normalizedEmail,
-      ipAddress,
-    });
+    const decision = await requestBudget.run(
+      "rate limiting",
+      RATE_LIMIT_STAGE_BUDGET_MS,
+      () =>
+        checkMacroCheatSheetRateLimit({
+          normalizedEmail,
+          ipAddress,
+        }),
+    );
     if (!decision.allowed) {
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },
@@ -390,7 +407,11 @@ export async function POST(req: NextRequest) {
 
     let pdfBuffer: Buffer | null = null;
     try {
-      pdfBuffer = await renderMacroCheatSheetPdf();
+      pdfBuffer = await requestBudget.run(
+        "PDF rendering",
+        PDF_RENDER_STAGE_BUDGET_MS,
+        () => renderMacroCheatSheetPdf(),
+      );
     } catch (pdfError) {
       console.error(
         "Macro cheat sheet PDF generation failed, sending link only:",
@@ -399,41 +420,52 @@ export async function POST(req: NextRequest) {
     }
 
     const deliveryMode = pdfBuffer ? "attached" : "link_only";
+    const idempotencyKey = createDeliveryIdempotencyKey({
+      normalizedEmail,
+      deliveryMode,
+    });
     const resend = getResend();
-    const contactResolution = resolveContactWithinTimeout(
+    const contactResolution = resolveContactWithinBudget(
       resend,
       normalizedEmail,
+      requestBudget,
     );
-    const emailDelivery = resend.emails.send({
-      from: "CalorieCue <hello@track.caloriecue.app>",
-      to: normalizedEmail,
-      subject: pdfBuffer
-        ? "Your Macro Tracking Cheat Sheet (PDF inside)"
-        : "Your Macro Tracking Cheat Sheet download link",
-      html: getMacroCheatSheetEmailHtml(downloadUrl, pdfBuffer !== null),
-      text: pdfBuffer
-        ? `Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! Your PDF is attached. You can also download it here: ${downloadUrl}`
-        : `Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! Download your copy here: ${downloadUrl}`,
-      ...(pdfBuffer
-        ? {
-            attachments: [
-              {
-                filename: MACRO_CHEAT_SHEET_PDF_FILENAME,
-                content: pdfBuffer,
-              },
-            ],
-          }
-        : {}),
-    });
 
     let sendResult;
     try {
-      sendResult = await deliverEmailWithinTimeout(emailDelivery);
+      sendResult = await requestBudget.run(
+        "Resend delivery",
+        RESEND_STAGE_BUDGET_MS,
+        () =>
+          resend.emails.send(
+            {
+              from: "CalorieCue <hello@track.caloriecue.app>",
+              to: normalizedEmail,
+              subject: pdfBuffer
+                ? "Your Macro Tracking Cheat Sheet (PDF inside)"
+                : "Your Macro Tracking Cheat Sheet download link",
+              html: getMacroCheatSheetEmailHtml(downloadUrl, pdfBuffer !== null),
+              text: pdfBuffer
+                ? `Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! Your PDF is attached. You can also download it here: ${downloadUrl}`
+                : `Thanks for grabbing the CalorieCue Macro Tracking Cheat Sheet! Download your copy here: ${downloadUrl}`,
+              ...(pdfBuffer
+                ? {
+                    attachments: [
+                      {
+                        filename: MACRO_CHEAT_SHEET_PDF_FILENAME,
+                        content: pdfBuffer,
+                      },
+                    ],
+                  }
+                : {}),
+            },
+            { idempotencyKey },
+          ),
+        () => new EmailDeliveryTimeoutError(),
+      );
     } catch (error) {
       if (error instanceof EmailDeliveryTimeoutError) {
-        return retryableServiceResponse(
-          "Email delivery timed out. Please try again.",
-        );
+        return uncertainDeliveryResponse();
       }
       throw error;
     }

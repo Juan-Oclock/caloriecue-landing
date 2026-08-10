@@ -48,7 +48,7 @@ The writing should remain practical, direct, and non-dogmatic. It must not prese
 Target length is roughly 2,000–2,600 words. The page should answer the query quickly, preview enough of the resource to establish trust, and avoid withholding the core answer behind the email form.
 
 1. **Direct answer and TL;DR:** define the three energy-providing macros and the 4/4/9 calorie rule in a compact box.
-2. **What the printable contains:** show the five usable sheets and place the first email form after this preview.
+2. **What the printable contains:** show the five usable sheets and place the first email form after the complete preview but before the next H2, so the article H1 never jumps directly into the form's H3.
 3. **How to use a macro food list:** explain dominant macro versus complete macro profile, serving-state consistency, and why mixed foods belong in more than one column.
 4. **Protein foods:** preview a concise table with serving, calories, protein, carbs, and fat; link to the protein-per-calorie chart for deeper ranking.
 5. **Carbohydrate foods:** preview common whole-food and convenience options with realistic servings, fiber context, and preparation caveats.
@@ -123,24 +123,28 @@ The deliverable is **five printable reference pages plus a cover** (six physical
 The new asset matches the existing calorie cheat sheet's conversion model while remaining operationally isolated from it.
 
 1. The reader submits a validated email through `MacroCheatSheetForm`.
-2. The client normalizes the address once, includes an empty honeypot field, and posts bounded JSON to `/api/macro-cheat-sheet-download` with a 10-second browser deadline.
+2. The client normalizes the address once, includes an empty honeypot field, and posts bounded JSON to `/api/macro-cheat-sheet-download` with a 15-second browser deadline.
 3. The Node route validates a bounded unknown body, derives a trusted client IP, and atomically consumes HMAC-keyed IP and normalized-email windows through a service-role-only Supabase RPC before doing any PDF, contact, or email work.
-4. The route attempts to render and attach the macro PDF, sends a branded Resend email, and adds a new address to the existing audience.
-5. Attached delivery includes both the attachment and a deployment-aware fallback link to `/api/macro-cheat-sheet/pdf`; render failure sends a truthfully titled link-only email.
-6. The successful response includes `deliveryMode: "attached" | "link_only"`, and the form branches its success copy accordingly only after Resend accepts the email.
-7. If the address was newly added to the audience, the client records `generate_lead` with `lead_type: macro_cheat_sheet`, `location: cheat_sheet_form`, and `content_slug: macro-tracking-cheat-sheet`.
-8. The article's App Store links continue to use the existing tracked `app_store_click` behavior and blog content slug. Email contains no direct, untracked App Store CTA.
+4. One 12-second server request budget starts before body parsing. The rate-limit, PDF, contact, and Resend stages each receive the smaller of their own cap and the remaining request time, leaving a three-second client transport margin after the server's declared maximum.
+5. The route attempts to render and attach the macro PDF, sends a branded Resend email, and adds a new address to the existing audience.
+6. Every send uses Resend's supported `idempotencyKey` option. The key is an HMAC-SHA256 digest of the normalized email and delivery mode; it is stable across clock boundaries, contains no raw email, remains below Resend's 256-character limit, and uses the existing server-only rate-limit secret. Resend's rolling 24-hour idempotency retention defines the retry window and permits a fresh delivery after expiry without a fragile application-side time-bucket boundary.
+7. Attached delivery includes both the attachment and a deployment-aware fallback link to `/api/macro-cheat-sheet/pdf`; render failure sends a truthfully titled link-only email.
+8. The successful response includes `deliveryMode: "attached" | "link_only"`, and the form branches its success copy accordingly only after Resend accepts the email.
+9. If Resend has not settled before its local/remaining deadline, the route returns retryable `503` with `deliveryStatus: "uncertain"`; the form tells the reader to check the inbox before retrying instead of claiming failure or success.
+10. If the address was newly added to the audience, the client records `generate_lead` with `lead_type: macro_cheat_sheet`, `location: cheat_sheet_form`, and `content_slug: macro-tracking-cheat-sheet`.
+11. The article's App Store links continue to use the existing tracked `app_store_click` behavior and blog content slug. Email contains no direct, untracked App Store CTA.
 
 The existing calorie-cheat-sheet form and API routes remain unchanged. The second lead magnet will use its own renderer, form, routes, email copy, and tests. A larger shared lead-magnet framework is deferred until a third asset makes that abstraction worthwhile.
 
 ## Failure handling
 
 - Malformed, non-object, or invalid JSON and invalid/missing email return `400`; over-limit bodies return `413` before downstream work.
-- The Supabase-backed limiter uses 10 requests per IP per 15 minutes and 3 per normalized email per hour. A limit returns `429` plus `Retry-After`; missing IP, configuration, database failure, or a 1.5-second limiter timeout fails closed with retryable `503`.
+- The Supabase-backed limiter uses 10 requests per IP per 15 minutes and 3 per normalized email per hour. A limit returns `429` plus `Retry-After`; missing IP, a secret shorter than 32 bytes, configuration/database failure, or a 1.5-second limiter timeout fails closed with retryable `503`.
 - Missing Resend configuration returns `500` without exposing environment details.
 - Contact lookup/creation remains non-blocking and time-bounded so newsletter enrollment cannot delay email delivery.
 - PDF calls have a five-second deadline, preserve one shared underlying render, and use a 30-second circuit cooldown so a hang cannot fan out into parallel renders. If attachment rendering fails or times out, send a subject/body that promise only the fallback download link.
-- Resend delivery has an eight-second deadline; a deadline returns retryable `503`. The client has its own ten-second abort deadline and restores the form with an announced retry message.
+- The complete server request has a 12-second absolute budget. Rate limiting (1.5 seconds), PDF rendering (5 seconds), contact resolution (1 second), and Resend (8 seconds) are all capped again by the remaining server time, so sequential near-limit stages cannot exceed that total.
+- A Resend deadline returns retryable `503` with an uncertain-delivery contract. A deterministic, privacy-safe idempotency key prevents a late provider success plus same-window retry from sending twice. The client waits 15 seconds, then aborts with the same announced check-inbox guidance; it cannot expire before the 12-second server maximum plus the explicit three-second transport margin.
 - If email delivery fails, do not display success and do not fire the lead event.
 - The PDF download route returns a stable filename, `Content-Type: application/pdf`, inline disposition, and cache headers appropriate for static content.
 - Successful PDF rendering is memoized per warm server instance. The PDF declares `en-US` and page bookmarks; `@react-pdf/renderer` 4.5.1 does not expose stable semantic tagging primitives, so the HTML article remains the accessible version of the core reference tables.
@@ -180,9 +184,15 @@ Add one contextual link from `/blog/how-to-count-macros` to the new printable, a
 - `src/lib/analytics.ts`
 - `src/lib/macro-cheat-sheet/data.ts`
 - `src/lib/macro-cheat-sheet/MacroCheatSheetDocument.tsx`
+- `src/lib/macro-cheat-sheet/delivery-budget.ts`
+- `src/lib/macro-cheat-sheet/delivery-security.ts`
+- `src/lib/macro-cheat-sheet/rate-limit.ts`
 - `src/app/api/macro-cheat-sheet-download/route.ts`
 - `src/app/api/macro-cheat-sheet-download/__tests__/route.test.ts`
 - `src/app/api/macro-cheat-sheet/pdf/route.ts`
+- `supabase/migrations/20260809233743_macro_cheat_sheet_rate_limits.sql`
+- `.env.example`
+- `docs/admin-deployment.md`
 - `public/blog/macro-tracking-cheat-sheet.webp`
 
 Existing CalorieCue logo, brand colors, and app mockup assets may be reused. Social carousel production remains out of scope until the article is implemented and approved.
@@ -192,7 +202,8 @@ Existing CalorieCue logo, brand colors, and app mockup assets may be reused. Soc
 Implementation will follow test-driven development for the new behavior.
 
 - Component tests: invalid email, pending state, API error, successful delivery, macro-specific copy, correct endpoint, and analytics only when `leadCreated` is true.
-- API tests: normalization, validation, missing Resend key, successful email, existing/new contact behavior, attachment filename, attachment-render failure fallback, delivery failure, and deployment-aware download URL.
+- API tests: bounded parsing, normalization, validation, rate limiting, missing configuration, existing/new contact behavior, attachment filename, truthful link-only fallback, deployment-aware download URL, cumulative near-limit stage delays, late Resend settlement, and deterministic privacy-safe retry keys.
+- Component/contract tests prove the 15-second client deadline stays beyond the 12-second server budget plus transport margin and that uncertain delivery never claims success or immediate failure.
 - PDF tests: renderer returns a non-empty buffer with a PDF signature, filename is stable, and the download route sets correct headers.
 - Content tests: unique slug/title intent, required metadata, FAQ frontmatter, the macro form component, tracked App Store CTA, and all expected internal links.
 - Run focused tests first, then the full test suite and `npm run build`.
@@ -201,6 +212,8 @@ Implementation will follow test-driven development for the new behavior.
 
 ## Deployment and repository constraints
 
+- Apply `supabase/migrations/20260809233743_macro_cheat_sheet_rate_limits.sql` before deploying code that invokes its RPC. Configure a stable `MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET` of at least 32 random bytes separately in Development, Preview, and Production.
+- Release gates are the focused delivery matrix, full suite, SEO verifier, static-route verifier, and production build. Roll back application code first while retaining the additive migration; remove the RPC/table only through a later reviewed migration after no deployed code depends on it.
 - Work on `codex/macro-tracking-cheat-sheet` and stage only files related to this feature.
 - Existing untracked social and video directories are user-owned and remain out of scope.
 - Do not merge, rebase, cherry-pick, clean up, or otherwise involve the long-lived `content/draft` branch.

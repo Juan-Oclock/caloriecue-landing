@@ -96,7 +96,7 @@ Design and security properties:
 - The RPC is `SECURITY INVOKER`, uses fixed `search_path = ''`, validates all arguments, sorts two advisory transaction locks to prevent deadlock, checks both buckets atomically, and returns a bounded retry interval.
 - An indexed opportunistic deletion removes windows older than two days.
 - The server client disables auth persistence, refresh, and URL-session detection. The service key never enters client code.
-- The application gives the RPC 1.5 seconds and fails closed on absent secret/config, Supabase error, malformed result, or deadline.
+- The application gives the RPC 1.5 seconds and fails closed on an absent or shorter-than-32-byte secret/config, Supabase error, malformed result, or deadline.
 
 Fresh isolated validation used local image `public.ecr.aws/supabase/postgres:17.6.1.104`; the disposable container was removed afterward. Evidence:
 
@@ -118,14 +118,16 @@ The public POST route now:
 - selects the first valid bounded IP from Vercel-forwarded, forwarded-for, then real-IP headers and fails closed with retryable `503` if none exists;
 - performs rate limiting before PDF, contact, or Resend work;
 - returns `429` plus the database `Retry-After` when either window is exhausted;
-- gives PDF rendering 5 seconds, Resend 8 seconds, and the browser request 10 seconds;
+- starts one 12-second absolute server budget before body parsing and gives rate limiting, PDF rendering, contact resolution, and Resend the smaller of their 1.5/5/1/8-second stage cap and the remaining server time;
+- passes a deterministic HMAC-SHA256 Resend idempotency key derived from normalized email and delivery mode, with no raw email; Resend's rolling 24-hour retention defines the duplicate-suppression window without an application time-bucket boundary;
+- leaves the browser open for 15 seconds, three seconds beyond the declared server maximum, including response-body parsing;
 - returns `deliveryMode: "attached" | "link_only"` only after Resend accepts delivery;
 - uses attachment-specific subject/body only when a PDF exists, and a link-only subject/body with no attachment claim when rendering fails;
 - contains no direct untracked App Store CTA in email. The article's existing tracked React CTA remains unchanged.
 
 The PDF coordinator caches successful output, shares one underlying in-flight render, applies per-caller deadlines, opens a 30-second circuit after timeout/failure, observes late rejection, and never starts a parallel renderer while the original render is unresolved. If that render eventually succeeds, it fills the cache and recovers callers.
 
-The form serializes the already-normalized address, sends the honeypot, aborts after 10 seconds, restores enabled controls, announces an exact retry message, rejects malformed successful payloads, and branches truthful attached/link-only success copy.
+The form serializes the already-normalized address, sends the honeypot, aborts after 15 seconds, restores enabled controls, announces exact uncertain-delivery guidance, rejects malformed successful payloads, and branches truthful attached/link-only success copy.
 
 ## TDD evidence
 
@@ -181,6 +183,30 @@ Real Chrome QA was completed on `http://localhost:3001/blog/macro-tracking-cheat
 The later generic whey change affects only the expanded PDF protein table, not any browser-visible article preview row. The final PDF was regenerated and reinspected after that change.
 
 No valid address was entered and no production email was sent.
+
+## Residual deadline and idempotency hardening
+
+The Important review finding was closed without changing rendered article or PDF output.
+
+- `delivery-budget.ts` is the single timing contract: 12,000 ms absolute server budget, 1,500/5,000/1,000/8,000 ms rate/PDF/contact/Resend stage caps, and a 15,000 ms client timeout with an explicit 3,000 ms transport margin. Every route stage is raced against `min(stage cap, remaining server time)`, beginning with bounded body reading. The client deadline covers both fetch and response-body parsing.
+- A provider deadline returns `503`, `Retry-After: 60`, and `deliveryStatus: "uncertain"` with `We could not confirm delivery. Check your inbox before retrying.` The client normalizes both that response and its own abort to the same truthful announced copy; neither state fires analytics or claims success/failure.
+- Installed Resend `6.9.4` was inspected directly. Its types expose `Emails.send(payload, options?: CreateEmailRequestOptions)`, where the options extend `IdempotentRequest`; its runtime maps `idempotencyKey` to `Idempotency-Key`. Official references verified on 2026-08-10 were `https://resend.com/docs/api-reference/emails/send-email` and `https://resend.com/docs/dashboard/emails/idempotency-keys`: email sends support the key, the maximum is 256 characters, and duplicate requests return the original response during the rolling 24-hour retention period.
+- Each send now supplies `resend.emails.send(payload, { idempotencyKey })`. The HMAC-SHA256 key is stable for normalized email plus `attached`/`link_only` mode, contains no address, is below 256 characters, and stays stable across midnight; Resend's own rolling expiration permits a fresh delivery after the provider window rather than relying on a fragile fixed UTC bucket.
+- `MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET` now fails closed below 32 UTF-8 bytes. `.env.example` documents generation and Development/Preview/Production scope. `docs/admin-deployment.md` documents migration-before-code rollout, privilege checks, environment configuration, release gates, invalid-only/authorized smoke testing, and code-first rollback while retaining the additive migration.
+- The standalone hardening addendum was removed from the implementation plan. Its source contract, bounded parsing, truthful attached/link-only subjects, absence of an email App Store CTA, exact Markdown-link assertions, first-form placement, deadline ordering, idempotency, migration sequencing, and rollback rules now live in the relevant canonical plan/design sections.
+
+Residual TDD evidence:
+
+1. Initial RED matrix: **7 failures / 51 passes** plus the missing budget-module suite. Failures proved the 10-second client abort, cumulative server overrun, absent Resend options/key, stale timeout copy, and acceptance of a short secret.
+2. A separate response-body RED test remained stuck in `Sending...` after the timer because the earlier race covered headers but not `response.json()`; it passed only after the entire fetch/body operation shared the 15-second deadline.
+3. Residual focused behavior: **4 files passed, 60 tests passed**.
+4. Required focused feature matrix: **10 files passed, 131 tests passed**.
+5. Full suite: **44 files passed, 336 tests passed**; jsdom printed only its known informational `Not implemented: navigation to another Document` line.
+6. `npm run verify:seo-guides`: exit 0.
+7. `npm run build`: exit 0, compiled/type-checked, generated **94/94** pages including the macro article, and built both macro routes.
+8. Post-build `npm run verify:static-routes`: exit 0.
+
+The standalone `tsc --noEmit` diagnostic remains non-zero only in pre-existing test typing: six `string | Date`/`toISOString()` assertions in the sitemap/SEO tests and the older `HTMLElement.htmlFor` assertion in the macro form test. None is introduced by this residual diff; the authoritative Next production build type-check passed. Browser/PDF QA was not repeated because no rendered content, layout, PDF data, or PDF renderer changed. No live email, remote migration, deploy, push, merge, or publication was performed.
 
 ## Preservation and remaining limitations
 

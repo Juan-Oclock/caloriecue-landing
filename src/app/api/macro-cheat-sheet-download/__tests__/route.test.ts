@@ -29,10 +29,15 @@ vi.mock("@/lib/macro-cheat-sheet/rate-limit", () => ({
 }));
 
 const originalApiKey = process.env.RESEND_API_KEY;
+const originalRateLimitSecret =
+  process.env.MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET;
 const originalVercelUrl = process.env.VERCEL_URL;
 const originalVercelBranchUrl = process.env.VERCEL_BRANCH_URL;
 const originalVercelProductionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
 const EXPECTED_CONTACT_RESOLUTION_TIMEOUT_MS = 1_000;
+const TEST_RATE_LIMIT_SECRET = "0123456789abcdef0123456789abcdef";
+const EXPECTED_ATTACHED_IDEMPOTENCY_KEY =
+  "macro-cheat-sheet/v1/attached/d2ee135c69383821964e1134b505ee649c5c2cafcb9b504b05fe85715c625f5d";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -71,6 +76,8 @@ describe("POST /api/macro-cheat-sheet-download", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.RESEND_API_KEY = "test-key";
+    process.env.MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET =
+      TEST_RATE_LIMIT_SECRET;
     delete process.env.VERCEL_URL;
     delete process.env.VERCEL_BRANCH_URL;
     delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
@@ -86,6 +93,12 @@ describe("POST /api/macro-cheat-sheet-download", () => {
   afterAll(() => {
     if (originalApiKey === undefined) delete process.env.RESEND_API_KEY;
     else process.env.RESEND_API_KEY = originalApiKey;
+    if (originalRateLimitSecret === undefined) {
+      delete process.env.MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET;
+    } else {
+      process.env.MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET =
+        originalRateLimitSecret;
+    }
     if (originalVercelUrl === undefined) delete process.env.VERCEL_URL;
     else process.env.VERCEL_URL = originalVercelUrl;
     if (originalVercelBranchUrl === undefined) delete process.env.VERCEL_BRANCH_URL;
@@ -258,6 +271,7 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     });
     expect(mocks.emailSend).toHaveBeenCalledWith(
       expect.objectContaining({ to: "reader@example.com" }),
+      expect.objectContaining({ idempotencyKey: expect.any(String) }),
     );
   });
 
@@ -311,6 +325,7 @@ describe("POST /api/macro-cheat-sheet-download", () => {
           }),
         ],
       }),
+      expect.objectContaining({ idempotencyKey: expect.any(String) }),
     );
     const payload = mocks.emailSend.mock.calls[0][0];
     expect(payload.html).toContain("PDF is attached to this email");
@@ -441,6 +456,7 @@ describe("POST /api/macro-cheat-sheet-download", () => {
           "https://caloriecue.app/api/macro-cheat-sheet/pdf",
         ),
       }),
+      expect.objectContaining({ idempotencyKey: expect.any(String) }),
     );
     expect(mocks.emailSend.mock.calls[0][0]).not.toHaveProperty("attachments");
     const payload = mocks.emailSend.mock.calls[0][0];
@@ -453,22 +469,83 @@ describe("POST /api/macro-cheat-sheet-download", () => {
     expect(payload.html).not.toContain("apps.apple.com");
   });
 
-  it("returns a retryable service error when Resend delivery misses its deadline", async () => {
+  it("reports uncertain delivery and reuses a privacy-safe idempotency key after a late Resend success across midnight", async () => {
     vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-10T23:59:55.000Z"));
     mocks.contactGet.mockResolvedValue({
       data: { id: "existing-contact", email: "reader@example.com" },
       error: null,
     });
-    mocks.emailSend.mockReturnValue(new Promise(() => {}));
+    const lateDelivery = deferred<{
+      data: { id: string };
+      error: null;
+    }>();
+    mocks.emailSend.mockReturnValueOnce(lateDelivery.promise);
 
-    const responsePromise = POST(request());
+    const responsePromise = POST(request(" Reader@Example.com "));
     await vi.advanceTimersByTimeAsync(8_000);
     const response = await responsePromise;
 
     expect(response.status).toBe(503);
     expect(response.headers.get("retry-after")).toBe("60");
     expect(await response.json()).toEqual({
-      error: "Email delivery timed out. Please try again.",
+      error: "We could not confirm delivery. Check your inbox before retrying.",
+      deliveryStatus: "uncertain",
+    });
+
+    lateDelivery.resolve({ data: { id: "late-email" }, error: null });
+    await vi.advanceTimersByTimeAsync(0);
+
+    const retryResponse = await POST(request("reader@example.com"));
+    expect(retryResponse.status).toBe(200);
+    expect(mocks.emailSend).toHaveBeenCalledTimes(2);
+
+    const firstOptions = mocks.emailSend.mock.calls[0][1];
+    const retryOptions = mocks.emailSend.mock.calls[1][1];
+    expect(firstOptions).toEqual({
+      idempotencyKey: EXPECTED_ATTACHED_IDEMPOTENCY_KEY,
+    });
+    expect(retryOptions).toEqual(firstOptions);
+    expect(JSON.stringify(firstOptions)).not.toContain("reader@example.com");
+    expect(firstOptions.idempotencyKey.length).toBeLessThanOrEqual(256);
+  });
+
+  it("caps cumulative near-limit stages at the single server request budget", async () => {
+    vi.useFakeTimers();
+    mocks.rateLimit.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(
+            () => resolve({ allowed: true, retryAfterSeconds: 0 }),
+            1_490,
+          );
+        }),
+    );
+    mocks.renderPdf.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => resolve(Buffer.from("macro-pdf")), 4_990);
+        }),
+    );
+    mocks.contactGet.mockResolvedValue({
+      data: { id: "existing-contact", email: "reader@example.com" },
+      error: null,
+    });
+    mocks.emailSend.mockReturnValue(new Promise(() => {}));
+
+    let response: Awaited<ReturnType<typeof POST>> | undefined;
+    void POST(request()).then((result) => {
+      response = result;
+    });
+
+    await vi.advanceTimersByTimeAsync(11_999);
+    expect(response).toBeUndefined();
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(response?.status).toBe(503);
+    expect(await response?.json()).toEqual({
+      error: "We could not confirm delivery. Check your inbox before retrying.",
+      deliveryStatus: "uncertain",
     });
   });
 

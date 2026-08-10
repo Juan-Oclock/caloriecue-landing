@@ -12,11 +12,12 @@ vi.mock("@/lib/supabase/service-role", () => ({
 }));
 
 const originalSecret = process.env.MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET;
+const TEST_SECRET = "0123456789abcdef0123456789abcdef";
 
 describe("macro cheat sheet distributed rate limiting", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET = "test-rate-limit-secret";
+    process.env.MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET = TEST_SECRET;
     mocks.rpc.mockResolvedValue({
       data: [{ allowed: true, retry_after_seconds: 0 }],
       error: null,
@@ -43,10 +44,10 @@ describe("macro cheat sheet distributed rate limiting", () => {
     expect(mocks.rpc).toHaveBeenCalledWith(
       "consume_macro_cheat_sheet_rate_limit",
       {
-        p_ip_hash: createHmac("sha256", "test-rate-limit-secret")
+        p_ip_hash: createHmac("sha256", TEST_SECRET)
           .update("ip:203.0.113.9")
           .digest("hex"),
-        p_email_hash: createHmac("sha256", "test-rate-limit-secret")
+        p_email_hash: createHmac("sha256", TEST_SECRET)
           .update("email:reader@example.com")
           .digest("hex"),
         p_ip_limit: 10,
@@ -73,6 +74,18 @@ describe("macro cheat sheet distributed rate limiting", () => {
 
   it("fails closed when keyed hashing is not configured", async () => {
     delete process.env.MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET;
+
+    await expect(
+      checkMacroCheatSheetRateLimit({
+        normalizedEmail: "reader@example.com",
+        ipAddress: "203.0.113.9",
+      }),
+    ).rejects.toBeInstanceOf(RateLimitUnavailableError);
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when the keyed-hash secret is shorter than 32 bytes", async () => {
+    process.env.MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET = "too-short";
 
     await expect(
       checkMacroCheatSheetRateLimit({

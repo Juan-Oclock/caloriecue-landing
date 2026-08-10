@@ -8,19 +8,6 @@
 
 **Tech Stack:** Next.js 15 App Router, React 19, TypeScript, MDX, `@react-pdf/renderer`, Resend, GA4 `gtag`, Vitest, Testing Library, Tailwind CSS, ImageGen, `sips`.
 
-## Final hardening addendum (2026-08-10)
-
-This addendum supersedes the earlier illustrative snippets where they differ:
-
-- Food rows use one typed FoodData Central source contract (FDC ID, exact description, data type, serving grams, per-100g macros, and preparation state), with published macros derived by scale-and-round. The official archive audit replaces the unavailable historical branded whey fixture with the current generic FNDDS record FDC 2710745.
-- The public mail route reads at most 4,096 bytes as unknown JSON, validates `{ email, website }`, caps normalized email at 254 characters, rejects the honeypot, and fails closed when no valid forwarded client IP is available.
-- A generated Supabase migration owns HMAC-only fixed-window counters and an atomic service-role-only RPC: IP 10/15 minutes and normalized email 3/hour. RLS is enabled, public/anon/authenticated privileges are revoked, and the RPC has an empty fixed `search_path`. No remote migration is part of this plan.
-- Deadlines are 1.5 seconds for rate limiting, 5 seconds for each PDF caller with a shared render and 30-second circuit cooldown, 8 seconds for Resend, and 10 seconds for the browser fetch. Retryable service failures return `503` and `Retry-After`; exhausted limits return `429` and `Retry-After`.
-- Success is `{ success: true, leadCreated, deliveryMode: "attached" | "link_only" }`. Link-only subject/body/UI copy never claims an attachment. Email has no untracked App Store CTA; the article keeps its tracked React CTA.
-- The first form belongs after the `What Is Inside the Printable Macro Tracking Sheet?` preview (before the next H2), and the second remains in the download section. This avoids an H1-to-form-H3 outline jump.
-- Frontmatter stores `metaTitle: "Macro Tracking Cheat Sheet: Free PDF"`; the root layout's `%s | CalorieCue` template produces the rendered browser title.
-- The PDF declares `en-US` and page bookmarks. React PDF 4.5.1 does not provide a stable semantic-tagging API for these tables, so the HTML article is the accessible equivalent.
-
 ## Global Constraints
 
 - Work only on `codex/macro-tracking-cheat-sheet`; never involve the long-lived `content/draft` branch.
@@ -28,11 +15,16 @@ This addendum supersedes the earlier illustrative snippets where they differ:
 - The asset is five printable reference pages plus a cover: six physical PDF pages.
 - Do not present `40/30/30` or another macro ratio as universally optimal.
 - Use USDA FoodData Central for generic food values and primary federal/standards sources for factual nutrition claims.
+- Give every food row one typed FoodData Central source record (FDC ID, exact description, data type, serving grams, per-100g macros, and preparation state), and derive displayed macros by scale-and-round. Use generic FNDDS FDC 2710745 for whey because the historical branded record is unavailable in the current official archive.
 - Preparation state must be explicit where material: raw, cooked, drained, skinless, fat percentage, or added oil.
 - Keep the new search intent separate from `/blog/how-to-count-macros` and `/blog/calorie-counting-cheat-sheet`.
 - Fire `generate_lead` only when the backend returns `success: true` and `leadCreated: true`.
 - Use the existing tracked App Store components; do not add untracked App Store links.
 - Reuse the existing Resend audience ID and deployment-aware fallback-link behavior.
+- Read at most 4,096 request bytes as unknown JSON; validate `{ email, website }`, cap normalized email at 254 characters, reject the honeypot, and fail closed without a trusted client IP.
+- Use the service-role-only atomic Supabase limiter (IP 10/15 minutes; normalized email 3/hour) before PDF, contact, or email work. The keyed secret must contain at least 32 random bytes.
+- Enforce one 12-second server budget. Rate limiting (1.5 seconds), PDF (5 seconds), contact resolution (1 second), and Resend (8 seconds) each use the smaller of their stage cap and the remaining request budget. The browser waits 15 seconds, preserving a three-second transport margin.
+- Pass a deterministic, privacy-safe Resend idempotency key for every delivery. A provider deadline is `deliveryStatus: "uncertain"`; UI copy tells readers to check the inbox before retrying and never claims immediate failure or success.
 - Do not stage or modify `public/social/facebook/`, `public/social/instagram/`, or `video/`.
 - Do not push, merge, deploy, publish social assets, or create a carousel without explicit user approval.
 
@@ -40,6 +32,9 @@ This addendum supersedes the earlier illustrative snippets where they differ:
 
 - `src/lib/macro-cheat-sheet/data.ts`: typed, source-reviewed macro food and worked-meal data; no rendering or networking.
 - `src/lib/macro-cheat-sheet/MacroCheatSheetDocument.tsx`: six-page React PDF layout, memoized renderer, and filename export.
+- `src/lib/macro-cheat-sheet/delivery-budget.ts`: shared client/server deadline constants and absolute remaining-budget coordinator.
+- `src/lib/macro-cheat-sheet/delivery-security.ts`: minimum-secret enforcement and delivery idempotency keys.
+- `src/lib/macro-cheat-sheet/rate-limit.ts`: HMAC identity derivation and the bounded Supabase RPC call.
 - `src/app/api/macro-cheat-sheet/pdf/route.ts`: cached PDF download response only.
 - `src/app/api/macro-cheat-sheet-download/route.ts`: email validation, Resend contact resolution, attachment/fallback delivery, and response contract.
 - `src/components/blog/MacroCheatSheetForm.tsx`: macro-specific email-gate UI and client analytics.
@@ -48,6 +43,7 @@ This addendum supersedes the earlier illustrative snippets where they differ:
 - `content/blog/macro-tracking-cheat-sheet.mdx`: article, SEO metadata, FAQs, forms, internal links, and tracked app CTA.
 - `public/blog/macro-tracking-cheat-sheet.webp`: title-overlay-safe editorial cover image.
 - `next.config.ts`: bundles PDF fonts/logo/mockup into both new serverless routes.
+- `supabase/migrations/20260809233743_macro_cheat_sheet_rate_limits.sql`: private counters and atomic service-role RPC; apply before application rollout, never as part of local implementation.
 
 ---
 
@@ -132,9 +128,21 @@ export type MacroTotals = {
   fat: number;
 };
 
+export type FoodDataType = "SR Legacy" | "Foundation" | "Survey (FNDDS)";
+
+export type FoodSource = {
+  fdcId: number;
+  description: string;
+  dataType: FoodDataType;
+  servingGrams: number;
+  per100g: MacroTotals;
+  preparationState: string;
+};
+
 export type MacroFood = MacroTotals & {
   name: string;
   serving: string;
+  source: FoodSource;
   note?: string;
 };
 
@@ -172,7 +180,7 @@ export const logDays = [
 ] as const;
 ```
 
-Populate the exact food sets below with rounded values verified against USDA FoodData Central. Record the selected FoodData Central description/FDC ID in a source comment beside each logical group so later reviewers can reproduce the lookup.
+Populate the exact food sets below from current official USDA FoodData Central archive records. Construct each row from its required `FoodSource`, calculate `servingGrams / 100`, and round the four scaled per-100g values; tests must reject hand-entered display macros that drift from that source record. Use generic Survey (FNDDS) FDC 2710745 for whey because the historical branded fixture is unavailable.
 
 - Protein: chicken breast, turkey breast, 93% lean ground turkey, 90% lean beef, sirloin, pork tenderloin, tuna in water, cod, tilapia, shrimp, salmon, whole egg, egg whites, nonfat Greek yogurt, 2% Greek yogurt, low-fat cottage cheese, skim milk, whey isolate, firm tofu, tempeh, seitan, lentils, black beans, edamame, and textured vegetable protein.
 - Carbohydrate: white rice, brown rice, oats, quinoa, potato, sweet potato, whole-wheat bread, bagel, corn tortilla, pasta, couscous, chickpeas, black beans, banana, apple, berries, corn, peas, and cereal.
@@ -194,6 +202,7 @@ const appMockup = publicAsset("mockup-caloriecue.png");
 export function MacroCheatSheetDocument() {
   return (
     <Document
+      language="en-US"
       title="Macro Tracking Cheat Sheet"
       author="CalorieCue"
       subject="Protein, carbohydrate and fat food reference with macro log"
@@ -212,20 +221,19 @@ export function MacroCheatSheetDocument() {
   );
 }
 
-let cachedBuffer: Buffer | null = null;
+const pdfRenderCoordinator = createPdfRenderCoordinator({
+  render: () => renderToBuffer(<MacroCheatSheetDocument />),
+  timeoutMs: 5_000,
+  circuitCooldownMs: 30_000,
+});
 
-export async function renderMacroCheatSheetPdf(): Promise<Buffer> {
-  if (!cachedBuffer) {
-    cachedBuffer = await renderToBuffer(<MacroCheatSheetDocument />);
-  }
-  return cachedBuffer;
-}
+export const renderMacroCheatSheetPdf = () => pdfRenderCoordinator.render();
 
 export const MACRO_CHEAT_SHEET_PDF_FILENAME =
   "caloriecue-macro-tracking-cheat-sheet.pdf";
 ```
 
-Implement all six private page components in the same module so their inputs match the calls above exactly. `MacroCoverPage` renders the approved title, subtitle, five content pills, brand mark, `caloriecue.app`, and `5 printable sheets + cover`. `MacroQuickStartPage` renders the 4/4/9 equation, four blank target fields, one gram-to-calorie worked example, and the protein-first workflow. `ProteinReferencePage` renders every `proteinFoods` row. `CarbFatReferencePage` renders all three supplied lists in named sections. `MealBuilderPage` renders the four-step framework, all three meal examples, and two blank repeatable-meal boxes. `MacroLogPage` renders seven day rows, four weekly-average fields, the consistency note, and the app CTA. Use reusable `MacroTable`, `PageHeader`, `Footer`, and `MacroTotalsRow` components inside this file. Show `P`, `C`, and `F` labels in addition to color so the document never relies on color alone. The protein-efficiency marker is defined as at least `0.10 g protein per kcal` and must be explained in the legend.
+Implement all six private page components in the same module so their inputs match the calls above exactly. Add page bookmarks, and keep the HTML article as the accessible equivalent because React PDF 4.5.1 has no stable semantic-table tagging API. `MacroCoverPage` renders the approved title, subtitle, five content pills, brand mark, `caloriecue.app`, and `5 printable sheets + cover`. `MacroQuickStartPage` renders the 4/4/9 equation, four blank target fields, one gram-to-calorie worked example, and the protein-first workflow. `ProteinReferencePage` renders every `proteinFoods` row. `CarbFatReferencePage` renders all three supplied lists in named sections. `MealBuilderPage` renders the four-step framework, all three meal examples, and two blank repeatable-meal boxes. `MacroLogPage` renders seven day rows, four weekly-average fields, the consistency note, and the app CTA. Use reusable `MacroTable`, `PageHeader`, `Footer`, and `MacroTotalsRow` components inside this file. Show `P`, `C`, and `F` labels in addition to color so the document never relies on color alone. The protein-efficiency marker is defined as at least `0.10 g protein per kcal` and must be explained in the legend.
 
 - [ ] **Step 5: Run the focused test and verify it passes**
 
@@ -363,10 +371,17 @@ git commit -m "feat: serve macro cheat sheet PDF"
 **Files:**
 - Create: `src/app/api/macro-cheat-sheet-download/route.ts`
 - Create: `src/app/api/macro-cheat-sheet-download/__tests__/route.test.ts`
+- Create: `src/lib/macro-cheat-sheet/delivery-budget.ts`
+- Create: `src/lib/macro-cheat-sheet/delivery-security.ts`
+- Create: `src/lib/macro-cheat-sheet/rate-limit.ts`
+- Create: `src/lib/macro-cheat-sheet/__tests__/delivery-budget.test.ts`
+- Create: `src/lib/macro-cheat-sheet/__tests__/rate-limit.test.ts`
+- Create: `src/lib/supabase/service-role.ts`
+- Create: `supabase/migrations/20260809233743_macro_cheat_sheet_rate_limits.sql`
 
 **Interfaces:**
 - Consumes: PDF renderer and filename from Task 1.
-- Produces: `POST(req: NextRequest): Promise<NextResponse>` accepting bounded unknown JSON that validates to `{ email: string, website?: string }` and returning `{ success: true, leadCreated: boolean, deliveryMode: "attached" | "link_only" }` or `{ error: string }`.
+- Produces: `POST(req: NextRequest): Promise<NextResponse>` accepting bounded unknown JSON that validates to `{ email: string, website?: string }` and returning `{ success: true, leadCreated: boolean, deliveryMode: "attached" | "link_only" }`, an ordinary `{ error: string }`, or retryable `{ error: string, deliveryStatus: "uncertain" }` when provider completion cannot be confirmed.
 - Uses: the existing Resend audience ID `511ab1c1-5a5c-4b58-9d22-8bf8aaf2e912`.
 
 - [ ] **Step 1: Write failing API tests with explicit Resend and PDF mocks**
@@ -383,6 +398,7 @@ const mocks = vi.hoisted(() => ({
   contactCreate: vi.fn(),
   emailSend: vi.fn(),
   renderPdf: vi.fn(),
+  rateLimit: vi.fn(),
 }));
 
 vi.mock("resend", () => ({
@@ -399,12 +415,18 @@ vi.mock("@/lib/macro-cheat-sheet/MacroCheatSheetDocument", () => ({
   renderMacroCheatSheetPdf: mocks.renderPdf,
 }));
 
-function request(email = "Reader@Example.com", headers = new Headers()) {
-  return {
-    json: vi.fn().mockResolvedValue({ email }),
-    headers,
-    nextUrl: new URL("https://caloriecue.app/api/macro-cheat-sheet-download"),
-  } as unknown as NextRequest;
+function request(email: unknown = "Reader@Example.com", headers = new Headers()) {
+  const requestHeaders = new Headers(headers);
+  requestHeaders.set("content-type", "application/json");
+  requestHeaders.set("x-forwarded-for", "203.0.113.9");
+  return new NextRequest(
+    "https://caloriecue.app/api/macro-cheat-sheet-download",
+    {
+      method: "POST",
+      headers: requestHeaders,
+      body: JSON.stringify({ email, website: "" }),
+    },
+  );
 }
 ```
 
@@ -422,21 +444,22 @@ expect(mocks.emailSend).toHaveBeenCalledWith(
       }),
     ],
   }),
+  expect.objectContaining({ idempotencyKey: expect.any(String) }),
 );
 ```
 
 Cover all of these cases with named tests:
 
-1. invalid email returns `400`;
-2. missing `RESEND_API_KEY` returns `500`;
-3. new contact returns `leadCreated: true`;
-4. existing contact returns `leadCreated: false`;
-5. contact creation error/rejection still sends and returns `false`;
-6. unresolved contact lookup times out after `1_000` ms and still sends;
-7. email delivery begins before contact resolution finishes;
-8. PDF render failure sends a link-only email;
-9. Resend delivery failure returns `500` and never claims success;
-10. `x-forwarded-host` and `x-forwarded-proto` produce the correct preview download URL.
+1. malformed JSON, `null`, arrays, non-object roots, invalid email types/addresses, a filled honeypot, and email over 254 characters return `400` before downstream work;
+2. a body over 4,096 bytes returns `413` before downstream work;
+3. distributed IP/email limits return `429` plus `Retry-After`, while missing IP/secret, a short secret, RPC error, malformed RPC data, or limiter timeout fails closed with retryable `503`;
+4. missing `RESEND_API_KEY` returns `500` before PDF or email work;
+5. new/existing contact and contact failure/timeout behavior remain non-blocking and truthful;
+6. attached and link-only delivery use distinct truthful subjects, bodies, payloads, and success modes, and email has no App Store URL;
+7. forwarded origins accept only canonical production, configured Vercel hosts, or local development and reject hostile values;
+8. cumulative near-limit stages stop at the one 12-second request budget;
+9. a Resend promise settling after its local deadline returns uncertain delivery, and a same-email/mode retry supplies the exact same HMAC idempotency key with no raw email;
+10. client/server ordering proves 12 seconds server + 3 seconds transport margin = 15 seconds client.
 
 - [ ] **Step 2: Run the route test and verify the missing-module failure**
 
@@ -444,32 +467,26 @@ Run: `npm run test:run -- src/app/api/macro-cheat-sheet-download/__tests__/route
 
 Expected: FAIL because the macro delivery route does not exist.
 
-- [ ] **Step 3: Implement the isolated macro email route**
+- [ ] **Step 3: Implement the isolated, bounded macro email route**
 
-Follow the concurrency and timeout behavior in the existing calorie route exactly. Use these macro-specific constants and copy:
+Read the streaming body to a 4,096-byte maximum, parse it as `unknown`, then validate the root object, optional string honeypot, normalized email, maximum length, and trusted client IP. Consume the atomic Supabase RPC before PDF/contact/email work. Its migration stores only HMAC identities, forces RLS, revokes public/anon/authenticated privileges, grants the table and RPC only to `service_role`, and fixes the security-definer function's `search_path` to empty. `MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET` must hold at least 32 random bytes.
 
-```ts
-const AUDIENCE_ID = "511ab1c1-5a5c-4b58-9d22-8bf8aaf2e912";
-const CONTACT_RESOLUTION_TIMEOUT_MS = 1_000;
-const PRODUCTION_URL = "https://caloriecue.app";
-const APP_STORE_URL =
-  "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
+Create one `ServerRequestBudget` at route entry. Body parsing cannot pass its absolute 12-second deadline; rate limiting, PDF rendering, contact resolution, and Resend receive `min(stage cap, remaining server time)` using caps of 1.5, 5, 1, and 8 seconds. This prevents independent sequential timers from exceeding the declared server maximum.
 
-const downloadUrl = `${getBaseUrl(req)}/api/macro-cheat-sheet/pdf`;
-```
+The email must state `five printable reference sheets plus a cover`, list the quick start, three food charts, meal builder, and seven-day log, and retain the deployment-aware download button. Attached delivery uses subject `Your Macro Tracking Cheat Sheet (PDF inside)` and includes the PDF. Render failure uses subject `Your Macro Tracking Cheat Sheet download link`, contains no attachment claim, and has no attachment payload. Neither email mode includes a direct App Store CTA; the tracked App Store conversion stays in the article.
 
-The email must state `five printable reference sheets plus a cover`, list the quick start, three food charts, meal builder, and seven-day log, attach the PDF when rendering succeeds, and retain the deployment-aware download button. The plain-text fallback must include the same download URL. Do not call or modify the calorie route.
+Call the installed Resend SDK as `resend.emails.send(payload, { idempotencyKey })`. Derive a key from normalized email and delivery mode with HMAC-SHA256 and the existing rate-limit secret. Keep the key stable across clock boundaries and let Resend's rolling 24-hour key retention define the retry window; the key contains no raw email and remains within Resend's 256-character maximum. If Resend misses its local/remaining deadline, return retryable `503` plus `deliveryStatus: "uncertain"` and instruct the reader to check the inbox before retrying; a late success and retry then reuse the provider key rather than duplicate delivery. Do not call or modify the calorie route.
 
 - [ ] **Step 4: Run the macro and legacy delivery suites**
 
-Run: `npm run test:run -- src/app/api/macro-cheat-sheet-download/__tests__/route.test.ts src/app/api/cheat-sheet-download/__tests__/route.test.ts`
+Run: `npm run test:run -- src/app/api/macro-cheat-sheet-download/__tests__/route.test.ts src/app/api/cheat-sheet-download/__tests__/route.test.ts src/lib/macro-cheat-sheet/__tests__/rate-limit.test.ts src/lib/macro-cheat-sheet/__tests__/delivery-budget.test.ts`
 
 Expected: PASS for the new route and unchanged legacy route.
 
 - [ ] **Step 5: Commit the email delivery flow**
 
 ```bash
-git add src/app/api/macro-cheat-sheet-download/route.ts src/app/api/macro-cheat-sheet-download/__tests__/route.test.ts
+git add src/app/api/macro-cheat-sheet-download/route.ts src/app/api/macro-cheat-sheet-download/__tests__/route.test.ts src/lib/macro-cheat-sheet/delivery-budget.ts src/lib/macro-cheat-sheet/delivery-security.ts src/lib/macro-cheat-sheet/rate-limit.ts src/lib/macro-cheat-sheet/__tests__/delivery-budget.test.ts src/lib/macro-cheat-sheet/__tests__/rate-limit.test.ts src/lib/supabase/service-role.ts supabase/migrations/20260809233743_macro_cheat_sheet_rate_limits.sql
 git commit -m "feat: email macro cheat sheet leads"
 ```
 
@@ -526,7 +543,8 @@ expect(fetchMock).toHaveBeenCalledWith(
   "/api/macro-cheat-sheet-download",
   expect.objectContaining({
     method: "POST",
-    body: JSON.stringify({ email: "reader@example.com" }),
+    body: JSON.stringify({ email: "reader@example.com", website: "" }),
+    signal: expect.any(AbortSignal),
   }),
 );
 expect(trackGenerateLead).toHaveBeenCalledWith({
@@ -536,7 +554,7 @@ expect(trackGenerateLead).toHaveBeenCalledWith({
 });
 ```
 
-Also cover invalid input, repeat contact, failed backend request, malformed HTTP-200 payload, disabled/pending button, and `Check your inbox` success copy.
+Also cover invalid input, repeat contact, failed backend request, malformed HTTP-200 payload, disabled/pending button, unique accessible IDs for two form instances, truthful attached/link-only success copy, backend `deliveryStatus: "uncertain"`, and a hung fetch that remains active through the 12-second server budget before aborting at 15 seconds with announced check-inbox guidance.
 
 - [ ] **Step 3: Run the focused tests and verify failures**
 
@@ -555,10 +573,15 @@ export type LeadType = "newsletter" | "cheat_sheet" | "macro_cheat_sheet";
 Implement the form with the same state and validation contract as `CheatSheetForm`, but use:
 
 ```tsx
+const controller = new AbortController();
 await fetch("/api/macro-cheat-sheet-download", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ email: email.toLowerCase().trim() }),
+  body: JSON.stringify({
+    email: email.toLowerCase().trim(),
+    website,
+  }),
+  signal: controller.signal,
 });
 
 trackGenerateLead({
@@ -568,7 +591,7 @@ trackGenerateLead({
 });
 ```
 
-Visible form copy must accurately say `5 printable reference sheets plus a cover` and list protein, carbohydrate, fat, meal-builder, and seven-day-log content. Keep `No spam, ever. Unsubscribe anytime.`
+Race the fetch against `CLIENT_REQUEST_TIMEOUT_MS = 15_000`, three seconds beyond the server's absolute 12-second budget. Only a validated HTTP-200 success payload may set a delivery mode or fire analytics. Normalize any uncertain provider response or browser abort to `We could not confirm delivery. Check your inbox before retrying.` Visible form copy must accurately say `5 printable reference sheets plus a cover` and list protein, carbohydrate, fat, meal-builder, and seven-day-log content. Keep `No spam, ever. Unsubscribe anytime.`
 
 - [ ] **Step 5: Register the component in MDX**
 
@@ -624,21 +647,36 @@ describe("macro tracking cheat sheet", () => {
     expect(post?.description.length).toBeLessThanOrEqual(160);
     expect(post?.tags).toContain("macro-tracking");
     expect(post?.faq).toHaveLength(6);
-    expect(post?.content).toContain("<MacroCheatSheetForm />");
+    expect(post?.content.match(/<MacroCheatSheetForm \/>/g)).toHaveLength(2);
     expect(post?.content).toContain("<AppStoreLink />");
-    expect(post?.content).toContain("/blog/how-to-count-macros");
-    expect(post?.content).toContain("/blog/calories-per-gram");
-    expect(post?.content).toContain("/blog/protein-per-calorie");
-    expect(post?.content).toContain("/tdee-calculator");
+    for (const href of [
+      "/blog/how-to-count-macros",
+      "/blog/calories-per-gram",
+      "/blog/protein-per-calorie",
+      "/blog/calorie-counting-vs-macro-counting",
+      "/blog/high-protein-low-calorie-foods",
+      "/blog/high-protein-meals-under-500-calories",
+      "/tdee-calculator",
+    ]) {
+      expect(post?.content).toContain(`](${href})`);
+    }
+
+    const firstForm = post?.content.indexOf("<MacroCheatSheetForm />") ?? -1;
+    const previewHeading =
+      post?.content.indexOf("## What Is Inside the Printable Macro Tracking Sheet?") ?? -1;
+    const nextHeading =
+      post?.content.indexOf("## How to Use a Protein, Carb and Fat Food List") ?? -1;
+    expect(firstForm).toBeGreaterThan(previewHeading);
+    expect(firstForm).toBeLessThan(nextHeading);
     expect(post?.content.trim().split(/\s+/).length).toBeGreaterThanOrEqual(2_000);
   });
 
   it("links adjacent guides to the distinct printable intent", () => {
     expect(getPostBySlug("how-to-count-macros")?.content).toContain(
-      "/blog/macro-tracking-cheat-sheet",
+      "[macro tracking cheat sheet](/blog/macro-tracking-cheat-sheet)",
     );
     expect(getPostBySlug("calorie-counting-cheat-sheet")?.content).toContain(
-      "/blog/macro-tracking-cheat-sheet",
+      "[macro tracking cheat sheet](/blog/macro-tracking-cheat-sheet)",
     );
   });
 });
@@ -689,8 +727,6 @@ faq:
 Protein, carbohydrates, and fat are not three separate food kingdoms. Most foods contain a mix of all three. The practical move is to use a food's **dominant macro** when building a meal, then count its complete macro profile when you track it.
 
 This macro tracking cheat sheet turns that idea into a printable system: common foods with realistic servings, a simple meal builder, and a seven-day log you can use without rebuilding the math every morning.
-
-<MacroCheatSheetForm />
 ```
 
 - [ ] **Step 4: Write the complete article around the approved editorial structure**
@@ -712,7 +748,7 @@ Use these exact H2s in this order:
 13. `Frequently Asked Questions`
 14. `The Bottom Line`
 
-The article must include preview tables with at least eight protein foods, eight carbohydrate foods, six fat foods, and six mixed foods; use the same rounded values as `data.ts`. Explain the 4/4/9 rule with a citation to federal labeling guidance, link to USDA FoodData Central for the data policy, and include one authoritative source for population-level macronutrient ranges while explicitly stating that the article does not prescribe an individual ratio. Place a second `<MacroCheatSheetForm />` under H2 12 and one `<AppStoreLink />` after the message `Plan with the sheet; track with a photo.`
+The article must include preview tables with at least eight protein foods, eight carbohydrate foods, six fat foods, and six mixed foods; use the same rounded values as `data.ts`. Explain the 4/4/9 rule with a citation to federal labeling guidance, link to USDA FoodData Central for the data policy, and include one authoritative source for population-level macronutrient ranges while explicitly stating that the article does not prescribe an individual ratio. Place the first `<MacroCheatSheetForm />` after the complete H2 2 preview and before H2 3 so the outline never jumps from the article H1 into the form's H3. Place the second form under H2 12. Keep the only article App Store conversion as the tracked React `<AppStoreLink />` after `Plan with the sheet; track with a photo.`; do not place an App Store URL in either email mode.
 
 - [ ] **Step 5: Add contextual links from adjacent posts**
 
@@ -812,6 +848,8 @@ Run:
 ```bash
 npm run test:run -- \
   src/lib/macro-cheat-sheet/__tests__/MacroCheatSheetDocument.test.tsx \
+  src/lib/macro-cheat-sheet/__tests__/delivery-budget.test.ts \
+  src/lib/macro-cheat-sheet/__tests__/rate-limit.test.ts \
   src/app/api/macro-cheat-sheet/pdf/__tests__/route.test.ts \
   src/app/api/macro-cheat-sheet-download/__tests__/route.test.ts \
   src/components/blog/__tests__/MacroCheatSheetForm.test.tsx \
@@ -827,11 +865,13 @@ Run: `npm run test:run`
 
 Run: `npm run verify:seo-guides`
 
-Run: `npm run verify:static-routes`
-
 Run: `npm run build`
 
+Run: `npm run verify:static-routes`
+
 Expected: all commands exit `0`; Next.js statically generates `/blog/macro-tracking-cheat-sheet` and both API routes compile for the Node runtime.
+
+Release order is a separate, approval-gated operation: apply and verify `20260809233743_macro_cheat_sheet_rate_limits.sql` in the target Supabase environment first; configure a stable minimum-32-random-byte `MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET` plus the existing service-role and Resend secrets in Development, Preview, and Production as applicable; only then deploy the application. To roll back, redeploy the prior application first and retain the additive table/RPC until no deployed version calls it. Do not apply a remote migration or deploy while executing this local plan.
 
 - [ ] **Step 3: Download and visually inspect the actual PDF**
 

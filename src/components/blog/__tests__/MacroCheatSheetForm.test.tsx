@@ -200,6 +200,27 @@ describe("MacroCheatSheetForm", () => {
     expect(trackGenerateLead).not.toHaveBeenCalled();
   });
 
+  it("announces an uncertain provider result without claiming failure or success", async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      json: async () => ({
+        error: "Email failed. Retry now.",
+        deliveryStatus: "uncertain",
+      }),
+    });
+    render(<MacroCheatSheetForm contentSlug="article" />);
+
+    await submit("reader@example.com");
+
+    await waitFor(() =>
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "We could not confirm delivery. Check your inbox before retrying.",
+      ),
+    );
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(trackGenerateLead).not.toHaveBeenCalled();
+  });
+
   it.each([
     ["malformed", {}],
     ["non-success", { success: false, leadCreated: true }],
@@ -256,7 +277,7 @@ describe("MacroCheatSheetForm", () => {
     );
   });
 
-  it("aborts a hung browser request, re-enables the form, and announces retry", async () => {
+  it("keeps the browser request open through the server budget, then reports uncertain delivery", async () => {
     vi.useFakeTimers();
     fetchMock.mockReturnValue(new Promise(() => {}));
     render(<MacroCheatSheetForm contentSlug="article" />);
@@ -266,18 +287,52 @@ describe("MacroCheatSheetForm", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Send Me the PDF" }));
     expect(screen.getByRole("button", { name: "Sending..." })).toBeDisabled();
+    const signal = fetchMock.mock.calls[0][1]?.signal as AbortSignal;
 
     await act(async () => {
-      vi.advanceTimersByTime(10_000);
+      vi.advanceTimersByTime(12_000);
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole("button", { name: "Sending..." })).toBeDisabled();
+    expect(signal.aborted).toBe(false);
+
+    await act(async () => {
+      vi.advanceTimersByTime(3_000);
       await Promise.resolve();
     });
 
     expect(screen.getByRole("button", { name: "Send Me the PDF" })).toBeEnabled();
     expect(screen.getByLabelText("Email address")).toBeEnabled();
     expect(screen.getByRole("alert")).toHaveTextContent(
-      "The request timed out. Please try again.",
+      "We could not confirm delivery. Check your inbox before retrying.",
     );
-    const signal = fetchMock.mock.calls[0][1]?.signal as AbortSignal;
     expect(signal.aborted).toBe(true);
+  });
+
+  it("keeps the client deadline active while the response body is pending", async () => {
+    vi.useFakeTimers();
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: () => new Promise(() => {}),
+    });
+    render(<MacroCheatSheetForm contentSlug="article" />);
+
+    fireEvent.change(screen.getByLabelText("Email address"), {
+      target: { value: "reader@example.com" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send Me the PDF" }));
+    const signal = fetchMock.mock.calls[0][1]?.signal as AbortSignal;
+
+    await act(async () => {
+      vi.advanceTimersByTime(15_000);
+      await Promise.resolve();
+    });
+
+    expect(signal.aborted).toBe(true);
+    expect(screen.getByRole("button", { name: "Send Me the PDF" })).toBeEnabled();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "We could not confirm delivery. Check your inbox before retrying.",
+    );
   });
 });

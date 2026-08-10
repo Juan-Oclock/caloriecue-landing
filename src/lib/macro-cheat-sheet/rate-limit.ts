@@ -1,4 +1,5 @@
 import { createHmac } from "node:crypto";
+import { getMacroCheatSheetSecret } from "@/lib/macro-cheat-sheet/delivery-security";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 const RATE_LIMIT_DEADLINE_MS = 1_500;
@@ -30,8 +31,12 @@ export async function checkMacroCheatSheetRateLimit({
   normalizedEmail: string;
   ipAddress: string;
 }): Promise<RateLimitDecision> {
-  const secret = process.env.MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET;
-  if (!secret) throw new RateLimitUnavailableError();
+  let secret: string;
+  try {
+    secret = getMacroCheatSheetSecret();
+  } catch (error) {
+    throw new RateLimitUnavailableError(error);
+  }
 
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
   const deadline = new Promise<never>((_, reject) => {

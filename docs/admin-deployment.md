@@ -57,6 +57,41 @@ Go to **Vercel > Project Settings > Environment Variables** and add:
 
 These are already in `.env.local`. Update `SUPABASE_SERVICE_ROLE_KEY` and `ADMIN_USER_IDS` with real values.
 
+### Macro cheat sheet delivery
+
+The macro cheat sheet endpoint also requires
+`MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET`. Generate at least 32 random bytes (for
+example, `openssl rand -base64 32`) and store a stable, distinct value in every
+environment where the endpoint runs: local Development, Vercel Preview, and
+Vercel Production. Keep it server-only; never expose it through a
+`NEXT_PUBLIC_*` variable. All instances within one environment must share the
+same value because it keys both distributed rate-limit identities and Resend
+delivery idempotency. Rotation starts new rate-limit identities and delivery
+keys, so rotate only as a planned release operation.
+
+Deploy the macro delivery hardening in this order:
+
+1. Apply and verify
+   `supabase/migrations/20260809233743_macro_cheat_sheet_rate_limits.sql` in the
+   target Supabase environment **before** deploying application code that calls
+   `consume_macro_cheat_sheet_rate_limit`.
+2. Confirm the table has RLS forced, `anon` and `authenticated` have no table or
+   function privileges, and only `service_role` can execute the RPC.
+3. Configure `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, and the 32-byte
+   minimum `MACRO_CHEAT_SHEET_RATE_LIMIT_SECRET` in the matching application
+   environment.
+4. Pass the focused delivery tests, full test suite, SEO verification, static
+   route verification, and production build before releasing the code.
+5. After release, use an invalid-address smoke test or an explicitly authorized
+   test inbox; never use a production recipient as an automatic deployment
+   check.
+
+If rollback is needed, redeploy the previous application version first while
+leaving the additive rate-limit migration and secret in place. Do not drop the
+table or RPC while any deployed version may call it. If database removal is
+later required, ship a separately reviewed follow-up migration only after all
+application environments no longer depend on the RPC.
+
 ---
 
 ## 3. Subdomain Setup

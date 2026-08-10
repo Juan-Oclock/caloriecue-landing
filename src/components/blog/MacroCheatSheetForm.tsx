@@ -3,6 +3,10 @@
 import { useId, useState } from "react";
 import { motion } from "framer-motion";
 import { trackGenerateLead } from "@/lib/analytics";
+import {
+  CLIENT_REQUEST_TIMEOUT_MS,
+  UNCERTAIN_DELIVERY_MESSAGE,
+} from "@/lib/macro-cheat-sheet/delivery-budget";
 
 type MacroCheatSheetFormProps = {
   contentSlug: string;
@@ -12,10 +16,9 @@ type MacroCheatSheetResponse = {
   success?: boolean;
   leadCreated?: boolean;
   deliveryMode?: "attached" | "link_only";
+  deliveryStatus?: "uncertain";
   error?: string;
 };
-
-const REQUEST_TIMEOUT_MS = 10_000;
 
 export default function MacroCheatSheetForm({
   contentSlug,
@@ -57,21 +60,29 @@ export default function MacroCheatSheetForm({
         timeoutId = setTimeout(() => {
           controller.abort();
           reject(new DOMException("Request timed out", "AbortError"));
-        }, REQUEST_TIMEOUT_MS);
+        }, CLIENT_REQUEST_TIMEOUT_MS);
       });
-      const response = await Promise.race([
-        fetch("/api/macro-cheat-sheet-download", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: normalizedEmail, website }),
-          signal: controller.signal,
-        }),
-        timeout,
-      ]);
-      const data = (await response.json()) as MacroCheatSheetResponse;
+      const request = fetch("/api/macro-cheat-sheet-download", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: normalizedEmail, website }),
+        signal: controller.signal,
+      }).then(async (response) => ({
+        response,
+        data: (await response.json()) as MacroCheatSheetResponse,
+      }));
+      const { response, data } = await Promise.race([request, timeout]);
+
+      if (!response.ok) {
+        setDeliveryError(
+          data.deliveryStatus === "uncertain"
+            ? UNCERTAIN_DELIVERY_MESSAGE
+            : data.error || "Something went wrong. Please try again.",
+        );
+        return;
+      }
 
       if (
-        !response.ok ||
         data.success !== true ||
         typeof data.leadCreated !== "boolean" ||
         (data.deliveryMode !== "attached" &&
@@ -95,7 +106,7 @@ export default function MacroCheatSheetForm({
     } catch {
       setDeliveryError(
         controller.signal.aborted
-          ? "The request timed out. Please try again."
+          ? UNCERTAIN_DELIVERY_MESSAGE
           : "Something went wrong. Please try again.",
       );
     } finally {
