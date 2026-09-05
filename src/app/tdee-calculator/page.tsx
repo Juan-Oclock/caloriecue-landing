@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import BlogPostCard from "@/components/blog/BlogPostCard";
+import Link from "next/link";
+import BlogPostCardEditorial from "@/components/blog/BlogPostCardEditorial";
+import AppStoreButton from "@/components/AppStoreButton";
 import { getAllPosts } from "@/lib/blog";
 import TDEECalculatorClient from "./TDEECalculatorClient";
 
@@ -193,40 +195,48 @@ export default function TDEECalculatorPage() {
         }}
       />
       <Navigation />
-      <main>
+      <main className="bg-background">
         <TDEECalculatorClient />
 
-        {/* Related Blog Posts */}
+        {/* Related guides */}
         {relatedPosts.length > 0 && (
-          <section className="px-4 pb-24 md:pb-32">
-            <div className="max-w-5xl mx-auto">
-              <div className="text-center mb-10">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                  Related Articles
-                </h2>
-                <p className="text-muted-foreground">
-                  Dive deeper into calorie tracking, nutrition, and weight management.
-                </p>
+          <section className="border-t border-border bg-surface">
+            <div className="mx-auto flex max-w-6xl flex-col gap-9 px-5 py-20 md:px-8 md:py-28">
+              <div className="flex flex-wrap items-end justify-between gap-6">
+                <h2 className="text-display text-foreground">Go deeper.</h2>
+                <Link
+                  href="/blog"
+                  className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-primary-dark transition-colors hover:text-primary-700"
+                >
+                  All guides
+                  <span aria-hidden="true">→</span>
+                </Link>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="grid gap-4 md:grid-cols-3">
                 {relatedPosts.map((post, i) => (
-                  <BlogPostCard key={post.slug} post={post} delay={i * 0.1} />
+                  <BlogPostCardEditorial key={post.slug} post={post} delay={i * 0.06} />
                 ))}
               </div>
             </div>
           </section>
         )}
-        {/* Image Attribution */}
-        <div className="text-center pb-8">
-          <a
-            href="https://www.freepik.com/free-photo/calories-nutrition-food-exercise-concept_18134531.htm"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[11px] text-muted-foreground/50 hover:text-muted-foreground/70 transition-colors"
-          >
-            Image by rawpixel.com on Freepik
-          </a>
-        </div>
+
+        {/* CTA */}
+        <section className="px-5 py-16 md:px-8 md:py-20">
+          <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-6 overflow-hidden rounded-[28px] bg-primary-dark p-7 text-white sm:p-10 md:p-16">
+            <div
+              className="absolute -right-20 -top-20 h-[360px] w-[360px] rounded-full border-[60px] border-white/10"
+              aria-hidden="true"
+            />
+            <h2 className="relative max-w-[640px] text-balance text-[clamp(2rem,4.2vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.03em]">
+              You&apos;ve got the number. Now hit it.
+            </h2>
+            <p className="relative max-w-[480px] text-[17px] text-white/90">
+              CalorieCue logs any meal from one photo in three seconds. Free on iOS.
+            </p>
+            <AppStoreButton variant="solid" location="calculator" className="relative whitespace-nowrap" />
+          </div>
+        </section>
       </main>
       <Footer />
     </>
