@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import { Navigation, Footer } from "@/components";
 import { BlogListingClient } from "@/components/blog";
-import { getAllPosts, getAllTags, getPostsBySlugs } from "@/lib/blog";
+import { getAllPosts } from "@/lib/blog";
 
-const FEATURED_GUIDE_SLUGS = [
-  "high-protein-low-calorie-foods",
-  "how-to-track-calories",
-  "best-calorie-tracker-app",
-  "calories-in-food-list",
-];
+/**
+ * Pinned to the featured card on the unfiltered first page. The macro
+ * cheat sheet is the lead magnet, so it gets the spot; if it's ever
+ * unpublished we fall back to the newest post.
+ */
+const FEATURED_SLUG = "macro-tracking-cheat-sheet";
+const FEATURED_KICKER = "Free PDF";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -44,8 +45,8 @@ export const metadata: Metadata = {
 
 export default function BlogPage() {
   const allPosts = getAllPosts();
-  const tags = getAllTags();
-  const featuredGuides = getPostsBySlugs(FEATURED_GUIDE_SLUGS);
+  const pinned = allPosts.find((post) => post.slug === FEATURED_SLUG);
+  const featuredPost = pinned ?? allPosts[0] ?? null;
 
   const collectionJsonLd = {
     "@context": "https://schema.org",
@@ -77,8 +78,8 @@ export default function BlogPage() {
       />
       <BlogListingClient
         posts={allPosts}
-        tags={tags}
-        featuredGuides={featuredGuides}
+        featuredPost={featuredPost}
+        featuredKicker={pinned ? FEATURED_KICKER : undefined}
       />
       <Footer />
     </main>

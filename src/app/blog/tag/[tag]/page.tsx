@@ -93,39 +93,41 @@ export default async function BlogTagPage({ params }: PageProps) {
     <main className="min-h-screen bg-background">
       <Navigation />
 
-      <section className="pt-28 pb-10 md:pt-36 md:pb-14 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="text-4xl mb-3" aria-hidden="true">
-            {meta.emoji}
-          </div>
-          <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+      <section className="px-5 pt-28 pb-8 md:px-8 md:pt-36 md:pb-12">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4">
+          <Link
+            href="/blog"
+            className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-primary-dark transition-colors hover:text-primary-700"
+          >
+            <span aria-hidden="true">←</span>
+            All guides
+          </Link>
+          <span className="eyebrow">
+            Goal pathway · {posts.length} {posts.length === 1 ? "guide" : "guides"}
+          </span>
+          <h1 className="text-hero text-foreground text-balance">
             {meta.label} guides
           </h1>
-          <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+          <p className="max-w-[640px] text-lg leading-[1.45] text-muted-foreground text-pretty md:text-xl">
             {meta.intro}
-          </p>
-          <p className="mt-6 text-sm text-muted-foreground">
-            <Link href="/blog" className="underline underline-offset-2 hover:text-foreground">
-              ← All guides
-            </Link>
           </p>
         </div>
       </section>
 
-      <section className="px-4 pb-24">
-        <div className="max-w-6xl mx-auto">
+      <section className="px-5 pb-20 md:px-8 md:pb-28">
+        <div className="mx-auto max-w-6xl">
           {posts.length === 0 ? (
-            <p className="text-center text-muted-foreground py-12">
+            <p className="rounded-[20px] border border-dashed border-border-strong bg-surface px-6 py-12 text-center text-muted-foreground">
               No guides for this goal yet — check back soon, or{" "}
-              <Link href="/blog" className="underline underline-offset-2 hover:text-foreground">
+              <Link href="/blog" className="font-semibold text-primary-dark underline underline-offset-2 hover:text-primary-700">
                 browse all guides
               </Link>
               .
             </p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {posts.map((post, i) => (
-                <BlogPostCardEditorial key={post.slug} post={post} delay={i * 0.05} />
+                <BlogPostCardEditorial key={post.slug} post={post} delay={Math.min(i, 5) * 0.05} />
               ))}
             </div>
           )}

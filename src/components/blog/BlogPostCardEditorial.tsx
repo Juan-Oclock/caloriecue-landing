@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import FadeIn from "@/components/FadeIn";
 import type { BlogPostMeta } from "@/lib/blog/types";
+import { getTagMeta, primaryTag } from "@/lib/blog/tag-meta";
 
 interface BlogPostCardEditorialProps {
   post: BlogPostMeta;
@@ -14,26 +15,36 @@ function formatShortDate(date: string) {
   return new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
+    year: "numeric",
     timeZone: "UTC",
   });
 }
 
+/**
+ * Guide card: featured image on top, topic badge + read time, title,
+ * excerpt, date + "Read →". Every card carries an image — posts without a
+ * cover fall back to a branded gradient so the grid never has holes.
+ */
 export default function BlogPostCardEditorial({
   post,
   delay = 0,
 }: BlogPostCardEditorialProps) {
+  const tag = primaryTag(post.tags);
+  const meta = tag ? getTagMeta(tag) : null;
+
   return (
-    <FadeIn y={24} delay={delay} viewportMargin="-80px">
+    <FadeIn y={20} delay={delay} viewportMargin="-60px" className="h-full">
       <Link href={`/blog/${post.slug}`} className="group block h-full">
-        <article className="h-full overflow-hidden rounded-lg border border-border/80 bg-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-card-hover">
+        <article className="flex h-full flex-col overflow-hidden rounded-[20px] border border-border bg-surface transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-card-hover">
+          {/* Featured image */}
           <div className="relative aspect-[16/10] overflow-hidden bg-muted">
             {post.coverImage ? (
               <Image
                 src={post.coverImage}
-                alt={post.title}
+                alt={post.coverImageAlt ?? post.title}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className={`object-cover transition-transform duration-500 group-hover:scale-105 ${
+                className={`object-cover transition-transform duration-500 group-hover:scale-[1.03] ${
                   post.imagePosition === "top"
                     ? "object-top"
                     : post.imagePosition === "bottom"
@@ -42,69 +53,51 @@ export default function BlogPostCardEditorial({
                 }`}
               />
             ) : (
-              <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary-50 via-white to-muted">
-                <svg
-                  className="h-12 w-12 text-primary/30"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                  />
-                </svg>
+              <div
+                className="flex h-full items-center justify-center bg-peach"
+                aria-hidden="true"
+              >
+                <Image
+                  src="/app-icons/120.png"
+                  alt=""
+                  width={56}
+                  height={56}
+                  className="rounded-2xl opacity-80 shadow-soft"
+                />
               </div>
-            )}
-            {post.tags[0] && (
-              <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-primary shadow-sm backdrop-blur">
-                {post.tags[0]}
-              </span>
             )}
           </div>
 
-          <div className="flex min-h-[230px] flex-col p-5 md:p-6">
-            <div className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
-              <time dateTime={post.date}>{formatShortDate(post.date)}</time>
-              <span aria-hidden="true">/</span>
-              <span>{post.readingTime} min read</span>
+          <div className="flex flex-1 flex-col gap-3 p-6">
+            <div className="flex items-center justify-between gap-2.5">
+              {meta ? (
+                <span
+                  className="rounded-full px-2.5 py-1 text-[11px] font-bold tracking-[0.04em]"
+                  style={{ background: meta.bg, color: meta.fg }}
+                >
+                  {meta.label}
+                </span>
+              ) : (
+                <span />
+              )}
+              <span className="whitespace-nowrap text-xs text-subtle">
+                {post.readingTime} min
+              </span>
             </div>
 
-            <h3 className="text-xl font-semibold leading-snug text-foreground transition-colors line-clamp-2 group-hover:text-primary">
+            <h3 className="text-[19px] font-bold leading-[1.25] tracking-[-0.015em] text-foreground text-balance transition-colors group-hover:text-primary-dark">
               {post.title}
             </h3>
 
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground line-clamp-3">
+            <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground text-pretty">
               {post.description}
             </p>
 
-            <div className="mt-auto flex items-center justify-between gap-4 pt-6">
-              <div className="flex min-w-0 items-center gap-2.5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-50 text-xs font-semibold text-primary">
-                  {post.author.charAt(0).toUpperCase()}
-                </span>
-                <span className="truncate text-sm font-medium text-foreground">
-                  {post.author}
-                </span>
-              </div>
-              <span className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary transition-transform duration-300 group-hover:translate-x-1">
+            <div className="mt-auto flex items-center justify-between border-t border-[#EEE8E1] pt-3.5 text-xs text-subtle">
+              <time dateTime={post.date}>{formatShortDate(post.date)}</time>
+              <span className="inline-flex items-center gap-1 font-semibold text-primary-dark transition-transform duration-300 group-hover:translate-x-0.5">
                 Read
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                  />
-                </svg>
+                <span aria-hidden="true">→</span>
               </span>
             </div>
           </div>
