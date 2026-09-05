@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { getRelatedPosts } from "@/lib/blog";
-import BlogPostCard from "./BlogPostCard";
+import BlogPostCardEditorial from "./BlogPostCardEditorial";
 
 interface RelatedPostsProps {
   currentSlug: string;
@@ -11,14 +12,25 @@ export default function RelatedPosts({ currentSlug }: RelatedPostsProps) {
   if (related.length === 0) return null;
 
   return (
-    <section className="mt-16 pt-12 border-t border-border">
-      <h2 className="text-2xl font-semibold text-foreground mb-8">
-        Related Articles
-      </h2>
-      <div className="grid md:grid-cols-3 gap-6">
-        {related.map((post, i) => (
-          <BlogPostCard key={post.slug} post={post} delay={i * 0.1} />
-        ))}
+    <section className="border-t border-border bg-surface" aria-labelledby="related-heading">
+      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-16 md:px-8 md:py-24">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <h2 id="related-heading" className="text-display text-foreground">
+            Keep reading.
+          </h2>
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-primary-dark transition-colors hover:text-primary-700"
+          >
+            All guides
+            <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {related.map((post, i) => (
+            <BlogPostCardEditorial key={post.slug} post={post} delay={i * 0.06} />
+          ))}
+        </div>
       </div>
     </section>
   );

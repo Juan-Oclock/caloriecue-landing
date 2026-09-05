@@ -160,7 +160,7 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
       const text = getTextContent(children);
       const id = uniqueId(text);
       return (
-        <h2 id={id} className="text-2xl font-semibold text-foreground mb-4 mt-10 scroll-mt-28">
+        <h2 id={id} className="mb-4 mt-12 scroll-mt-28 text-[clamp(1.625rem,2.6vw,2rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-foreground">
           {children}
         </h2>
       );
@@ -169,13 +169,13 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
       const text = getTextContent(children);
       const id = uniqueId(text);
       return (
-        <h3 id={id} className="text-xl font-semibold text-foreground mb-3 mt-8 scroll-mt-28">
+        <h3 id={id} className="mb-3 mt-9 scroll-mt-28 text-xl font-bold tracking-[-0.01em] text-foreground">
           {children}
         </h3>
       );
     },
     p: ({ children }) => (
-      <p className="mb-4 leading-relaxed text-foreground/90">{children}</p>
+      <p className="mb-5 text-[17px] leading-[1.65] text-[#3C342F] md:text-lg">{children}</p>
     ),
     a: ({ href, children, className, ...anchorProps }) => {
       if (isCalorieCueAppStoreUrl(href)) {
@@ -203,26 +203,26 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
       );
     },
     ul: ({ children }) => (
-      <ul className="mb-4 pl-6 space-y-2 list-disc">{children}</ul>
+      <ul className="mb-5 list-disc space-y-2 pl-6 text-[17px] leading-[1.65] text-[#3C342F] md:text-lg">{children}</ul>
     ),
     ol: ({ children }) => (
-      <ol className="mb-4 pl-6 space-y-2 list-decimal">{children}</ol>
+      <ol className="mb-5 list-decimal space-y-2 pl-6 text-[17px] leading-[1.65] text-[#3C342F] md:text-lg">{children}</ol>
     ),
     li: ({ children }) => (
-      <li className="leading-relaxed text-foreground/90">{children}</li>
+      <li className="leading-[1.6]">{children}</li>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="border-l-4 border-primary/30 pl-4 my-6 italic text-muted-foreground">
+      <blockquote className="my-8 border-l-[3px] border-primary py-1 pl-6 text-[clamp(1.125rem,1.6vw,1.375rem)] font-semibold leading-[1.4] tracking-[-0.01em] text-foreground text-balance [&>p]:mb-0 [&>p]:text-inherit [&>p]:leading-inherit">
         {children}
       </blockquote>
     ),
     code: ({ children }) => (
-      <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-foreground">
+      <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[0.9em] text-foreground">
         {children}
       </code>
     ),
     pre: ({ children }) => (
-      <pre className="bg-gray-900 text-gray-100 rounded-xl p-4 my-6 overflow-x-auto text-sm leading-relaxed">
+      <pre className="my-6 overflow-x-auto rounded-2xl bg-foreground p-5 text-sm leading-relaxed text-white/90">
         {children}
       </pre>
     ),
@@ -249,22 +249,22 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
         </figure>
       );
     },
-    hr: () => <hr className="my-8 border-border" />,
+    hr: () => <hr className="my-10 border-border" />,
     strong: ({ children }) => (
-      <strong className="font-semibold text-foreground">{children}</strong>
+      <strong className="font-bold text-foreground">{children}</strong>
     ),
     table: ({ children }) => (
-      <div className="overflow-x-auto my-6">
-        <table className="text-sm border-collapse min-w-max">{children}</table>
+      <div className="my-8 overflow-x-auto rounded-2xl border border-border bg-surface">
+        <table className="min-w-max border-collapse text-[15px]">{children}</table>
       </div>
     ),
     th: ({ children }) => (
-      <th className="border border-border bg-muted px-4 py-2 text-left font-semibold text-foreground" style={{ whiteSpace: 'nowrap' }}>
+      <th className="border-b border-border bg-background px-4 py-3 text-left text-xs font-bold uppercase tracking-[0.06em] text-subtle" style={{ whiteSpace: 'nowrap' }}>
         {children}
       </th>
     ),
     td: ({ children }) => (
-      <td className="border border-border px-4 py-2 text-foreground/90" style={{ whiteSpace: 'nowrap' }}>
+      <td className="border-b border-[#EEE8E1] px-4 py-3 text-foreground/90" style={{ whiteSpace: 'nowrap' }}>
         {children}
       </td>
     ),

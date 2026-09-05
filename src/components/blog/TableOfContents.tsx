@@ -35,17 +35,17 @@ export default function TableOfContents({ headings, variant = "desktop" }: Table
 
   if (variant === "mobile") {
     return (
-      <details className="lg:hidden mb-8 bg-muted/50 rounded-xl p-4 border border-border">
-        <summary className="text-sm font-semibold text-foreground cursor-pointer">
-          Table of Contents
+      <details className="mb-8 rounded-[18px] border border-border bg-surface p-5 lg:hidden">
+        <summary className="cursor-pointer text-xs font-bold uppercase tracking-[0.08em] text-subtle">
+          On this page
         </summary>
-        <ul className="mt-3 space-y-1.5 pl-4 border-l border-border">
+        <ul className="mt-3 flex flex-col gap-0.5">
           {headings.map(({ id, text, level }) => (
             <li key={id}>
               <a
                 href={`#${id}`}
-                className={`block text-sm text-muted-foreground hover:text-primary transition-colors py-0.5 ${
-                  level === 3 ? "pl-3" : ""
+                className={`block rounded-lg px-2.5 py-1.5 text-sm leading-snug text-muted-foreground transition-colors hover:bg-background hover:text-foreground ${
+                  level === 3 ? "pl-6" : ""
                 }`}
               >
                 {text}
@@ -58,27 +58,34 @@ export default function TableOfContents({ headings, variant = "desktop" }: Table
   }
 
   return (
-    <nav className="sticky top-28" aria-label="Table of contents">
-      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+    <nav
+      className="flex flex-col gap-3 rounded-[18px] border border-border bg-surface p-5"
+      aria-label="Table of contents"
+    >
+      <p className="text-xs font-bold uppercase tracking-[0.08em] text-subtle">
         On this page
       </p>
-      <ul className="space-y-1.5 border-l border-border pl-4">
-        {headings.map(({ id, text, level }) => (
-          <li key={id}>
-            <a
-              href={`#${id}`}
-              className={`block text-sm transition-colors leading-snug py-0.5 ${
-                level === 3 ? "pl-3" : ""
-              } ${
-                activeId === id
-                  ? "text-primary font-medium"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {text}
-            </a>
-          </li>
-        ))}
+      <ul className="-mx-2.5 flex flex-col gap-0.5">
+        {headings.map(({ id, text, level }) => {
+          const active = activeId === id;
+          return (
+            <li key={id}>
+              <a
+                href={`#${id}`}
+                aria-current={active ? "location" : undefined}
+                className={`block rounded-lg px-2.5 py-[7px] text-sm leading-[1.35] transition-colors ${
+                  level === 3 ? "pl-6" : ""
+                } ${
+                  active
+                    ? "bg-primary-100 font-bold text-foreground"
+                    : "font-medium text-muted-foreground hover:bg-background hover:text-foreground"
+                }`}
+              >
+                {text}
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );
