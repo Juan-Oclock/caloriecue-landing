@@ -27,7 +27,7 @@ export default function FeaturedPost({ post, kicker }: FeaturedPostProps) {
   return (
     <Link href={`/blog/${post.slug}`} className="group block">
       <article className="grid overflow-hidden rounded-3xl bg-foreground text-white shadow-ink-lg transition-transform duration-300 hover:-translate-y-0.5 md:grid-cols-2">
-        <div className="relative min-h-[240px] md:min-h-[320px]">
+        <div className="relative min-h-[240px] overflow-hidden md:min-h-[320px]">
           {post.coverImage ? (
             <Image
               src={post.coverImage}
@@ -56,7 +56,7 @@ export default function FeaturedPost({ post, kicker }: FeaturedPostProps) {
           </span>
         </div>
 
-        <div className="flex flex-col justify-center gap-4 p-7 md:p-11">
+        <div className="relative flex flex-col justify-center gap-4 bg-foreground p-7 md:p-11">
           {(tagLabel || kicker) && (
             <span className="text-xs font-bold uppercase tracking-[0.08em] text-primary">
               {[tagLabel, kicker].filter(Boolean).join(" · ")}
