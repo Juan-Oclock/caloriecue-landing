@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { trackGenerateLead } from "@/lib/analytics";
 import { createClient } from "@/lib/supabase/client";
 
@@ -58,105 +57,101 @@ export default function NewsletterSection({
   };
 
   return (
-    <section className="bg-foreground py-20 md:py-28 px-4">
-      <div className="max-w-2xl mx-auto text-center">
-        <span className="inline-block text-primary font-medium text-sm mb-3 uppercase tracking-wider">
-          Newsletter
-        </span>
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-          Stay in the loop
-        </h2>
-        <p className="text-white/60 text-lg mb-8">
-          Get the latest articles on nutrition, AI, and healthy living delivered
-          to your inbox.
-        </p>
+    <section className="px-5 py-16 md:px-8 md:py-24" aria-labelledby="newsletter-heading">
+      <div className="relative mx-auto grid max-w-6xl items-center gap-8 overflow-hidden rounded-[28px] bg-foreground p-7 text-white shadow-ink-lg md:grid-cols-2 md:gap-14 md:p-12">
+        <div
+          className="pointer-events-none absolute -bottom-36 -right-28 h-[360px] w-[360px] rounded-full border-[60px] border-primary/20"
+          aria-hidden="true"
+        />
 
-        {success ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center justify-center gap-2 bg-green-500/10 text-green-400 px-5 py-3 rounded-xl border border-green-500/20 mx-auto max-w-md"
+        <div className="relative flex flex-col gap-3.5">
+          <span className="text-xs font-bold uppercase tracking-[0.1em] text-primary">
+            The Sunday Cue · free newsletter
+          </span>
+          <h2
+            id="newsletter-heading"
+            className="text-balance text-[clamp(1.75rem,3vw,2.5rem)] font-extrabold leading-[1.05] tracking-[-0.025em]"
           >
-            <svg
-              className="w-5 h-5 flex-shrink-0"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="font-medium text-sm">
-              You&apos;re subscribed! Check your inbox soon.
-            </span>
-          </motion.div>
-        ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="max-w-md mx-auto"
-            suppressHydrationWarning
-          >
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="flex-1 px-5 py-3.5 rounded-xl bg-white/10 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-all"
-                disabled={loading}
-                suppressHydrationWarning
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-6 py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
-                suppressHydrationWarning
+            One useful guide a week.
+            <br />
+            No fluff.
+          </h2>
+          <p className="max-w-[440px] text-[15px] leading-relaxed text-white/70 text-pretty">
+            A protein swap, a food ranking, or a tracking shortcut you can use
+            before lunch — straight to your inbox every Sunday.
+          </p>
+          <p className="text-[13px] text-white/70">
+            Read by <strong className="font-semibold text-white">500+</strong>{" "}
+            people every week.
+          </p>
+        </div>
+
+        <div className="relative flex flex-col gap-3">
+          {success ? (
+            <div className="flex items-center gap-3.5 rounded-2xl border border-primary/40 bg-primary/15 px-5 py-4">
+              <span
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-dark text-sm text-white"
+                aria-hidden="true"
               >
-                {loading ? (
-                  <>
-                    <svg
-                      className="animate-spin w-5 h-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    <span>Subscribing...</span>
-                  </>
-                ) : (
-                  "Subscribe \u2192"
-                )}
-              </button>
+                ✓
+              </span>
+              <span className="flex flex-col gap-0.5">
+                <span className="text-[15px] font-bold">You&apos;re subscribed!</span>
+                <span className="text-[13px] text-white/80">
+                  Your first guide lands on Sunday.
+                </span>
+              </span>
             </div>
-            {error && (
-              <motion.p
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-3 text-sm text-red-400"
-              >
-                {error}
-              </motion.p>
-            )}
-          </form>
-        )}
-
-        <p className="text-white/30 text-sm mt-6">
-          Join 500+ readers. Unsubscribe anytime.
-        </p>
+          ) : (
+            <form onSubmit={handleSubmit} suppressHydrationWarning className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-2 rounded-2xl bg-surface p-1.5 sm:flex-row">
+                <label htmlFor="newsletter-email" className="sr-only">
+                  Email address
+                </label>
+                <input
+                  id="newsletter-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  className="h-12 min-w-0 flex-1 rounded-xl bg-transparent px-3.5 text-[15px] text-foreground placeholder:text-subtle focus:outline-none"
+                  disabled={loading}
+                  suppressHydrationWarning
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-primary-dark px-5 text-[15px] font-bold text-white shadow-coral transition-all hover:bg-primary-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+                  suppressHydrationWarning
+                >
+                  {loading ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span>Subscribing…</span>
+                    </>
+                  ) : (
+                    <>
+                      Subscribe
+                      <span aria-hidden="true">→</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              {error ? (
+                <p className="px-1.5 text-sm text-[#FFB4A8]" role="alert">
+                  {error}
+                </p>
+              ) : (
+                <p className="px-1.5 text-xs text-white/60">
+                  No spam. One email a week. Unsubscribe in one tap.
+                </p>
+              )}
+            </form>
+          )}
+        </div>
       </div>
     </section>
   );
