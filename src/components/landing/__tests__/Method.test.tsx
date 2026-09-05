@@ -3,11 +3,10 @@ import { render, screen, within } from '@testing-library/react';
 import { Method } from '@/components/landing/Method';
 
 describe('Method', () => {
-  it('renders the locked section title "How to actually hit your number"', () => {
+  it('renders the section title "Four habits. That\'s the whole system."', () => {
     render(<Method />);
-    expect(
-      screen.getByRole('heading', { level: 2, name: /how to actually hit your number/i }),
-    ).toBeInTheDocument();
+    const h2 = screen.getByRole('heading', { level: 2 });
+    expect(h2.textContent?.replace(/\s+/g, ' ')).toMatch(/Four habits\.\s*That's the whole system\./);
   });
 
   it('renders an ordered list with exactly 4 steps', () => {
@@ -35,7 +34,7 @@ describe('Method', () => {
     // Step 2 title:
     const step2Title = screen.getByRole('heading', {
       level: 3,
-      name: /track what you eat/i,
+      name: /track without burning out/i,
     });
     expect(step2Title).toBeInTheDocument();
     // Body of step 2 must mention "photo" and "CalorieCue".
@@ -52,11 +51,11 @@ describe('Method', () => {
     expect(section).not.toBeNull();
   });
 
-  it('ends with a transition link pointing to the guides section', () => {
+  it('every step offers a next action: step 1 → #calculator, step 2 → #features, steps 3–4 → guides', () => {
     render(<Method />);
-    const guidesLinks = screen
-      .getAllByRole('link')
-      .filter((a) => a.getAttribute('href') === '#guides');
-    expect(guidesLinks.length).toBeGreaterThan(0);
+    const hrefs = screen.getAllByRole('link').map((a) => a.getAttribute('href'));
+    expect(hrefs).toContain('#calculator');
+    expect(hrefs).toContain('#features');
+    expect(hrefs.filter((h) => h?.startsWith('/blog/')).length).toBeGreaterThanOrEqual(2);
   });
 });

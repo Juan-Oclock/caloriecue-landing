@@ -21,17 +21,18 @@ const source = fs.readFileSync(PAGE_PATH, 'utf-8').replace(/&apos;/g, "'");
 
 // Note: "How to actually hit your number" moved to Method.tsx in
 // Feature 5 — its presence is now asserted by Method.test.tsx.
+// Landing A — Goal First redesign copy (Sept 2026).
 const NEW_HEADERS = [
-  'Everything you need to actually hit your goal',
-  'No more guessing portion sizes',
-  'Log meals before you forget',
-  'Understand why your weight is changing',
-  'Stay on track even when eating out',
-  'A nutritionist in your pocket for the tricky decisions',
-  'Packaged foods, one-tap accurate',
-  'What a normal day of tracking looks like',
-  // Note: "Real people, real results" moved to ResultsAndAuthority.tsx in
-  // Feature 6 — its presence is now asserted by ResultsAndAuthority.test.tsx.
+  'Logging that never feels like work.',
+  'Snap it. Logged in 3 seconds.',
+  'A nutritionist in your pocket',
+  'Packaged foods, one tap',
+  'Log before you forget',
+  'Understand why weight moves',
+  'Stay on track eating out',
+  'Syncs with Apple Health',
+  // Note: "Real people. Real results." lives in ResultsAndAuthority.tsx —
+  // its presence is asserted by ResultsAndAuthority.test.tsx.
   "Pick your goal. We'll handle the math.",
 ];
 
@@ -47,6 +48,8 @@ const OLD_HEADERS = [
   'See It in Action',
   'Loved by Our Users',
   'Ready to Take Control?',
+  // Pre-redesign section removed with Landing A (no video block in the design).
+  'What a normal day of tracking looks like',
 ];
 
 // "AI Coach (Cue)" is a real product name that still appears in FAQ

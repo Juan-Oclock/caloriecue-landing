@@ -14,7 +14,7 @@ export interface HeroProps {
    */
   onGoalSelect: (goal: Goal) => void;
   /**
-   * Live stat values for the trust strip. Sourced from the Supabase RPC
+   * Live stat values for the trust badge. Sourced from the Supabase RPC
    * on the server and threaded down via HeroAndCalculatorFlow.
    */
   stats: {
@@ -27,88 +27,74 @@ export interface HeroProps {
 interface GoalConfig {
   goal: Goal;
   label: string;
-  emoji: string;
+  hint: string;
 }
 
 const GOALS: GoalConfig[] = [
-  { goal: "lose-weight", label: "Lose Weight", emoji: "🔥" },
-  { goal: "build-muscle", label: "Build Muscle", emoji: "💪" },
-  { goal: "maintain", label: "Maintain", emoji: "⚖️" },
-  { goal: "gain-weight", label: "Gain Weight", emoji: "📈" },
+  { goal: "lose-weight", label: "Lose weight", hint: "Deficit, high protein" },
+  { goal: "build-muscle", label: "Build muscle", hint: "Small surplus" },
+  { goal: "maintain", label: "Maintain", hint: "Hold steady" },
+  { goal: "gain-weight", label: "Gain weight", hint: "Steady surplus" },
 ];
 
-const GOAL_PATHS: Record<Goal, string[]> = {
-  "lose-weight": [
-    "Calculate your calorie deficit",
-    "Track meals without guessing",
-    "Monitor weekly progress",
-    "Adjust when weight loss stalls",
-  ],
-  "build-muscle": [
-    "Calculate your calorie surplus",
-    "Hit your daily protein target",
-    "Train consistently and track recovery",
-    "Adjust as you grow",
-  ],
-  maintain: [
-    "Find your maintenance calories",
-    "Track flexibly, not perfectly",
-    "Watch weekly averages, not daily spikes",
-    "Adjust seasonally as life changes",
-  ],
-  "gain-weight": [
-    "Calculate your calorie surplus",
-    "Eat enough — even when you're not hungry",
-    "Track to hit your number, not exceed it",
-    "Adjust if the scale isn't moving",
-  ],
-};
-
-function formatCompactCount(n: number): string {
-  if (n >= 1_000_000) {
-    const millions = n / 1_000_000;
-    return `${millions >= 10 ? Math.round(millions) : millions.toFixed(1)}M+`;
-  }
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}k+`;
+/** Rounds down to a friendly "3,000+" style figure for the trust badge. */
+export function formatPeopleCount(n: number): string {
+  if (n >= 1_000_000) return `${Math.floor(n / 100_000) / 10}M+`;
+  if (n >= 10_000) return `${Math.floor(n / 1_000).toLocaleString("en-US")},000+`;
+  if (n >= 1_000) return `${(Math.floor(n / 100) * 100).toLocaleString("en-US")}+`;
   return `${n}+`;
 }
 
-function handleStartClick(e: React.MouseEvent<HTMLAnchorElement>) {
+function handleCalculatorClick(e: React.MouseEvent<HTMLAnchorElement>) {
   e.preventDefault();
   const target = document.getElementById("calculator");
   if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 export function Hero({ selectedGoal, onGoalSelect, stats }: HeroProps) {
-  const path = selectedGoal ? GOAL_PATHS[selectedGoal] : null;
-
   return (
-    <section className="relative pt-28 pb-16 md:pt-40 md:pb-24 px-4 bg-white">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
-          {/* Left: content */}
-          <div className="text-center lg:text-left">
-            <h1 className="text-hero-mobile md:text-hero text-foreground mb-5">
-              Track calories for the{" "}
-              <span className="text-gradient">goal you&apos;re working toward.</span>
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              Lose weight, build muscle, maintain, or gain weight with a clear
-              calorie target and faster meal tracking.
-            </p>
+    <section id="top" className="relative overflow-x-clip px-5 pt-28 md:px-8 md:pt-36 lg:pt-40">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
+        {/* Left: content */}
+        <div className="flex flex-col gap-7">
+          {/* Trust badge */}
+          <p className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-surface py-1.5 pl-2.5 pr-3.5 text-[13px] font-medium text-muted-foreground">
+            <span className="text-xs tracking-[1px] text-primary" aria-hidden="true">
+              ★★★★★
+            </span>
+            <span>
+              {stats.app_store_rating.toFixed(1)} on the App Store ·{" "}
+              {formatPeopleCount(stats.total_users)} people tracking
+            </span>
+          </p>
 
-            {/* Interactive prompt */}
-            <p className="text-sm font-medium text-foreground mb-4">
-              What&apos;s your goal?
-            </p>
+          <h1 className="text-hero text-foreground text-balance">
+            Pick your goal.
+            <br />
+            We&apos;ll do the <span className="text-primary-mid">math.</span>
+          </h1>
 
-            {/* Goal cards: 2x2 on mobile, 4x1 on lg */}
+          <p className="max-w-[520px] text-lg leading-[1.45] text-muted-foreground text-pretty md:text-xl">
+            Lose, build, maintain, or gain — CalorieCue sets your daily calorie
+            target, then logs every meal from a single photo. No typing, no
+            portion guessing.
+          </p>
+
+          {/* Goal selector */}
+          <div className="flex flex-col gap-2.5">
+            <span
+              id="hero-goal-label"
+              className="text-xs font-semibold uppercase tracking-[0.08em] text-subtle"
+            >
+              What are you working toward?
+            </span>
             <div
-              className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 max-w-xl mx-auto lg:mx-0"
+              className="grid max-w-[560px] grid-cols-2 gap-2"
               role="group"
               aria-label="Choose your goal"
+              aria-describedby="hero-goal-label"
             >
-              {GOALS.map(({ goal, label, emoji }) => {
+              {GOALS.map(({ goal, label, hint }) => {
                 const isSelected = selectedGoal === goal;
                 return (
                   <button
@@ -121,99 +107,81 @@ export function Hero({ selectedGoal, onGoalSelect, stats }: HeroProps) {
                       }
                     }}
                     aria-pressed={isSelected}
-                    className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                    className={`flex flex-col items-start gap-1 rounded-xl border-[1.5px] px-3.5 py-3 text-left transition-all duration-150 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 ${
                       isSelected
-                        ? "border-primary bg-primary/10 text-primary-dark shadow-sm"
-                        : "border-border bg-white text-foreground hover:border-primary/40 hover:bg-primary/5"
+                        ? "border-primary bg-primary-100 shadow-sm"
+                        : "border-border-strong bg-surface hover:border-primary"
                     }`}
                   >
-                    <span className="text-2xl" aria-hidden="true">
-                      {emoji}
+                    <span className="text-sm font-bold leading-tight text-foreground">
+                      {label}
                     </span>
-                    <span className="leading-tight">{label}</span>
+                    <span className="text-xs text-subtle">{hint}</span>
                   </button>
                 );
               })}
             </div>
-
-            {/* Personalized path reveal */}
-            {path && (
-              <div
-                className="mb-8 rounded-2xl border border-primary/15 bg-primary/[0.03] px-5 py-4 max-w-xl mx-auto lg:mx-0 text-left"
-                aria-live="polite"
-              >
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary-dark mb-3">
-                  Your path
-                </p>
-                <ol className="space-y-2">
-                  {path.map((step, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-foreground">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-bold text-primary-dark">
-                        {i + 1}
-                      </span>
-                      <span className="leading-snug">{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-
-            {/* CTAs — sm:items-stretch ensures both buttons match the
-                taller AppStoreButton's height (its 2-line text stack
-                makes it taller than a single-line CTA). sm:justify-center
-                keeps the auto-width buttons centered under the centered
-                content on tablet; lg:justify-start re-anchors them left
-                once the column switches to left-aligned text. */}
-            <div className="grid grid-cols-1 sm:flex sm:flex-row sm:items-stretch sm:justify-center lg:justify-start gap-3 max-w-xl mx-auto lg:mx-0">
-              <a
-                href="#calculator"
-                onClick={handleStartClick}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-primary-dark text-white text-lg font-semibold hover:bg-primary-700 transition-colors shadow-sm w-full sm:w-auto"
-              >
-                Start With My Goal
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </a>
-              <AppStoreButton variant="hero" hideTagline location="hero" className="w-full sm:w-auto [&>div]:w-full [&>div]:sm:w-auto [&>div]:h-full [&_a]:h-full [&_a>div]:h-full" />
-            </div>
-
-            {/* Trust strip */}
-            <p className="mt-8 text-xs text-muted-foreground text-center lg:text-left">
-              Trusted by {formatCompactCount(stats.total_users)} people ·{" "}
-              {formatCompactCount(stats.meals_scanned)} meals tracked ·{" "}
-              {stats.app_store_rating.toFixed(1)} ★ on the App Store
-            </p>
           </div>
 
-          {/* Right: hero visual (Guardrail 2 — CalorieCue must be visible in the hero) */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="relative">
-              <div
-                className="absolute inset-0 translate-x-4 translate-y-8 md:translate-x-10 md:translate-y-20 bg-black/10 blur-[30px] md:blur-[50px] rounded-[2.5rem]"
-                style={{ zIndex: 1 }}
-                aria-hidden="true"
-              />
-              <div
-                className="absolute inset-0 translate-x-3 translate-y-6 md:translate-x-7 md:translate-y-14 bg-black/15 blur-[20px] md:blur-[35px] rounded-[2.5rem]"
-                style={{ zIndex: 2 }}
-                aria-hidden="true"
-              />
-              <div
-                className="absolute inset-0 translate-x-2 translate-y-4 md:translate-x-4 md:translate-y-8 bg-black/20 blur-[12px] md:blur-[20px] rounded-[2.5rem]"
-                style={{ zIndex: 3 }}
-                aria-hidden="true"
-              />
-              <Image
-                src="/caloriecue-app-home.webp"
-                alt="CalorieCue calorie tracking app on iPhone showing the daily dashboard: calories remaining with a progress ring, protein, carbs and fat macros, and one-tap photo, scan, search and voice food logging"
-                width={340}
-                height={694}
-                priority
-                sizes="(max-width: 768px) 260px, 340px"
-                className="relative z-10 w-[260px] md:w-[340px] h-auto"
-              />
-            </div>
+          {/* CTAs */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch">
+            <AppStoreButton variant="hero" hideTagline location="hero" />
+            <a
+              href="#calculator"
+              onClick={handleCalculatorClick}
+              className="inline-flex h-14 items-center justify-center gap-2 rounded-[14px] border-[1.5px] border-border-strong px-5 text-base font-semibold text-foreground transition-colors hover:border-foreground"
+            >
+              Find my calorie target
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+
+          <p className="text-[13px] text-subtle">
+            Free to start · 3 photo scans a day · No card required
+          </p>
+        </div>
+
+        {/* Right: hero visual (Guardrail 2 — CalorieCue must be visible in the hero) */}
+        <div className="relative flex min-h-[420px] items-end justify-center pb-14 sm:min-h-[520px] lg:min-h-[560px]">
+          {/* Peach backdrop */}
+          <div
+            className="absolute inset-x-0 bottom-14 h-[78%] rounded-[32px] bg-peach"
+            aria-hidden="true"
+          />
+          <Image
+            src="/caloriecue-iphone-angle.webp"
+            alt="CalorieCue calorie tracking app on iPhone showing the daily dashboard: calories remaining with a progress ring, protein, carbs and fat macros, and one-tap photo, scan, search and voice food logging"
+            width={646}
+            height={1426}
+            priority
+            sizes="(max-width: 640px) 68vw, 272px"
+            className="relative z-10 h-auto w-[min(272px,68vw)] drop-shadow-[0_34px_44px_rgba(35,29,26,0.32)]"
+          />
+
+          {/* Floating proof cards */}
+          <div
+            className="absolute left-0 top-[56%] z-20 hidden items-center gap-2.5 rounded-[14px] border border-[#EEE8E1] bg-surface px-3.5 py-2.5 shadow-float sm:flex"
+            aria-hidden="true"
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#FFE4E8]">
+              <span className="block h-3.5 w-3.5 rounded-full border-[3px] border-protein" />
+            </span>
+            <span className="flex flex-col leading-tight">
+              <span className="text-xs text-subtle">Protein</span>
+              <span className="text-[15px] font-bold font-rounded tabular-nums">128 / 111g</span>
+            </span>
+          </div>
+          <div
+            className="absolute right-0 top-0 z-20 hidden items-center gap-2.5 rounded-[14px] border border-[#EEE8E1] bg-surface px-3.5 py-2.5 shadow-float sm:flex"
+            aria-hidden="true"
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-primary-100 text-base font-extrabold text-primary-dark font-rounded">
+              3s
+            </span>
+            <span className="flex flex-col leading-tight">
+              <span className="text-xs text-subtle">Meal logged</span>
+              <span className="text-[15px] font-bold">Garden salad · 412 kcal</span>
+            </span>
           </div>
         </div>
       </div>

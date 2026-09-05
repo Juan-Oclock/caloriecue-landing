@@ -2,46 +2,40 @@ import { ReactNode } from "react";
 import FadeInCSS from "@/components/FadeInCSS";
 
 interface FeatureCardProps {
-  icon: ReactNode;
+  /** Short glyph or icon rendered in the coral tile (e.g. "AI", "Aa", an SVG). */
+  glyph: ReactNode;
   title: string;
   description: string;
   delay?: number;
-  iconBg?: string;
-  iconColor?: string;
   className?: string;
 }
 
 export default function FeatureCard({
-  icon,
+  glyph,
   title,
   description,
   delay = 0,
-  iconBg,
-  iconColor,
   className = "",
 }: FeatureCardProps) {
   return (
     <FadeInCSS
       delay={delay}
-      y={30}
+      y={24}
       viewportMargin="-50px"
-      className={`group relative bg-white rounded-2xl border border-border p-6 transition-all duration-300 hover:shadow-soft-lg hover:border-primary/20 hover:-translate-y-1 ${className}`}
+      className={`group flex flex-col gap-3 rounded-[20px] border border-border bg-surface p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-card-hover ${className}`}
     >
-      {/* Subtle gradient overlay on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-      {/* Content */}
-      <div className="relative h-full">
-        <div
-          className={`w-12 h-12 ${iconBg || "bg-primary-50"} rounded-xl flex items-center justify-center mb-4 transition-colors duration-300`}
-        >
-          <div className={iconColor || "text-primary"}>{icon}</div>
-        </div>
-        <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
-        <p className="text-muted-foreground text-sm leading-relaxed">
-          {description}
-        </p>
-      </div>
+      <span
+        className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-100 text-sm font-extrabold text-primary-dark font-rounded"
+        aria-hidden="true"
+      >
+        {glyph}
+      </span>
+      <h3 className="text-[19px] font-bold leading-[1.25] tracking-[-0.01em] text-foreground">
+        {title}
+      </h3>
+      <p className="text-[15px] leading-relaxed text-muted-foreground text-pretty">
+        {description}
+      </p>
     </FadeInCSS>
   );
 }

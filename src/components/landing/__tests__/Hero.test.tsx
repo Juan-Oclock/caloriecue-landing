@@ -6,11 +6,19 @@ import { Hero } from '@/components/landing/Hero';
 const STATS = { total_users: 2990, meals_scanned: 17314, app_store_rating: 4.9 };
 
 describe('Hero', () => {
-  it('renders the locked H1 string exactly', () => {
+  it('renders the Goal-First H1 (single H1, two lines + coral accent)', () => {
     render(<Hero selectedGoal={null} onGoalSelect={() => {}} stats={STATS} />);
-    const h1 = screen.getByRole('heading', { level: 1 });
+    const h1s = screen.getAllByRole('heading', { level: 1 });
+    expect(h1s).toHaveLength(1);
     // H1 spans two lines with a styled span; assert on textContent.
-    expect(h1.textContent).toMatch(/Track calories for the goal you'?re working toward\./);
+    expect(h1s[0].textContent?.replace(/\s+/g, ' ')).toMatch(/Pick your goal\.\s*We'll do the math\./);
+  });
+
+  it('sub-headline names the calorie target and photo logging (SEO copy)', () => {
+    render(<Hero selectedGoal={null} onGoalSelect={() => {}} stats={STATS} />);
+    const body = document.body.textContent ?? '';
+    expect(body).toMatch(/daily calorie target/i);
+    expect(body).toMatch(/single photo/i);
   });
 
   it('sub-headline contains "maintain" and does NOT contain "stay lean"', () => {
@@ -20,12 +28,14 @@ describe('Hero', () => {
     expect(body).not.toMatch(/stay lean/i);
   });
 
-  it('renders four goal cards with correct labels and emojis', () => {
+  it('renders four goal cards with labels and a one-line hint each', () => {
     render(<Hero selectedGoal={null} onGoalSelect={() => {}} stats={STATS} />);
-    expect(screen.getByRole('button', { name: /lose weight/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /build muscle/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^maintain$/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /gain weight/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^lose weight/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^build muscle/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^maintain/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^gain weight/i })).toBeInTheDocument();
+    expect(screen.getByText('Deficit, high protein')).toBeInTheDocument();
+    expect(screen.getByText('Hold steady')).toBeInTheDocument();
   });
 
   it('uses <button> elements (keyboard accessible) for goal cards, not <div>', () => {
@@ -52,36 +62,21 @@ describe('Hero', () => {
 
   it('selected goal card has aria-pressed=true', () => {
     render(<Hero selectedGoal="maintain" onGoalSelect={() => {}} stats={STATS} />);
-    const maintainBtn = screen.getByRole('button', { name: /^maintain$/i });
+    const maintainBtn = screen.getByRole('button', { name: /^maintain/i });
     expect(maintainBtn).toHaveAttribute('aria-pressed', 'true');
     const loseBtn = screen.getByRole('button', { name: /lose weight/i });
     expect(loseBtn).toHaveAttribute('aria-pressed', 'false');
   });
 
-  it('renders the personalized path when selectedGoal is set', () => {
+  it('selecting a goal highlights it without rendering a separate path panel (Landing A design)', () => {
     render(<Hero selectedGoal="lose-weight" onGoalSelect={() => {}} stats={STATS} />);
-    expect(screen.getByText('Calculate your calorie deficit')).toBeInTheDocument();
-    expect(screen.getByText('Track meals without guessing')).toBeInTheDocument();
-    expect(screen.getByText('Monitor weekly progress')).toBeInTheDocument();
-    expect(screen.getByText('Adjust when weight loss stalls')).toBeInTheDocument();
-  });
-
-  it('renders the build-muscle path when build-muscle is selected', () => {
-    render(<Hero selectedGoal="build-muscle" onGoalSelect={() => {}} stats={STATS} />);
-    expect(screen.getByText('Calculate your calorie surplus')).toBeInTheDocument();
-    expect(screen.getByText('Hit your daily protein target')).toBeInTheDocument();
-  });
-
-  it('does NOT render any personalized path when selectedGoal is null', () => {
-    render(<Hero selectedGoal={null} onGoalSelect={() => {}} stats={STATS} />);
+    expect(screen.getByRole('button', { name: /^lose weight/i })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.queryByText('Calculate your calorie deficit')).not.toBeInTheDocument();
-    expect(screen.queryByText('Calculate your calorie surplus')).not.toBeInTheDocument();
-    expect(screen.queryByText('Find your maintenance calories')).not.toBeInTheDocument();
   });
 
-  it('"Start With My Goal" CTA is an anchor pointing at #calculator', () => {
+  it('"Find my calorie target" CTA is an anchor pointing at #calculator', () => {
     render(<Hero selectedGoal={null} onGoalSelect={() => {}} stats={STATS} />);
-    const startLink = screen.getByRole('link', { name: /start with my goal/i });
+    const startLink = screen.getByRole('link', { name: /find my calorie target/i });
     expect(startLink.getAttribute('href')).toBe('#calculator');
   });
 
@@ -99,13 +94,20 @@ describe('Hero', () => {
     expect(img).toBeInTheDocument();
   });
 
-  it('trust strip renders formatted stat values and the App Store rating', () => {
+  it('trust badge renders the App Store rating and a rounded people count', () => {
     render(<Hero selectedGoal={null} onGoalSelect={() => {}} stats={STATS} />);
     const body = document.body.textContent ?? '';
-    expect(body).toMatch(/Trusted by/i);
-    expect(body).toMatch(/4\.9 ★/);
-    // 2990 → "2.99k+" in compact format
-    expect(body).toMatch(/\d/);
+    expect(body).toMatch(/4\.9 on the App Store/);
+    // 2990 → "2,900+" (rounded down to a friendly figure)
+    expect(body).toMatch(/2,900\+ people tracking/);
+  });
+
+  it('formatPeopleCount rounds down to friendly figures', async () => {
+    const { formatPeopleCount } = await import('@/components/landing/Hero');
+    expect(formatPeopleCount(650)).toBe('650+');
+    expect(formatPeopleCount(2990)).toBe('2,900+');
+    expect(formatPeopleCount(12_480)).toBe('12,000+');
+    expect(formatPeopleCount(1_250_000)).toBe('1.2M+');
   });
 
   it('does not introduce React Context (regression guard for Decision #8)', async () => {

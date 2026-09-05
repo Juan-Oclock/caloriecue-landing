@@ -9,7 +9,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
-    exclude: [...configDefaults.exclude, '.agents/**'],
+    exclude: [...configDefaults.exclude, '.agents/**', '.worktrees/**'],
   },
   resolve: {
     alias: {
