@@ -11,3 +11,4 @@ export { default as BlogPostCardOverlay } from "./BlogPostCardOverlay";
 export { default as BlogPostCardEditorial } from "./BlogPostCardEditorial";
 export { default as NewsletterSection } from "./NewsletterSection";
 export { default as BlogTldr } from "./BlogTldr";
+export { default as ReadingProgress } from "./ReadingProgress";
