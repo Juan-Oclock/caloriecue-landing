@@ -5,15 +5,26 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import TrackedAppStoreLink from "@/components/TrackedAppStoreLink";
 
+const APP_STORE_URL =
+  "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
+
+const NAV_LINKS = [
+  { href: "/#features", label: "Features" },
+  { href: "/tdee-calculator", label: "Calculator" },
+  { href: "/#pricing", label: "Pricing" },
+  { href: "/blog", label: "Guides" },
+];
+
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 8);
     };
-    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -28,11 +39,6 @@ export default function Navigation() {
       document.body.style.overflow = "";
     };
   }, [mobileMenuOpen]);
-
-  const navLinks = [
-    { href: "/tdee-calculator", label: "TDEE Calculator" },
-    { href: "/blog", label: "Blog" },
-  ];
 
   const mobileLinks = [
     {
@@ -68,8 +74,8 @@ export default function Navigation() {
     },
     {
       href: "/blog",
-      label: "Blog",
-      description: "Nutrition tips and guides",
+      label: "Guides",
+      description: "Nutrition guides and food rankings",
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
@@ -81,55 +87,51 @@ export default function Navigation() {
   return (
     <>
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-300 ${
         scrolled
-          ? "bg-white/90 backdrop-blur-xl shadow-soft border-b border-border/50"
-          : "bg-transparent"
+          ? "bg-background/90 backdrop-blur-xl border-foreground/10 shadow-[0_1px_0_rgba(35,29,26,0.04)]"
+          : "bg-background/70 backdrop-blur-xl border-transparent"
       }`}
     >
     <nav aria-label="Main navigation">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between gap-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 group">
+        <Link href="/" className="flex items-center gap-2.5 group text-foreground">
           <Image
             src="/app-icons/80.png"
             alt="CalorieCue logo"
-            width={40}
-            height={40}
-            className="rounded-xl shadow-soft transition-transform group-hover:scale-105 border-2 border-primary"
+            width={30}
+            height={30}
+            className="rounded-lg transition-transform group-hover:scale-105"
           />
-          <span className="text-foreground font-semibold text-lg tracking-tight">CalorieCue</span>
+          <span className="font-bold text-[17px] tracking-[-0.2px]">CalorieCue</span>
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
+        <div className="hidden md:flex items-center gap-6 lg:gap-7">
+          {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors relative group"
+              className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
             >
               {link.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
             </Link>
           ))}
           <TrackedAppStoreLink
-            href="https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503"
+            href={APP_STORE_URL}
             target="_blank"
             rel="noopener noreferrer"
             location="nav"
-            className="btn-primary text-sm py-2.5 px-5 inline-flex items-center gap-2"
+            className="inline-flex items-center h-[38px] px-4 rounded-[10px] bg-foreground text-white text-sm font-semibold whitespace-nowrap transition-colors hover:bg-primary-dark"
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-            </svg>
-            Get the App
+            Get the app
           </TrackedAppStoreLink>
         </div>
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden p-2 text-foreground rounded-lg hover:bg-muted transition-colors"
+          className="md:hidden p-2 -mr-2 text-foreground rounded-lg hover:bg-muted transition-colors"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
           aria-expanded={mobileMenuOpen}
@@ -155,7 +157,7 @@ export default function Navigation() {
     {/* Mobile Menu Overlay - outside header to avoid backdrop-filter containing block */}
     {mobileMenuOpen && (
       <div
-        className="md:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-[60]"
+        className="md:hidden fixed inset-0 bg-foreground/25 backdrop-blur-sm z-[60]"
         onClick={() => setMobileMenuOpen(false)}
       />
     )}
@@ -163,13 +165,13 @@ export default function Navigation() {
     {/* Mobile Menu Panel - outside header to avoid backdrop-filter containing block */}
     <div
       id="mobile-menu"
-      className={`md:hidden fixed top-0 right-0 h-full w-[85%] max-w-[340px] bg-white z-[70] shadow-elevated transform transition-transform duration-300 ease-in-out ${
+      className={`md:hidden fixed top-0 right-0 h-full w-[85%] max-w-[340px] bg-surface z-[70] shadow-elevated transform transition-transform duration-300 ease-in-out ${
         mobileMenuOpen ? "translate-x-0" : "translate-x-full"
       }`}
     >
       <div className="flex flex-col h-full">
         {/* Menu header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <span className="font-semibold text-foreground">Menu</span>
           <button
             onClick={() => setMobileMenuOpen(false)}
@@ -195,12 +197,12 @@ export default function Navigation() {
                   className="flex items-start gap-3 px-3 py-3 rounded-xl hover:bg-muted transition-colors group"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-primary/15 transition-colors">
+                  <div className="w-9 h-9 rounded-lg bg-primary-100 text-primary-dark flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-primary-200 transition-colors">
                     {link.icon}
                   </div>
                   <div>
                     <span className="block text-sm font-medium text-foreground">{link.label}</span>
-                    <span className="block text-xs text-muted-foreground mt-0.5">{link.description}</span>
+                    <span className="block text-xs text-subtle mt-0.5">{link.description}</span>
                   </div>
                 </Tag>
               );
@@ -208,11 +210,11 @@ export default function Navigation() {
           </div>
 
           {/* Divider */}
-          <hr className="my-4 border-border/50" />
+          <hr className="my-4 border-border" />
 
           {/* Quick stats */}
           <div className="px-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Why CalorieCue?</p>
+            <p className="text-xs font-semibold text-subtle uppercase tracking-wider mb-3">Why CalorieCue?</p>
             <div className="grid grid-cols-2 gap-2">
               {[
                 { value: "3s", label: "Per meal scan" },
@@ -220,9 +222,9 @@ export default function Navigation() {
                 { value: "AI", label: "Photo tracking" },
                 { value: "Free", label: "To get started" },
               ].map((stat) => (
-                <div key={stat.label} className="bg-muted/60 rounded-xl px-3 py-2.5 text-center">
-                  <span className="block text-sm font-bold text-primary-dark">{stat.value}</span>
-                  <span className="block text-[11px] text-muted-foreground mt-0.5">{stat.label}</span>
+                <div key={stat.label} className="bg-background rounded-xl px-3 py-2.5 text-center border border-border">
+                  <span className="block text-sm font-bold text-primary-dark font-rounded">{stat.value}</span>
+                  <span className="block text-[11px] text-subtle mt-0.5">{stat.label}</span>
                 </div>
               ))}
             </div>
@@ -230,21 +232,21 @@ export default function Navigation() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="px-4 py-5 border-t border-border/50 bg-muted/30">
+        <div className="px-4 py-5 border-t border-border bg-background">
           <TrackedAppStoreLink
-            href="https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503"
+            href={APP_STORE_URL}
             target="_blank"
             rel="noopener noreferrer"
             location="nav"
-            className="btn-primary w-full text-sm py-3.5 inline-flex items-center justify-center gap-2"
+            className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl bg-foreground text-white text-sm font-bold hover:bg-primary-dark transition-colors"
             onClick={() => setMobileMenuOpen(false)}
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
             </svg>
-            Download for Free
+            Download on the App Store
           </TrackedAppStoreLink>
-          <p className="text-[11px] text-muted-foreground text-center mt-2">Available on iOS</p>
+          <p className="text-[11px] text-subtle text-center mt-2">Free on iOS · No card required</p>
         </div>
       </div>
     </div>

@@ -3,17 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --primary: #E05A3A;
+  --primary: #EF6939;
   /* Accessible coral (WCAG AA): white text + on light backgrounds. */
   --primary-dark: #BC4527;
-  --primary-light: #FF7F5C;
-  --background: #FAFAFA;
-  --surface: #FFFFFF;
-  --card: #FFFFFF;
-  --foreground: #1A1A1A;
-  --muted: #F5F5F5;
-  --muted-foreground: #6B7280;
-  --border: #E5E7EB;
+  --primary-light: #F58A62;
+  --background: #F5F1EC;
+  --surface: #FDFCFB;
+  --card: #FDFCFB;
+  --foreground: #231D1A;
+  --muted: #EEE8E1;
+  --muted-foreground: #5E544D;
+  --border: #E5DED5;
 }
 
 * {
@@ -27,14 +27,14 @@ html {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* Selection styling */
 ::selection {
-  background: rgba(224, 90, 58, 0.15);
+  background: rgba(239, 105, 57, 0.18);
   color: var(--foreground);
 }
 
@@ -49,12 +49,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D1D5DB;
+  background: #D9D2C9;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9CA3AF;
+  background: #B8AFA4;
 }
 
 /* Focus ring */
@@ -66,7 +66,7 @@ body {
   /* Gradient text */
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #E05A3A 0%, #FF7F5C 100%);
+    background-image: linear-gradient(135deg, #EF6939 0%, #F58A62 100%);
   }
 
   /* Light glassmorphism effect */
@@ -77,18 +77,18 @@ body {
   /* Subtle gradient mesh background */
   .mesh-bg {
     background-image:
-      radial-gradient(at 40% 20%, hsla(16, 79%, 58%, 0.06) 0px, transparent 50%),
+      radial-gradient(at 40% 20%, hsla(19, 85%, 58%, 0.06) 0px, transparent 50%),
       radial-gradient(at 80% 0%, hsla(27, 100%, 65%, 0.04) 0px, transparent 50%),
       radial-gradient(at 0% 50%, hsla(355, 85%, 65%, 0.03) 0px, transparent 50%);
   }
 
   /* Soft glow effect for light theme */
   .glow {
-    box-shadow: 0 0 40px -10px rgba(224, 90, 58, 0.2);
+    box-shadow: 0 0 40px -10px rgba(239, 105, 57, 0.2);
   }
 
   .glow-hover:hover {
-    box-shadow: 0 0 60px -10px rgba(224, 90, 58, 0.3);
+    box-shadow: 0 0 60px -10px rgba(239, 105, 57, 0.3);
   }
 
   /* Bento card styles */
@@ -99,7 +99,7 @@ body {
 
   /* Subtle pattern overlay */
   .pattern-dots {
-    background-image: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(35, 29, 26, 0.04) 1px, transparent 1px);
     background-size: 20px 20px;
   }
 }
@@ -115,11 +115,21 @@ body {
   }
 
   .btn-secondary {
-    @apply btn bg-muted text-foreground hover:bg-gray-200;
+    @apply btn bg-muted text-foreground hover:bg-border;
   }
 
   .btn-ghost {
-    @apply btn bg-transparent text-foreground border border-border hover:bg-muted hover:border-gray-300;
+    @apply btn bg-transparent text-foreground border border-border hover:bg-muted hover:border-border-strong;
+  }
+
+  /* Ink (near-black) pill used for nav + secondary CTAs in the redesign */
+  .btn-ink {
+    @apply btn bg-foreground text-white hover:bg-primary-dark;
+  }
+
+  /* Small uppercase section label */
+  .eyebrow {
+    @apply inline-block text-xs font-bold uppercase tracking-[0.1em] text-primary-dark;
   }
 
   .btn-outline {
@@ -132,7 +142,7 @@ body {
   }
 
   .card-hover {
-    @apply card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 hover:border-gray-200;
+    @apply card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 hover:border-border-strong;
   }
 
   /* Feature card with gradient border on hover */
@@ -294,6 +304,19 @@ body {
   50% { top: 85%; }
 }
 
+/* Meal-scan showcase: one sweep of the scan line, then macro bubbles pop in */
+@keyframes ccScanSweep {
+  0% { top: 6%; opacity: 0; }
+  6% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { top: 92%; opacity: 0; }
+}
+
+@keyframes ccPop {
+  0% { opacity: 0; transform: translateY(8px) scale(0.94); }
+  100% { opacity: 1; transform: none; }
+}
+
 .hero-image-enter {
   animation: heroImageEnter 0.8s ease-out 0.2s both;
 }
@@ -340,5 +363,22 @@ body {
   .animate-glow-pulse-outer,
   .scan-line {
     display: none;
+  }
+}
+
+.cc-scan-sweep {
+  animation: ccScanSweep 2s ease-in-out forwards;
+}
+
+.cc-pop {
+  animation: ccPop 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-scan-sweep {
+    display: none;
+  }
+  .cc-pop {
+    animation: none;
   }
 }

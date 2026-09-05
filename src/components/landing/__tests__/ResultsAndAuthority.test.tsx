@@ -8,10 +8,10 @@ const REVIEWS = [
 ];
 
 describe('ResultsAndAuthority', () => {
-  it('renders the locked section heading "Real people, real results"', () => {
+  it('renders the section heading "Real people. Real results."', () => {
     render(<ResultsAndAuthority reviews={REVIEWS} />);
     expect(
-      screen.getByRole('heading', { level: 2, name: /real people, real results/i }),
+      screen.getByRole('heading', { level: 2, name: /real people[.,] real results/i }),
     ).toBeInTheDocument();
   });
 

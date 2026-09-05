@@ -147,7 +147,7 @@ export default function RootLayout({
         />
         <link rel="alternate" type="application/rss+xml" title="CalorieCue Blog" href="/blog/feed.xml" />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#E05A3A" />
+        <meta name="theme-color" content="#EF6939" />
       </head>
       <body className="antialiased" suppressHydrationWarning>
         <GoogleAnalytics />

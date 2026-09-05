@@ -47,6 +47,7 @@ export type AppStoreClickLocation =
   | "hero"
   | "final_cta"
   | "nav"
+  | "footer"
   | "pricing"
   | "calculator"
   | "blog_tldr"
