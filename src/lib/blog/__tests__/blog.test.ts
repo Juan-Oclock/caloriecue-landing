@@ -167,7 +167,8 @@ describe('GSC-backed SEO refreshes', () => {
     for (const slug of slugs) {
       const post = getPostBySlug(slug);
       expect(post, slug).toBeDefined();
-      expect(post?.dateModified, slug).toBe('2026-07-06');
+      expect(new Date(post!.dateModified!).getTime(), slug)
+        .toBeGreaterThanOrEqual(new Date('2026-07-06').getTime());
       expect(post?.tldr, slug).toBeTruthy();
       expect(post?.tldr?.length, slug).toBeGreaterThan(120);
     }

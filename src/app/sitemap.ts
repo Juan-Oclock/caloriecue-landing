@@ -20,7 +20,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  const latestPostDate = posts.length > 0 ? new Date(posts[0].dateModified ?? posts[0].date) : STATIC_LAST_MODIFIED.home;
+  // Posts are sorted by publication date, so a refresh of an older guide
+  // may be newer than the first post in the list.
+  const latestPostDate = posts.length > 0
+    ? new Date(Math.max(...posts.map((post) => new Date(post.dateModified ?? post.date).getTime())))
+    : STATIC_LAST_MODIFIED.home;
 
   return [
     { url: SITE_URL, lastModified: STATIC_LAST_MODIFIED.home, changeFrequency: "weekly", priority: 1 },
