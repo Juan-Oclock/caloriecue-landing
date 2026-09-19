@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import CheatSheetNextStep from "./CheatSheetNextStep";
 import { motion } from "framer-motion";
 import { trackGenerateLead } from "@/lib/analytics";
 
@@ -93,7 +94,9 @@ export default function CheatSheetForm({ contentSlug }: CheatSheetFormProps) {
       </div>
 
       {success ? (
+        <>
         <motion.div
+          role="status"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="flex items-center gap-2 bg-green-50 text-green-700 px-4 py-3 rounded-xl border border-green-200 mt-4"
@@ -113,6 +116,8 @@ export default function CheatSheetForm({ contentSlug }: CheatSheetFormProps) {
             Check your inbox! We&apos;ve emailed your cheat sheet PDF (attached).
           </span>
         </motion.div>
+        <Suspense fallback={null}><CheatSheetNextStep contentSlug={contentSlug} /></Suspense>
+        </>
       ) : (
         <form onSubmit={handleSubmit} className="mt-4">
           <div className="flex flex-col sm:flex-row gap-3">

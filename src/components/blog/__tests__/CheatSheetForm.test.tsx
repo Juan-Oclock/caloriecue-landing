@@ -4,13 +4,15 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import CheatSheetForm from "@/components/blog/CheatSheetForm";
 import { getMDXComponents } from "@/components/blog/MDXComponents";
-import { trackGenerateLead } from "@/lib/analytics";
+import { trackAppStoreClick, trackGenerateLead } from "@/lib/analytics";
 
 const fetchMock = vi.fn();
+const navigation = vi.hoisted(() => ({ search: "" }));
+vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams(navigation.search) }));
 
 vi.mock("@/lib/analytics", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/analytics")>();
-  return { ...actual, trackGenerateLead: vi.fn() };
+  return { ...actual, trackGenerateLead: vi.fn(), trackAppStoreClick: vi.fn() };
 });
 
 async function submit(email: string) {
@@ -26,6 +28,7 @@ async function submit(email: string) {
 describe("CheatSheetForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    navigation.search = "";
     vi.stubGlobal("fetch", fetchMock);
   });
 
@@ -39,6 +42,7 @@ describe("CheatSheetForm", () => {
     const components = getMDXComponents("calorie-counting-cheat-sheet");
     const FactoryCheatSheetForm = components.CheatSheetForm as ComponentType;
     render(<FactoryCheatSheetForm />);
+    expect(screen.queryByRole("link", { name: "Try CalorieCue free on iPhone" })).not.toBeInTheDocument();
 
     await submit("Reader@Example.com");
 
@@ -51,6 +55,19 @@ describe("CheatSheetForm", () => {
       location: "cheat_sheet_form",
       contentSlug: "calorie-counting-cheat-sheet",
     });
+    const link = screen.getByRole("link", { name: "Try CalorieCue free on iPhone" });
+    expect(new URL(link.getAttribute("href")!).searchParams.get("ct")).toBe("blog-cheat-sheet-v1");
+    fireEvent.click(link);
+    expect(trackAppStoreClick).toHaveBeenCalledWith({ location: "blog_cheat_sheet_success", contentSlug: "calorie-counting-cheat-sheet" });
+  });
+
+  it("keeps delivery confirmation but hides the offer inside the app", async () => {
+    navigation.search = "src=app";
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ success: true }) });
+    render(<CheatSheetForm contentSlug="calorie-counting-cheat-sheet" />);
+    await submit("reader@example.com");
+    expect(await screen.findByRole("status")).toHaveTextContent(/check your inbox/i);
+    expect(screen.queryByRole("link", { name: "Try CalorieCue free on iPhone" })).not.toBeInTheDocument();
   });
 
   it("shows delivery success but does not track a repeat contact", async () => {

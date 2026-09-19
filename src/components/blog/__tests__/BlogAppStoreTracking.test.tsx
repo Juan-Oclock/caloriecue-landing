@@ -2,6 +2,7 @@ import type { ComponentPropsWithoutRef, ComponentType } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import BlogTldr from "@/components/blog/BlogTldr";
+import BlogProductExample from "@/components/blog/BlogProductExample";
 import { getMDXComponents } from "@/components/blog/MDXComponents";
 import { trackAppStoreClick } from "@/lib/analytics";
 
@@ -20,6 +21,26 @@ describe("blog App Store measurement", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     navigation.search = "";
+  });
+
+  it("attributes the contextual CTA to its article and campaign", () => {
+    render(<BlogProductExample contentSlug="protein-per-calorie" />);
+    const link = screen.getByRole("link", { name: "Track your meal’s calories and protein" });
+    const url = new URL(link.getAttribute("href")!);
+    expect(url.searchParams.get("utm_content")).toBe("protein-per-calorie");
+    expect(url.searchParams.get("utm_campaign")).toBe("blog_conversion_v1");
+    expect(url.searchParams.get("pt")).toBe("128187938");
+    expect(url.searchParams.get("ct")).toBe("blog-protein-v1");
+    expect(url.searchParams.get("mt")).toBe("8");
+    fireEvent.click(link);
+    expect(trackAppStoreClick).toHaveBeenCalledWith({ location: "blog_product_example", contentSlug: "protein-per-calorie" });
+  });
+
+  it("keeps the product example but hides its download CTA in the app", () => {
+    navigation.search = "src=app";
+    render(<BlogProductExample contentSlug="best-free-calorie-counter-apps" variant="free" />);
+    expect(screen.getByRole("heading", { name: "What you get free with CalorieCue" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Try CalorieCue free on iPhone" })).not.toBeInTheDocument();
   });
 
   it("tracks the TL;DR CTA with its article slug and preserves its UTM URL", () => {

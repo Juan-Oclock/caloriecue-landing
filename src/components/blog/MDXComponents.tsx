@@ -10,6 +10,7 @@ import CaloriesPerGramCalculator from "./CaloriesPerGramCalculator";
 import ProteinSwapExplorer from "./ProteinSwapExplorer";
 import HomemadeRecipeCalorieCalculator from "./HomemadeRecipeCalorieCalculator";
 import TrackedAppStoreLink from "@/components/TrackedAppStoreLink";
+import BlogProductExample from "./BlogProductExample";
 
 const CALORIECUE_APP_STORE_URL =
   "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
@@ -269,6 +270,7 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
       </td>
     ),
     Callout,
+    BlogProductExample: ({ variant }: { variant?: "protein" | "free" | "macros" }) => <BlogProductExample contentSlug={contentSlug} variant={variant} />,
     ProteinSwapExplorer,
     AppStoreLink: () => <AppStoreLink contentSlug={contentSlug} />,
     BlogImage,

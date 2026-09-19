@@ -51,6 +51,8 @@ export type AppStoreClickLocation =
   | "pricing"
   | "calculator"
   | "blog_tldr"
+  | "blog_product_example"
+  | "blog_cheat_sheet_success"
   | "blog_inline";
 
 export interface AppStoreClickInput {
