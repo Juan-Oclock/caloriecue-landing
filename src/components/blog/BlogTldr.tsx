@@ -2,26 +2,26 @@
 
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import TrackedAppStoreLink from "@/components/TrackedAppStoreLink";
 import { AppleLogo } from "@/components/AppStoreButton";
+import TrackedAppStoreLink from "@/components/TrackedAppStoreLink";
 
 type BlogTldrProps = {
   body?: string;
   utmContent: string;
-  /** Full-article reading time, shown next to the "30-second read" note. */
+  /** Full-article reading time, available on the summary reading-time label. */
   readingTime?: number;
 };
 
 const APP_STORE_URL = "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
 
 const CTA_CLASS =
-  "inline-flex h-12 w-full items-center justify-center gap-2.5 whitespace-nowrap rounded-xl bg-primary-dark px-5 text-[15px] font-bold text-white !no-underline shadow-coral transition-colors hover:bg-primary-700 sm:w-fit";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-[9px] bg-[#F4DFCF] px-4 py-3 text-[13px] font-semibold text-[#38281F] transition-colors hover:bg-[#FBEBDD] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F4DFCF] motion-reduce:transition-none";
 
 function CtaBody({ href, utmContent }: { href: string; utmContent: string }) {
   return (
-    <>
-      <p className="text-sm leading-relaxed text-white/70">
-        Track any meal in 3 seconds, even the messy ones.
+    <div className="mt-6 flex flex-col items-start justify-between gap-4 border-t border-[#55483F] pt-5 sm:flex-row sm:items-center">
+      <p className="text-[13px] leading-normal text-[#C6B9B0]">
+        Track any meal in 3 seconds,<br />even the messy ones.
       </p>
       <TrackedAppStoreLink
         href={href}
@@ -31,10 +31,10 @@ function CtaBody({ href, utmContent }: { href: string; utmContent: string }) {
         contentSlug={utmContent}
         className={CTA_CLASS}
       >
-        <AppleLogo className="h-[18px] w-[18px]" />
+        <AppleLogo className="h-4 w-4 shrink-0" />
         Download CalorieCue — Free
       </TrackedAppStoreLink>
-    </>
+    </div>
   );
 }
 
@@ -56,22 +56,20 @@ export default function BlogTldr({ body, utmContent, readingTime }: BlogTldrProp
   return (
     <aside
       aria-label="TL;DR summary"
-      className="mb-8 grid overflow-hidden rounded-[20px] bg-foreground text-white shadow-ink-lg md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
+      className="mb-8 overflow-hidden rounded-[20px] bg-[#29231F] p-[22px] text-[#FFF9F3] shadow-[0_12px_28px_#29231f10] sm:p-[30px]"
     >
-      <div className="flex flex-col justify-between gap-3 bg-primary-dark p-6">
-        <h2 className="text-xs font-bold uppercase tracking-[0.1em] text-white/85">TL;DR</h2>
-        <p className="text-balance text-[clamp(1.125rem,1.6vw,1.375rem)] font-extrabold leading-[1.2] tracking-[-0.02em]">
+      <div>
+        <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+          <h2 className="text-[21px] font-bold tracking-[-0.03em] sm:text-[22px]">The short version</h2>
+          <span className="text-xs text-[#C6B9B0]" title={readingTime ? `${readingTime}-minute full guide` : undefined}>30-second read</span>
+        </div>
+        <p className="max-w-prose break-words text-[17px] font-normal leading-[1.65] text-[#F3EAE2] sm:text-lg">
           {body}
         </p>
-        <span className="text-xs text-white/80">
-          30-second read{readingTime ? ` · ${readingTime} min in full` : ""}
-        </span>
       </div>
-      <div className="flex flex-col justify-center gap-4 p-6">
-        <Suspense fallback={<CtaBody href={fallbackHref} utmContent={utmContent} />}>
-          <TldrCta utmContent={utmContent} />
-        </Suspense>
-      </div>
+      <Suspense fallback={<CtaBody href={fallbackHref} utmContent={utmContent} />}>
+        <TldrCta utmContent={utmContent} />
+      </Suspense>
     </aside>
   );
 }
