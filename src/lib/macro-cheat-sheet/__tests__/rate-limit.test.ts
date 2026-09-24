@@ -58,6 +58,12 @@ describe("macro cheat sheet distributed rate limiting", () => {
     );
   });
 
+  it("isolates calorie downloads from existing macro download quotas", async () => {
+    await checkMacroCheatSheetRateLimit({ normalizedEmail: "reader@example.com", ipAddress: "203.0.113.9", namespace: "calorie-cheat-sheet" });
+    expect(mocks.rpc.mock.calls[0][1].p_email_hash).toBe(createHmac("sha256", TEST_SECRET).update("calorie-cheat-sheet:email:reader@example.com").digest("hex"));
+    expect(mocks.rpc.mock.calls[0][1].p_ip_hash).toBe(createHmac("sha256", TEST_SECRET).update("calorie-cheat-sheet:ip:203.0.113.9").digest("hex"));
+  });
+
   it("returns the database retry window when either distributed limit is full", async () => {
     mocks.rpc.mockResolvedValue({
       data: [{ allowed: false, retry_after_seconds: 731 }],

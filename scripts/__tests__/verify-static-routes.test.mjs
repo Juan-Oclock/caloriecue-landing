@@ -27,6 +27,12 @@ describe("verifyStaticRoutes", () => {
     expect(() => verifyStaticRoutes(manifest)).toThrow("/blog");
   });
 
+  it("rejects request-time regeneration of PDF downloads", () => {
+    const manifest = createManifest();
+    manifest.routes["/api/cheat-sheet/pdf"].initialRevalidateSeconds = 60;
+    expect(() => verifyStaticRoutes(manifest)).toThrow("/api/cheat-sheet/pdf");
+  });
+
   it("rejects a runtime blog fallback", () => {
     const manifest = createManifest();
     manifest.dynamicRoutes["/blog/[slug]"].fallback = null;

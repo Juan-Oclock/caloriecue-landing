@@ -3,8 +3,8 @@ import { GET } from "@/app/api/macro-cheat-sheet/pdf/route";
 
 const renderPdf = vi.hoisted(() => vi.fn());
 
-vi.mock("@/lib/macro-cheat-sheet/MacroCheatSheetDocument", () => ({
-  renderMacroCheatSheetPdf: renderPdf,
+vi.mock("@/lib/cheat-sheet/prebuilt-pdfs", () => ({
+  readMacroCheatSheetPdf: renderPdf,
   MACRO_CHEAT_SHEET_PDF_FILENAME: "caloriecue-macro-tracking-cheat-sheet.pdf",
 }));
 

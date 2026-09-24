@@ -19,9 +19,9 @@ vi.mock("resend", () => ({
   }),
 }));
 
-vi.mock("@/lib/macro-cheat-sheet/MacroCheatSheetDocument", () => ({
+vi.mock("@/lib/cheat-sheet/prebuilt-pdfs", () => ({
   MACRO_CHEAT_SHEET_PDF_FILENAME: "caloriecue-macro-tracking-cheat-sheet.pdf",
-  renderMacroCheatSheetPdf: mocks.renderPdf,
+  readMacroCheatSheetPdf: mocks.renderPdf,
 }));
 
 vi.mock("@/lib/macro-cheat-sheet/rate-limit", () => ({
