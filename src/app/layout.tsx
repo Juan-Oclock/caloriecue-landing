@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import { SOCIAL_LINKS } from "@/lib/social-links";
 import "./globals.css";
 
 const siteUrl = "https://caloriecue.app";
@@ -139,7 +140,7 @@ export default function RootLayout({
                     "@type": "ImageObject",
                     url: "https://caloriecue.app/app-icons/1024.png",
                   },
-                  sameAs: [],
+                  sameAs: SOCIAL_LINKS.map((link) => link.href),
                 },
               ],
             }),
