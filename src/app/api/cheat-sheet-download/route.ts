@@ -1,11 +1,13 @@
+import { isIP } from "node:net";
+import { checkMacroCheatSheetRateLimit } from "@/lib/macro-cheat-sheet/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import {
-  renderCheatSheetPdf,
+  readCheatSheetPdf,
   CHEAT_SHEET_PDF_FILENAME,
-} from "@/lib/cheat-sheet/CheatSheetDocument";
+} from "@/lib/cheat-sheet/prebuilt-pdfs";
 
-// @react-pdf/renderer (used to build the attached PDF) needs the Node runtime.
+// Read the build-generated PDF attachment using the Node filesystem.
 export const runtime = "nodejs";
 
 function getResend() {
@@ -150,9 +152,35 @@ function resolveContactWithinTimeout(
 
 export async function POST(req: NextRequest) {
   try {
-    const { email } = await req.json();
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    let body: unknown;
+    try {
+      // Bound streamed payloads as well as requests with Content-Length.
+      const reader = req.body?.getReader();
+      const chunks: Uint8Array[] = [];
+      let size = 0;
+      if (reader) {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          size += value.byteLength;
+          if (size > 4096) {
+            await reader.cancel();
+            return NextResponse.json({ error: "Request body is too large" }, { status: 413 });
+          }
+          chunks.push(value);
+        }
+      }
+      body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    } catch {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    }
+    const { email, website } = (body && typeof body === "object" && !Array.isArray(body)
+      ? body : {}) as Record<string, unknown>;
+    if (website !== undefined && website !== "") {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    }
+    const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+    if (!normalizedEmail || normalizedEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       return NextResponse.json(
         { error: "Please enter a valid email address" },
         { status: 400 }
@@ -166,16 +194,39 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
+    // Vercel overwrites x-vercel-forwarded-for with the connecting client's IP.
+    // The standard header supports local development and other trusted hosts.
+    const forwardedIp = req.headers.get("x-vercel-forwarded-for")
+      ?? req.headers.get("x-forwarded-for");
+    const ipAddress = forwardedIp?.split(",")[0]?.trim();
+    try {
+      if (!ipAddress || !isIP(ipAddress)) throw new Error("Client IP unavailable");
+      const decision = await checkMacroCheatSheetRateLimit({
+        normalizedEmail,
+        ipAddress,
+        namespace: "calorie-cheat-sheet",
+      });
+      if (!decision.allowed) {
+        return NextResponse.json(
+          { error: "Too many requests. Please try again later." },
+          { status: 429, headers: { "Retry-After": String(Math.max(1, decision.retryAfterSeconds)) } },
+        );
+      }
+    } catch {
+      return NextResponse.json(
+        { error: "Download delivery is temporarily unavailable. Please try again." },
+        { status: 503, headers: { "Retry-After": "60" } },
+      );
+    }
     const downloadUrl = `${getBaseUrl(req)}/api/cheat-sheet/pdf`;
 
-    // Build the PDF to attach. If generation fails for any reason, fall back to
+    // Read the prebuilt PDF attachment. If reading fails, fall back to
     // a link-only email rather than failing the whole request.
     let pdfBuffer: Buffer | null = null;
     try {
-      pdfBuffer = await renderCheatSheetPdf();
+      pdfBuffer = await readCheatSheetPdf();
     } catch (pdfError) {
-      console.error("Cheat sheet PDF generation failed, sending link only:", pdfError);
+      console.error("Cheat sheet PDF read failed, sending link only:", pdfError);
     }
 
     const resend = getResend();

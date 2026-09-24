@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import {
   MACRO_CHEAT_SHEET_PDF_FILENAME,
-  renderMacroCheatSheetPdf,
-} from "@/lib/macro-cheat-sheet/MacroCheatSheetDocument";
+  readMacroCheatSheetPdf,
+} from "@/lib/cheat-sheet/prebuilt-pdfs";
 import {
   CONTACT_STAGE_BUDGET_MS,
   PDF_RENDER_STAGE_BUDGET_MS,
@@ -18,7 +18,7 @@ import {
 import { createDeliveryIdempotencyKey } from "@/lib/macro-cheat-sheet/delivery-security";
 import { checkMacroCheatSheetRateLimit } from "@/lib/macro-cheat-sheet/rate-limit";
 
-// @react-pdf/renderer (used to build the attached PDF) needs the Node runtime.
+// Read the build-generated PDF attachment using the Node filesystem.
 export const runtime = "nodejs";
 
 const AUDIENCE_ID = "511ab1c1-5a5c-4b58-9d22-8bf8aaf2e912";
@@ -408,13 +408,13 @@ export async function POST(req: NextRequest) {
     let pdfBuffer: Buffer | null = null;
     try {
       pdfBuffer = await requestBudget.run(
-        "PDF rendering",
+        "PDF reading",
         PDF_RENDER_STAGE_BUDGET_MS,
-        () => renderMacroCheatSheetPdf(),
+        () => readMacroCheatSheetPdf(),
       );
     } catch (pdfError) {
       console.error(
-        "Macro cheat sheet PDF generation failed, sending link only:",
+        "Macro cheat sheet PDF read failed, sending link only:",
         pdfError,
       );
     }

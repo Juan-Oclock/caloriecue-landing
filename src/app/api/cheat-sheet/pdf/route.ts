@@ -1,10 +1,11 @@
 import {
-  renderCheatSheetPdf,
+  readCheatSheetPdf,
   CHEAT_SHEET_PDF_FILENAME,
-} from "@/lib/cheat-sheet/CheatSheetDocument";
+} from "@/lib/cheat-sheet/prebuilt-pdfs";
 
-// @react-pdf/renderer needs the Node runtime (not Edge).
+// Read the build-generated PDF; no rendering runs in the request path.
 export const runtime = "nodejs";
+export const dynamic = "force-static";
 
 /**
  * GET /api/cheat-sheet/pdf
@@ -13,7 +14,7 @@ export const runtime = "nodejs";
  */
 export async function GET() {
   try {
-    const buffer = await renderCheatSheetPdf();
+    const buffer = await readCheatSheetPdf();
     return new Response(new Uint8Array(buffer), {
       status: 200,
       headers: {

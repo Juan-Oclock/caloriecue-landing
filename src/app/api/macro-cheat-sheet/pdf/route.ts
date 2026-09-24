@@ -1,13 +1,14 @@
 import {
   MACRO_CHEAT_SHEET_PDF_FILENAME,
-  renderMacroCheatSheetPdf,
-} from "@/lib/macro-cheat-sheet/MacroCheatSheetDocument";
+  readMacroCheatSheetPdf,
+} from "@/lib/cheat-sheet/prebuilt-pdfs";
 
 export const runtime = "nodejs";
+export const dynamic = "force-static";
 
 export async function GET() {
   try {
-    const buffer = await renderMacroCheatSheetPdf();
+    const buffer = await readMacroCheatSheetPdf();
 
     return new Response(new Uint8Array(buffer), {
       status: 200,

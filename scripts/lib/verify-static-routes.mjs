@@ -3,6 +3,8 @@ export const requiredStaticRoutes = [
   "/blog",
   "/tdee-calculator",
   "/blog/feed.xml",
+  "/api/cheat-sheet/pdf",
+  "/api/macro-cheat-sheet/pdf",
 ];
 
 export function verifyStaticRoutes(manifest) {
@@ -14,6 +16,12 @@ export function verifyStaticRoutes(manifest) {
     throw new Error(
       `Missing prerendered routes: ${missingRoutes.join(", ")}`
     );
+  }
+
+  for (const route of ["/api/cheat-sheet/pdf", "/api/macro-cheat-sheet/pdf"]) {
+    if (manifest.routes[route].initialRevalidateSeconds !== false) {
+      throw new Error(`${route} must remain static until the next deployment`);
+    }
   }
 
   const blogRoute = manifest.dynamicRoutes?.["/blog/[slug]"];

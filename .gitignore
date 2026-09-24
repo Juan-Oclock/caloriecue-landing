@@ -55,3 +55,6 @@ docs/spec/
 
 # Generated social-video media packages
 /social-video-assets/
+
+# Generated before development and production builds
+/public/downloads/*.pdf

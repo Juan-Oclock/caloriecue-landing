@@ -1,4 +1,4 @@
-import type { NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/cheat-sheet-download/route";
 
@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   contactCreate: vi.fn(),
   emailSend: vi.fn(),
   renderPdf: vi.fn(),
+  rateLimit: vi.fn(),
 }));
 
 vi.mock("resend", () => ({
@@ -21,9 +22,13 @@ vi.mock("resend", () => ({
   }),
 }));
 
-vi.mock("@/lib/cheat-sheet/CheatSheetDocument", () => ({
+vi.mock("@/lib/cheat-sheet/prebuilt-pdfs", () => ({
   CHEAT_SHEET_PDF_FILENAME: "caloriecue-cheat-sheet.pdf",
-  renderCheatSheetPdf: mocks.renderPdf,
+  readCheatSheetPdf: mocks.renderPdf,
+}));
+
+vi.mock("@/lib/macro-cheat-sheet/rate-limit", () => ({
+  checkMacroCheatSheetRateLimit: mocks.rateLimit,
 }));
 
 const originalApiKey = process.env.RESEND_API_KEY;
@@ -37,18 +42,17 @@ function deferred<T>() {
   return { promise, resolve };
 }
 
-function request(email = "Reader@Example.com") {
-  return {
-    json: vi.fn().mockResolvedValue({ email }),
-    headers: new Headers(),
-    nextUrl: new URL("https://caloriecue.app/api/cheat-sheet-download"),
-  } as unknown as NextRequest;
+function request(email: unknown = "Reader@Example.com", headers = new Headers({ "x-forwarded-for": "203.0.113.9" })) {
+  return new NextRequest("https://caloriecue.app/api/cheat-sheet-download", {
+    method: "POST", headers, body: JSON.stringify({ email }),
+  });
 }
 
 describe("POST /api/cheat-sheet-download", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.RESEND_API_KEY = "test-key";
+    mocks.rateLimit.mockResolvedValue({ allowed: true, retryAfterSeconds: 0 });
     mocks.renderPdf.mockResolvedValue(Buffer.from("pdf"));
     mocks.emailSend.mockResolvedValue({ data: { id: "email-1" }, error: null });
   });
@@ -60,6 +64,42 @@ describe("POST /api/cheat-sheet-download", () => {
   afterAll(() => {
     if (originalApiKey === undefined) delete process.env.RESEND_API_KEY;
     else process.env.RESEND_API_KEY = originalApiKey;
+  });
+
+  it("rejects rate-limited submissions before reading PDFs or contacting Resend", async () => {
+    mocks.rateLimit.mockResolvedValue({ allowed: false, retryAfterSeconds: 731 });
+    const response = await POST(request());
+    expect(response.status).toBe(429);
+    expect(response.headers.get("retry-after")).toBe("731");
+    expect(mocks.rateLimit).toHaveBeenCalledWith({ normalizedEmail: "reader@example.com", ipAddress: "203.0.113.9", namespace: "calorie-cheat-sheet" });
+    expect(mocks.renderPdf).not.toHaveBeenCalled();
+    expect(mocks.emailSend).not.toHaveBeenCalled();
+    expect(mocks.contactGet).not.toHaveBeenCalled();
+  });
+
+  it("fails closed if the shared rate-limit service is unavailable", async () => {
+    mocks.rateLimit.mockRejectedValue(new Error("offline"));
+    expect((await POST(request())).status).toBe(503);
+    expect(mocks.emailSend).not.toHaveBeenCalled();
+  });
+
+  it("does not allow submissions without a trustworthy client IP", async () => {
+    expect((await POST(request("reader@example.com", new Headers()))).status).toBe(503);
+    expect(mocks.rateLimit).not.toHaveBeenCalled();
+    expect(mocks.emailSend).not.toHaveBeenCalled();
+  });
+
+  it.each([null, {}, [], 123, "bad-email"])("rejects invalid email %j", async (email) => {
+    expect((await POST(request(email))).status).toBe(400);
+    expect(mocks.rateLimit).not.toHaveBeenCalled();
+  });
+
+  it("bounds request bodies before performing expensive work", async () => {
+    const req = new NextRequest("https://caloriecue.app/api/cheat-sheet-download", {
+      method: "POST", body: JSON.stringify({ email: "reader@example.com", extra: "x".repeat(4096) }),
+    });
+    expect((await POST(req)).status).toBe(413);
+    expect(mocks.rateLimit).not.toHaveBeenCalled();
   });
 
   it("reports a newly created contact independently from email delivery", async () => {

@@ -4,41 +4,10 @@ const nextConfig: NextConfig = {
   // Normalize trailing slashes - prevents duplicate URL issues for SEO
   trailingSlash: false,
 
-  // @react-pdf/renderer relies on native-ish deps (yoga-layout, fontkit) that
-  // must not be bundled by Webpack/Turbopack. It is only ever imported in
-  // server-side API routes (the cheat-sheet PDF generator).
-  serverExternalPackages: ['@react-pdf/renderer'],
-
-  // The cheat-sheet PDF routes read fonts + images from /public by absolute
-  // path at runtime; bundle those files into the serverless functions so they
-  // exist in production.
+  // Email functions read the same PDFs produced once before next build.
   outputFileTracingIncludes: {
-    '/api/cheat-sheet/pdf': [
-      './public/fonts/**',
-      './public/cheat-sheet/**',
-      './public/caloriecue_logo.png',
-      './public/app-icons/1024.png',
-      './public/mockup-caloriecue.png',
-    ],
-    '/api/cheat-sheet-download': [
-      './public/fonts/**',
-      './public/cheat-sheet/**',
-      './public/caloriecue_logo.png',
-      './public/app-icons/1024.png',
-      './public/mockup-caloriecue.png',
-    ],
-    '/api/macro-cheat-sheet/pdf': [
-      './public/fonts/**',
-      './public/caloriecue_logo.png',
-      './public/app-icons/1024.png',
-      './public/mockup-caloriecue.png',
-    ],
-    '/api/macro-cheat-sheet-download': [
-      './public/fonts/**',
-      './public/caloriecue_logo.png',
-      './public/app-icons/1024.png',
-      './public/mockup-caloriecue.png',
-    ],
+    '/api/cheat-sheet-download': ['./public/downloads/caloriecue-cheat-sheet.pdf'],
+    '/api/macro-cheat-sheet-download': ['./public/downloads/caloriecue-macro-tracking-cheat-sheet.pdf'],
   },
 
   // Serve optimized image formats

@@ -27,9 +27,11 @@ type RateLimitDecision = {
 export async function checkMacroCheatSheetRateLimit({
   normalizedEmail,
   ipAddress,
+  namespace,
 }: {
   normalizedEmail: string;
   ipAddress: string;
+  namespace?: "calorie-cheat-sheet";
 }): Promise<RateLimitDecision> {
   let secret: string;
   try {
@@ -50,8 +52,8 @@ export async function checkMacroCheatSheetRateLimit({
     const rpc = createServiceRoleClient().rpc(
       "consume_macro_cheat_sheet_rate_limit",
       {
-        p_ip_hash: keyedHash(secret, `ip:${ipAddress}`),
-        p_email_hash: keyedHash(secret, `email:${normalizedEmail}`),
+        p_ip_hash: keyedHash(secret, `${namespace ? `${namespace}:` : ""}ip:${ipAddress}`),
+        p_email_hash: keyedHash(secret, `${namespace ? `${namespace}:` : ""}email:${normalizedEmail}`),
         p_ip_limit: IP_LIMIT,
         p_ip_window_seconds: IP_WINDOW_SECONDS,
         p_email_limit: EMAIL_LIMIT,
