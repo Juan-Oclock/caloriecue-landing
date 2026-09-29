@@ -1,0 +1,10 @@
+.panel { color: #302d25; background: #f8f5ed; border: 1px solid #e6dfcf; border-radius: 24px; overflow: hidden; }
+.bar { transition: width 650ms cubic-bezier(.22,1,.36,1); }
+.plate { transition: transform 450ms cubic-bezier(.22,1,.36,1); transform: rotate(-7deg); }
+.choice[aria-pressed="true"] .plate { transform: rotate(0deg) scale(1.05); }
+.choice { transition: border-color 180ms, background-color 180ms; }
+.choice:focus-visible, .control:focus-visible { outline: 3px solid #305a42; outline-offset: 4px; }
+.oil { transition: width 650ms cubic-bezier(.22,1,.36,1); }
+@media (prefers-reduced-motion: reduce) {
+  .bar, .plate, .choice, .oil { transition: none; }
+}

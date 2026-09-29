@@ -9,6 +9,7 @@ import ProteinPerCalorieCalculator from "./ProteinPerCalorieCalculator";
 import CaloriesPerGramCalculator from "./CaloriesPerGramCalculator";
 import ProteinSwapExplorer from "./ProteinSwapExplorer";
 import HomemadeRecipeCalorieCalculator from "./HomemadeRecipeCalorieCalculator";
+import EggComparison, { EggCookingFat } from "./EggComparison";
 import TrackedAppStoreLink from "@/components/TrackedAppStoreLink";
 import BlogProductExample from "./BlogProductExample";
 
@@ -281,5 +282,7 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
     ProteinPerCalorieCalculator,
     CaloriesPerGramCalculator,
     HomemadeRecipeCalorieCalculator,
+    EggComparison,
+    EggCookingFat,
   };
 }
