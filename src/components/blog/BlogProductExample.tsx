@@ -30,7 +30,7 @@ export default function BlogProductExample({ contentSlug, variant = "protein" }:
     <aside aria-label="CalorieCue app example" className="my-8 grid items-center gap-6 rounded-2xl border border-border bg-surface p-5 sm:grid-cols-[minmax(0,1fr)_180px] sm:p-7">
       <div>
         <h3 className="mb-3 text-xl font-bold leading-tight text-foreground">
-          {variant === "free" ? "What you get free with CalorieCue" : variant === "macros" ? "From label math to your daily totals" : "Put the food chart into practice"}
+          {variant === "free" ? "What you get free with CalorieCue" : variant === "macros" ? "Save the meal behind the numbers" : "Log the whole meal, then check your protein"}
         </h3>
         {variant === "free" ? (
           <>
@@ -39,14 +39,14 @@ export default function BlogProductExample({ contentSlug, variant = "protein" }:
           </>
         ) : variant === "macros" ? (
           <>
-            <p className="text-[16px] leading-relaxed text-[#3C342F]">A label with 10 g protein, 24 g carbs, and 7 g fat works out to 199 calories. Once you understand the calculation, the next step is recording the portion you actually eat.</p>
-            <p className="mt-3 text-[16px] leading-relaxed text-[#3C342F]">For a mixed meal, CalorieCue can estimate calories and macros from a photo. Review the ingredients, portions, oil, and sauce before saving, then see your logged calories and macros together on the daily dashboard. Photo estimates are a starting point, not a precise measurement.</p>
+            <p className="text-[16px] leading-relaxed text-[#3C342F]">The calculator checks known macros. At lunch, you may have a mixed plate with no label to enter. CalorieCue can use a meal photo to suggest a calorie and macro estimate.</p>
+            <p className="mt-3 text-[16px] leading-relaxed text-[#3C342F]">Review the foods and portions, add any hidden oil or sauce, then save the corrected meal to your daily totals. The app screen shows where those logged calories and macros appear. A photo estimate is a starting point, not a precise measurement.</p>
             <p className="mt-3 text-sm text-muted-foreground">Try 3 free photo scans per day. Premium is optional.</p>
           </>
         ) : (
           <>
-            <p className="text-[16px] leading-relaxed text-[#3C342F]">Choose a protein food from the chart, then log the whole meal—including sides, oil, and sauce. CalorieCue puts your logged calories and protein together on the daily dashboard.</p>
-            <p className="mt-3 text-[16px] leading-relaxed text-[#3C342F]">Review the foods and portions in a photo estimate before saving. Use your daily totals alongside the ratio; foods with a lower ratio still contribute protein.</p>
+            <p className="text-[16px] leading-relaxed text-[#3C342F]">Picked chicken from the chart? Your lunch may also include rice, vegetables, and dressing. Try a photo of the complete plate in CalorieCue, then check the suggested foods and portions before saving.</p>
+            <p className="mt-3 text-[16px] leading-relaxed text-[#3C342F]">Add any oil or sauce the photo missed. Your saved meal contributes to the calorie and protein totals shown on the daily dashboard. Use those totals alongside the food ratio; a lower-ratio food can still contribute protein.</p>
             <p className="mt-3 text-sm text-muted-foreground">Start with 3 free photo scans per day. Premium is optional.</p>
           </>
         )}

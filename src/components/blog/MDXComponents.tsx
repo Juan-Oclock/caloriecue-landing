@@ -129,7 +129,7 @@ function BlogImage({
 function AppStoreLink({ contentSlug }: { contentSlug: string }) {
   return (
     <TrackedAppStoreLink
-      href="https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503?utm_source=blog&utm_medium=inline_cta&utm_content=app_store_link"
+      href={`https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503?utm_source=blog&utm_medium=inline_cta&utm_content=${encodeURIComponent(contentSlug)}`}
       target="_blank"
       rel="noopener noreferrer"
       location="blog_inline"
