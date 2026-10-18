@@ -43,6 +43,25 @@ describe("blog App Store measurement", () => {
     expect(screen.queryByRole("link", { name: "Try CalorieCue free on iPhone" })).not.toBeInTheDocument();
   });
 
+  it("attributes the new comparison CTA to its own Apple campaign and GA article", () => {
+    const components = getMDXComponents("cronometer-vs-myfitnesspal");
+    const ProductExample = components.BlogProductExample as ComponentType<{ variant: "free" }>;
+    render(<ProductExample variant="free" />);
+    const link = screen.getByRole("link", { name: "Try CalorieCue free on iPhone" });
+    const url = new URL(link.getAttribute("href")!);
+    expect(url.hostname).toBe("apps.apple.com");
+    expect(url.searchParams.get("pt")).toBe("128187938");
+    expect(url.searchParams.get("ct")).toBe("blog-cronometer-mfp-v1");
+    expect(url.searchParams.get("mt")).toBe("8");
+    expect(url.searchParams.get("utm_medium")).toBe("product_example");
+    expect(url.searchParams.get("utm_content")).toBe("cronometer-vs-myfitnesspal");
+    fireEvent.click(link);
+    expect(trackAppStoreClick).toHaveBeenCalledExactlyOnceWith({
+      location: "blog_product_example",
+      contentSlug: "cronometer-vs-myfitnesspal",
+    });
+  });
+
   it("tracks the TL;DR CTA with its article slug and preserves its UTM URL", () => {
     render(
       <BlogTldr

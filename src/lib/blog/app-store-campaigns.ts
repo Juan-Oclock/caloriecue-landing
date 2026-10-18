@@ -1,5 +1,5 @@
 // The first four links were generated in App Store Connect on 2026-09-19.
-// The comparison campaign reuses that verified provider token with a new ct,
+// The comparison campaigns reuse that verified provider token with unique ct values,
 // following Apple's campaign-link guidance (checked 2026-10-09).
 const campaignLinks: Record<string, string> = {
   "best-free-calorie-counter-apps": "https://apps.apple.com/app/apple-store/id6757112503?pt=128187938&ct=blog-free-apps-v1&mt=8",
@@ -7,6 +7,7 @@ const campaignLinks: Record<string, string> = {
   "calories-per-gram": "https://apps.apple.com/app/apple-store/id6757112503?pt=128187938&ct=blog-calories-gram-v1&mt=8",
   "calorie-counting-cheat-sheet": "https://apps.apple.com/app/apple-store/id6757112503?pt=128187938&ct=blog-cheat-sheet-v1&mt=8",
   "cronometer-vs-fatsecret": "https://apps.apple.com/app/apple-store/id6757112503?pt=128187938&ct=blog-cronometer-fatsecret-v1&mt=8",
+  "cronometer-vs-myfitnesspal": "https://apps.apple.com/app/apple-store/id6757112503?pt=128187938&ct=blog-cronometer-mfp-v1&mt=8",
 };
 
 export function blogCampaignUrl(contentSlug: string, medium: string): string {
