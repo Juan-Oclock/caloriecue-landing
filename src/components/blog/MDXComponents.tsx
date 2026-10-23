@@ -12,6 +12,8 @@ import HomemadeRecipeCalorieCalculator from "./HomemadeRecipeCalorieCalculator";
 import EggComparison, { EggCookingFat } from "./EggComparison";
 import TrackedAppStoreLink from "@/components/TrackedAppStoreLink";
 import BlogProductExample from "./BlogProductExample";
+import ProteinPortionChart, { ProteinPortionMeals } from "./ProteinPortionChart";
+import ProteinPortionDownload from "./ProteinPortionDownload";
 
 const CALORIECUE_APP_STORE_URL =
   "https://apps.apple.com/us/app/caloriecue-calorie-counter/id6757112503";
@@ -271,6 +273,9 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
       </td>
     ),
     Callout,
+    ProteinPortionChart,
+    ProteinPortionMeals,
+    ProteinPortionDownload,
     BlogProductExample: ({ variant }: { variant?: "protein" | "free" | "macros" }) => <BlogProductExample contentSlug={contentSlug} variant={variant} />,
     ProteinSwapExplorer,
     AppStoreLink: () => <AppStoreLink contentSlug={contentSlug} />,

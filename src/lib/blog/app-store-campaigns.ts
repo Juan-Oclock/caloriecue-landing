@@ -2,6 +2,7 @@
 // The comparison campaigns reuse that verified provider token with unique ct values,
 // following Apple's campaign-link guidance (checked 2026-10-09).
 const campaignLinks: Record<string, string> = {
+  "what-does-30g-of-protein-look-like": "https://apps.apple.com/app/apple-store/id6757112503?pt=128187938&ct=blog-30g-protein-v1&mt=8",
   "best-free-calorie-counter-apps": "https://apps.apple.com/app/apple-store/id6757112503?pt=128187938&ct=blog-free-apps-v1&mt=8",
   "protein-per-calorie": "https://apps.apple.com/app/apple-store/id6757112503?pt=128187938&ct=blog-protein-v1&mt=8",
   "calories-per-gram": "https://apps.apple.com/app/apple-store/id6757112503?pt=128187938&ct=blog-calories-gram-v1&mt=8",

@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { CheatSheetDocument, CHEAT_SHEET_PDF_FILENAME } from "../src/lib/cheat-sheet/CheatSheetDocument";
 import { MacroCheatSheetDocument, MACRO_CHEAT_SHEET_PDF_FILENAME } from "../src/lib/macro-cheat-sheet/MacroCheatSheetDocument";
+import { ProteinPortionDocument } from "../src/lib/protein-portions/ProteinPortionDocument";
+import { PORTION_PDF } from "../src/lib/protein-portions/data";
 
 async function main() {
   const directory = join(process.cwd(), "public", "downloads");
@@ -12,6 +14,7 @@ async function main() {
   for (const [filename, document] of [
     [CHEAT_SHEET_PDF_FILENAME, <CheatSheetDocument />],
     [MACRO_CHEAT_SHEET_PDF_FILENAME, <MacroCheatSheetDocument />],
+    [PORTION_PDF, <ProteinPortionDocument />],
   ] as const) {
     const buffer = await renderToBuffer(document);
     if (buffer.subarray(0, 5).toString() !== "%PDF-") {

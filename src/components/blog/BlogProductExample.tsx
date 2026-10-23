@@ -46,7 +46,7 @@ export default function BlogProductExample({ contentSlug, variant = "protein" }:
         ) : (
           <>
             <p className="text-[16px] leading-relaxed text-[#3C342F]">Picked chicken from the chart? Your lunch may also include rice, vegetables, and dressing. Try a photo of the complete plate in CalorieCue, then check the suggested foods and portions before saving.</p>
-            <p className="mt-3 text-[16px] leading-relaxed text-[#3C342F]">Add any oil or sauce the photo missed. Your saved meal contributes to the calorie and protein totals shown on the daily dashboard. Use those totals alongside the food ratio; a lower-ratio food can still contribute protein.</p>
+            <p className="mt-3 text-[16px] leading-relaxed text-[#3C342F]">Add any oil or sauce the photo missed. Your saved meal contributes to the calorie and protein totals shown on the daily dashboard. Use those totals to review the whole meal; foods with less protein can still contribute.</p>
             <p className="mt-3 text-sm text-muted-foreground">Start with 3 free photo scans per day. Premium is optional.</p>
           </>
         )}
