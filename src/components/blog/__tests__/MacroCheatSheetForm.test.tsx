@@ -68,7 +68,7 @@ describe("MacroCheatSheetForm", () => {
     const labels = screen.getAllByText("Email address", { selector: "label" });
 
     expect(new Set(emails.map((email) => email.id)).size).toBe(2);
-    expect(labels.map((label) => label.htmlFor)).toEqual(
+    expect(labels.map((label) => label.getAttribute("for"))).toEqual(
       emails.map((email) => email.id),
     );
 

@@ -21,6 +21,6 @@ describe("high-calorie low-protein article SEO", () => {
     const matches = sitemap().filter((entry) => entry.url === canonical);
 
     expect(matches).toHaveLength(1);
-    expect(matches[0].lastModified?.toISOString()).toBe("2026-07-22T00:00:00.000Z");
+    expect(new Date(matches[0].lastModified!).toISOString()).toBe("2026-07-22T00:00:00.000Z");
   });
 });

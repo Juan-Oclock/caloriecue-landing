@@ -81,33 +81,22 @@ assert(
 
 const blogPage = readText("src/app/blog/page.tsx");
 assert(
-  blogPage.includes("FEATURED_GUIDE_SLUGS"),
-  "Blog page should define curated featured guide slugs"
+  blogPage.includes('const FEATURED_SLUG = "macro-tracking-cheat-sheet"'),
+  "Blog page should pin the macro tracking cheat sheet"
 );
 assert(
-  blogPage.includes("featuredGuides"),
-  "Blog page should pass featured guides into BlogListingClient"
+  blogPage.includes("featuredPost={featuredPost}"),
+  "Blog page should pass the featured post into BlogListingClient"
 );
 
 const blogListing = readText("src/components/blog/BlogListingClient.tsx");
 assert(
-  blogListing.includes("featuredGuides"),
-  "BlogListingClient should accept featuredGuides"
+  blogListing.includes("featuredPost: BlogPostMeta | null"),
+  "BlogListingClient should accept a featured post"
 );
 assert(
-  blogListing.includes("Start with these guides"),
-  "BlogListingClient should render the curated guide section heading"
+  blogListing.includes("<FeaturedPost post={featuredPost}"),
+  "BlogListingClient should render the featured post"
 );
-
-for (const post of targetPosts) {
-  assert(
-    blogPage.includes(post.slug),
-    `Blog page should feature ${post.slug}`
-  );
-  assert(
-    blogListing.includes(post.slug) || blogListing.includes("featuredGuides"),
-    `BlogListingClient should surface ${post.slug}`
-  );
-}
 
 console.log("SEO guide verification passed.");

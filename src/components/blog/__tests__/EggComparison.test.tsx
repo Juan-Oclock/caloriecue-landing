@@ -20,9 +20,9 @@ describe("egg nutrition graphics", () => {
   it("changes the chart's unit without changing the selected food portion", async () => {
     const user = userEvent.setup();
     render(<EggComparison />);
-    await user.click(screen.getByRole("button", { name: "Protein", exact: true }));
+    await user.click(screen.getByRole("button", { name: /^Protein$/ }));
     expect(screen.getByText("Bar scale: 0–25 g protein")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Protein", exact: true })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /^Protein$/ })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "Select 1 egg + 3 whites" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("status")).toHaveTextContent("123 calories · 17.1 g protein");
   });
@@ -31,9 +31,9 @@ describe("egg nutrition graphics", () => {
     const user = userEvent.setup();
     render(<EggCookingFat />);
     expect(screen.getByRole("status")).toHaveTextContent("143 calories total · 12.6 g protein");
-    await user.click(screen.getByRole("button", { name: "5 g oil", exact: true }));
+    await user.click(screen.getByRole("button", { name: /^5 g oil$/ }));
     expect(screen.getByRole("status")).toHaveTextContent("188 calories total · 12.6 g protein");
-    await user.click(screen.getByRole("button", { name: "10 g oil", exact: true }));
+    await user.click(screen.getByRole("button", { name: /^10 g oil$/ }));
     expect(screen.getByRole("status")).toHaveTextContent("233 calories total · 12.6 g protein");
     await user.click(screen.getByRole("button", { name: "No added oil" }));
     expect(screen.getByRole("status")).toHaveTextContent("143 calories total · 12.6 g protein");
