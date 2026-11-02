@@ -177,10 +177,12 @@ export default function MealPlanCard({ calories, protein, carbs, fat }: MealPlan
       </div>
 
       {/* Diet preference pills */}
-      <div className="flex flex-wrap gap-1.5 mb-5">
+      <div className="flex flex-wrap gap-1.5 mb-5" role="group" aria-label="Diet preference">
         {DIET_OPTIONS.map((opt) => (
           <button
             key={opt.key}
+            type="button"
+            aria-pressed={preference === opt.key}
             onClick={() => handlePreferenceChange(opt.key)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
               preference === opt.key
