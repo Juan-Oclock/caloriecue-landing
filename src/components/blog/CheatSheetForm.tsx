@@ -100,7 +100,7 @@ export default function CheatSheetForm({ contentSlug }: CheatSheetFormProps) {
           content_slug: contentSlug,
           location: "cheat_sheet_form",
         })}
-        className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white no-underline hover:bg-primary/90"
+        className="inline-flex items-center justify-center rounded-xl bg-primary-dark px-6 py-3 text-sm font-semibold !text-white !no-underline hover:bg-primary-700 hover:!text-white"
       >
         Download PDF instantly
       </a>
