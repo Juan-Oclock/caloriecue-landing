@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="800" viewBox="0 0 640 800" role="img" aria-labelledby="title desc">
+  <title id="title">A visual day at about 2,000 calories</title>
+  <desc id="desc">Breakfast: oats, yogurt, banana and peanut butter, 511 calories. Lunch: chicken, rice, broccoli and olive oil, 573 calories. Snack: apple and almonds, 238 calories. Dinner: salmon, potatoes, carrots and olive oil, 682 calories. Total: 2,004 calories. Drawings are schematic. The bars compare calories, not food volume.</desc>
+  <style>
+    text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;fill:#231D1A}
+    .small{font-size:22px;fill:#5E544D}.label{font-size:25px;font-weight:700}.number{font-size:30px;font-weight:750}
+    .fill{transform-box:fill-box;transform-origin:left;animation:grow .55s ease-out both}
+    .lunch{animation-delay:.45s}.snack{animation-delay:.9s}.dinner{animation-delay:1.35s}
+    @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+    @media(prefers-reduced-motion:reduce){.fill{animation:none}}
+  </style>
+  <rect width="640" height="800" rx="28" fill="#FDFCFB"/>
+  <rect x="1" y="1" width="638" height="798" rx="27" fill="none" stroke="#E5DED5" stroke-width="2"/>
+  <text x="32" y="46" font-size="18" font-weight="700" letter-spacing="2" fill="#BC4527">ABOUT 2,000 CALORIES</text>
+  <text x="32" y="94" font-size="38" font-weight="800" letter-spacing="-1">Four meals. One day.</text>
+  <text x="32" y="130" class="small">One example, with cooking oil counted.</text>
+
+  <defs>
+    <g id="plate"><circle r="42" fill="#EEE8E1"/><circle r="36" fill="#FDFCFB" stroke="#D9D2C9" stroke-width="2"/></g>
+  </defs>
+
+  <g transform="translate(76 214)">
+    <use href="#plate"/><circle r="28" fill="#DBC09A"/>
+    <path d="M-24-5Q-3-27 22-8Q30 8 13 19Q-10 22-24-5" fill="#F7F1E7"/>
+    <g fill="#F1D58B" stroke="#D9B665" stroke-width="1.5"><circle cx="-13" cy="-12" r="8"/><circle cx="1" cy="-13" r="8"/><circle cx="13" cy="-8" r="8"/></g>
+    <path d="M-8 8Q6 0 16 10Q11 25-3 19Z" fill="#A56534"/>
+  </g>
+  <text x="138" y="190" class="label">Breakfast</text><text x="605" y="190" class="number" text-anchor="end">511</text>
+  <text x="138" y="223" class="small">Oats, yogurt, banana</text><text x="138" y="251" class="small">+ peanut butter</text>
+  <rect x="138" y="267" width="467" height="8" rx="4" fill="#EEE8E1"/>
+  <rect class="fill" x="138" y="267" width="119.084" height="8" rx="4" fill="#BC4527"/>
+
+  <g transform="translate(76 343)">
+    <use href="#plate"/><path d="M-27-9Q-31 26 8 28L14-6Z" fill="#E7DCC2"/>
+    <g fill="#65834D"><circle cx="17" cy="-16" r="13"/><circle cx="26" cy="1" r="11"/><circle cx="12" cy="13" r="10"/></g>
+    <g fill="#D4A06D" stroke="#B97A47" stroke-width="2"><path d="M-22-20L0-28L6-16L-18-8Z"/><path d="M-18-7L5-15L10-3L-13 6Z"/><path d="M-13 7L10-2L15 10L-8 19Z"/></g>
+  </g>
+  <text x="138" y="319" class="label">Lunch</text><text x="605" y="319" class="number" text-anchor="end">573</text>
+  <text x="138" y="352" class="small">Chicken, rice, broccoli</text><text x="138" y="380" class="small">+ 10g olive oil</text>
+  <rect x="138" y="396" width="467" height="8" rx="4" fill="#EEE8E1"/>
+  <rect class="fill lunch" x="138" y="396" width="133.529" height="8" rx="4" fill="#BC4527"/>
+
+  <g transform="translate(76 472)">
+    <use href="#plate"/>
+    <g fill="#F4DFB3" stroke="#BD543E" stroke-width="4"><path d="M-26-17Q-7-31 6-14L-11 6Z"/><path d="M-20 2Q-1-12 12 5L-5 25Z"/></g>
+    <g fill="#A46E46"><ellipse cx="20" cy="-11" rx="6" ry="11" transform="rotate(25 20 -11)"/><ellipse cx="24" cy="13" rx="6" ry="11" transform="rotate(-25 24 13)"/><ellipse cx="10" cy="23" rx="5" ry="10" transform="rotate(30 10 23)"/></g>
+  </g>
+  <text x="138" y="448" class="label">Snack</text><text x="605" y="448" class="number" text-anchor="end">238</text>
+  <text x="138" y="481" class="small">Apple + almonds</text><text x="138" y="509" class="small">Fruit and a small handful</text>
+  <rect x="138" y="525" width="467" height="8" rx="4" fill="#EEE8E1"/>
+  <rect class="fill snack" x="138" y="525" width="55.462" height="8" rx="4" fill="#BC4527"/>
+
+  <g transform="translate(76 601)">
+    <use href="#plate"/>
+    <path d="M-26-21L5-26L13 15L-19 25Z" fill="#DE8664" stroke="#BC6848" stroke-width="2"/>
+    <path d="M-23-11L6-16M-21-1L8-6M-20 9L10 4" fill="none" stroke="#F2B393" stroke-width="3"/>
+    <g fill="#DEC18A"><path d="M14-23L29-20L32-7L19-4Z"/><path d="M15 1L31 4L29 17L18 17Z"/></g>
+    <path d="M6 23L28 25M8 29L25 32" stroke="#D1833C" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <text x="138" y="577" class="label">Dinner</text><text x="605" y="577" class="number" text-anchor="end">682</text>
+  <text x="138" y="610" class="small">Salmon, potato, carrots</text><text x="138" y="638" class="small">+ 10g olive oil</text>
+  <rect x="138" y="654" width="467" height="8" rx="4" fill="#EEE8E1"/>
+  <rect class="fill dinner" x="138" y="654" width="158.925" height="8" rx="4" fill="#BC4527"/>
+
+  <path d="M32 696H608" stroke="#E5DED5"/>
+  <text x="32" y="741" font-size="28" font-weight="800">Day total</text><text x="608" y="741" font-size="34" font-weight="800" text-anchor="end">2,004 kcal</text>
+  <text x="32" y="777" font-size="19" fill="#5E544D">Schematic plates. Portion weights are in the tables.</text>
+</svg>
