@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import CheatSheetForm from "@/components/blog/CheatSheetForm";
 import { getMDXComponents } from "@/components/blog/MDXComponents";
-import { trackAppStoreClick, trackGenerateLead } from "@/lib/analytics";
+import { trackAppStoreClick, trackEvent, trackGenerateLead } from "@/lib/analytics";
 
 const fetchMock = vi.fn();
 const navigation = vi.hoisted(() => ({ search: "" }));
@@ -12,7 +12,7 @@ vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams(n
 
 vi.mock("@/lib/analytics", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/analytics")>();
-  return { ...actual, trackGenerateLead: vi.fn(), trackAppStoreClick: vi.fn() };
+  return { ...actual, trackEvent: vi.fn(), trackGenerateLead: vi.fn(), trackAppStoreClick: vi.fn() };
 });
 
 async function submit(email: string) {
@@ -33,6 +33,19 @@ describe("CheatSheetForm", () => {
   });
 
   afterEach(() => vi.unstubAllGlobals());
+
+  it("offers the PDF without an email and records the download separately from leads", () => {
+    render(<CheatSheetForm contentSlug="calorie-counting-cheat-sheet" />);
+    const link = screen.getByRole("link", { name: /download pdf instantly/i });
+    expect(link).toHaveAttribute("href", "/downloads/caloriecue-cheat-sheet.pdf");
+    fireEvent.click(link);
+    expect(trackEvent).toHaveBeenCalledWith("cheat_sheet_download", {
+      content_slug: "calorie-counting-cheat-sheet",
+      location: "cheat_sheet_form",
+    });
+    expect(trackGenerateLead).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Send Me the PDF" })).toBeInTheDocument();
+  });
 
   it("tracks one lead when delivery succeeds and a new contact was created", async () => {
     fetchMock.mockResolvedValue({

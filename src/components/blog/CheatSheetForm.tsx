@@ -3,7 +3,7 @@
 import { Suspense, useState } from "react";
 import CheatSheetNextStep from "./CheatSheetNextStep";
 import { motion } from "framer-motion";
-import { trackGenerateLead } from "@/lib/analytics";
+import { trackEvent, trackGenerateLead } from "@/lib/analytics";
 
 type CheatSheetFormProps = {
   contentSlug: string;
@@ -83,15 +83,27 @@ export default function CheatSheetForm({ contentSlug }: CheatSheetFormProps) {
         </div>
         <div>
           <h3 className="text-lg font-semibold text-foreground !mt-0 !mb-1">
-            Get the Free 5-Page Cheat Sheet PDF
+            Get the Free Cheat Sheet PDF
           </h3>
           <p className="text-sm text-muted-foreground !mb-0">
             Calorie targets, 80+ food calories, high-protein swaps, a restaurant
-            guide, and a printable 7-day tracking log. Enter your email and
-            we&apos;ll send you the PDF.
+            guide, and a printable 7-day tracking log. Download it now or have
+            a copy emailed to you.
           </p>
         </div>
       </div>
+
+      <a
+        href="/downloads/caloriecue-cheat-sheet.pdf"
+        download
+        onClick={() => trackEvent("cheat_sheet_download", {
+          content_slug: contentSlug,
+          location: "cheat_sheet_form",
+        })}
+        className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white no-underline hover:bg-primary/90"
+      >
+        Download PDF instantly
+      </a>
 
       {success ? (
         <>
@@ -120,6 +132,7 @@ export default function CheatSheetForm({ contentSlug }: CheatSheetFormProps) {
         </>
       ) : (
         <form onSubmit={handleSubmit} className="mt-4">
+          <p className="mb-2 text-sm text-muted-foreground">Or get a copy by email:</p>
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="email"

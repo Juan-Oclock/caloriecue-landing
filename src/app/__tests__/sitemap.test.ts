@@ -15,19 +15,19 @@ describe('sitemap SEO hygiene', () => {
   it('uses stable lastModified dates for static pages', () => {
     const entries = new Map(sitemap().map((entry) => [entry.url, entry]));
 
-    expect(entries.get('https://caloriecue.app')?.lastModified?.toISOString()).toBe(
+    expect(new Date(entries.get('https://caloriecue.app')!.lastModified!).toISOString()).toBe(
       '2026-07-06T00:00:00.000Z',
     );
-    expect(entries.get('https://caloriecue.app/tdee-calculator')?.lastModified?.toISOString()).toBe(
+    expect(new Date(entries.get('https://caloriecue.app/tdee-calculator')!.lastModified!).toISOString()).toBe(
       '2026-07-02T00:00:00.000Z',
     );
-    expect(entries.get('https://caloriecue.app/support')?.lastModified?.toISOString()).toBe(
+    expect(new Date(entries.get('https://caloriecue.app/support')!.lastModified!).toISOString()).toBe(
       '2026-06-01T00:00:00.000Z',
     );
-    expect(entries.get('https://caloriecue.app/privacy')?.lastModified?.toISOString()).toBe(
+    expect(new Date(entries.get('https://caloriecue.app/privacy')!.lastModified!).toISOString()).toBe(
       '2026-06-01T00:00:00.000Z',
     );
-    expect(entries.get('https://caloriecue.app/terms')?.lastModified?.toISOString()).toBe(
+    expect(new Date(entries.get('https://caloriecue.app/terms')!.lastModified!).toISOString()).toBe(
       '2026-06-01T00:00:00.000Z',
     );
   });
