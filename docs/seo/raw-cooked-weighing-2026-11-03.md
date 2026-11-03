@@ -4,10 +4,10 @@ Created November 3, 2026 after the user approved the topic and requested article
 
 - Title: Should You Weigh Food Raw or Cooked? A Practical Tracking Guide
 - Intended URL: `/blog/weigh-food-raw-or-cooked`
-- Status: complete unpublished draft (`published: false`).
+- Status: publication authorized by the user on November 3, 2026; `published: true`.
 - Primary query: `weigh food raw or cooked`.
 - Supporting intent: cooked rice versus dry weight, pasta serving basis, cooked chicken logging, batch portions.
-- Approximately 2,140 words, three tables, six FAQ metadata entries, and eight contextual internal links. Existing template supplies structured metadata when published.
+- Approximately 2,500 words, three tables, six visible FAQs with matching metadata, and eight contextual internal links. Existing template supplies structured metadata when published.
 - Keep the focus on the weighing decision. Existing chicken/shrimp tables own food-specific nutrition; the homemade-food page owns the full recipe calculator.
 
 ## Evidence and calculations
@@ -37,3 +37,7 @@ Verified: desktop and 390px mobile reading preview; cover loads; tables scroll i
 ## On publication
 
 Set the publication date to the release date and `published: true`. Add contextual incoming links from the chicken guide's weighing section, the homemade-food guide's raw/cooked FAQ discussion and the 2,000-calorie article's portion notes. Check the actual production article, sitemap, feed and metadata after enabling it. Use the existing tracked AppStoreLink; measure outbound clicks separately from installs.
+
+## Publication release
+
+Enabled publication on November 3, 2026 and added incoming links from the chicken breast, homemade-food and 2,000-calorie guides. Added visible FAQ answers matching the existing FAQ metadata. The standalone preview remains an archived draft snapshot. Production build and rendered metadata/index/feed/sitemap checks are required for this release.
