@@ -69,7 +69,7 @@ export default function CheatSheetForm({ contentSlug }: CheatSheetFormProps) {
   return (
     <section className="my-8 overflow-hidden rounded-3xl border border-[#F2D4C5] bg-[#FFFAF6] p-5 shadow-sm sm:p-7" aria-label="Free calorie counting cheat sheet">
       <div className="grid gap-6 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-7 lg:grid-cols-[175px_minmax(0,1fr)]">
-        <div aria-hidden="true" className="hidden sm:flex aspect-[175/294] w-full self-start flex-col overflow-hidden rounded-xl border border-[#E9D7C9] bg-[#FFFDF9] shadow-lg">
+        <div aria-hidden="true" className="hidden sm:flex aspect-[175/294] w-full self-center flex-col overflow-hidden rounded-xl border border-[#E9D7C9] bg-[#FFFDF9] shadow-lg">
           <div className="flex flex-1 flex-col p-4">
             <span className="text-xs font-bold text-primary-dark">CalorieCue</span>
             <span className="mt-4 text-[20px] font-bold leading-tight text-foreground">Calorie Counting<br />Cheat Sheet</span>
