@@ -18,6 +18,13 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        // Existing ebook links should open readable sources, not a raw CSV.
+        source: '/downloads/caloriecue-food-reference-sources.csv',
+        missing: [{ type: 'query', key: 'download', value: '1' }],
+        destination: '/food-reference-sources',
+        permanent: false,
+      },
+      {
         source: '/blog/why-am-i-not-losing-weight',
         destination: '/blog/why-calorie-deficit-isnt-working',
         statusCode: 301,
@@ -56,6 +63,17 @@ const nextConfig: NextConfig = {
     ];
 
     return [
+      {
+        source: '/downloads/caloriecue-food-reference-sources.csv',
+        has: [{ type: 'query', key: 'download', value: '1' }],
+        headers: [
+          { key: 'Content-Type', value: 'text/csv; charset=utf-8' },
+          {
+            key: 'Content-Disposition',
+            value: 'attachment; filename="caloriecue-food-reference-sources.csv"',
+          },
+        ],
+      },
       {
         source: '/:path*',
         headers: securityHeaders,
