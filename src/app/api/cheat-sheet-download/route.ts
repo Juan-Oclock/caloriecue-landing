@@ -53,7 +53,7 @@ function getCheatSheetEmailHtml(downloadUrl: string) {
     <!-- Header -->
     <div style="background:linear-gradient(135deg,#E05A3A,#FF7F5C);padding:40px 24px;text-align:center;">
       <h1 style="color:#ffffff;font-size:24px;margin:0 0 8px 0;">Your Calorie Counting Cheat Sheet</h1>
-      <p style="color:rgba(255,255,255,0.9);font-size:14px;margin:0;">A 5-page printable PDF — attached and ready to go.</p>
+      <p style="color:rgba(255,255,255,0.9);font-size:14px;margin:0;">A 15-page illustrated guide — attached and ready to go.</p>
     </div>
 
     <div style="padding:32px 24px;">
@@ -71,10 +71,10 @@ function getCheatSheetEmailHtml(downloadUrl: string) {
         <strong>Inside your cheat sheet:</strong>
       </p>
       <ul style="font-size:13px;color:#666;line-height:1.8;padding-left:20px;margin:0 0 32px 0;">
-        <li>Calorie targets by weight &amp; goal + the hand-method portion guide</li>
-        <li>80+ common foods with calories (and the portions that trip people up)</li>
-        <li>High-protein, low-calorie foods &amp; smart calorie-saving swaps</li>
-        <li>A restaurant &amp; fast-food calorie guide</li>
+        <li>Calorie basics, starting estimates &amp; practical portion guidance</li>
+        <li>80 common foods with approximate calories per serving</li>
+        <li>Protein ideas, satisfying meals &amp; simple swaps</li>
+        <li>Restaurant tracking tips &amp; sustainable habits</li>
         <li>A printable 7-day tracking log</li>
       </ul>
 
