@@ -1,0 +1,5 @@
+# Cover image prompt
+
+Generated using the built-in imagegen tool. Final website asset: `public/blog/weigh-food-raw-or-cooked.webp`.
+
+Use case: photorealistic-natural. Asset type: wide editorial blog cover for CalorieCue article 'Should You Weigh Food Raw or Cooked?'. Primary request: an elegant top-down kitchen still life illustrating weighing rice before and after cooking. Warm off-white stone worktop, a compact modern cream digital kitchen scale at center with a shallow ceramic bowl of fluffy cooked white rice, a smaller shallow bowl of dry rice at left, a folded beige linen napkin, a wooden spoon at right, a restrained muted sage accent. Photorealistic food styling, soft natural side light, tactile ceramic, refined quiet composition, no clutter. Landscape 1.91:1 composition suitable for 1200x630, all important subjects within central 80 percent. Scale display is blank or visually indistinct, never shows a numerical weight. No people, no text, no logos, no arrows, no labels, no watermark. This is illustrative photography, not a measured before-after experiment. Do not imply fixed conversion ratios or identical bowl quantities.
