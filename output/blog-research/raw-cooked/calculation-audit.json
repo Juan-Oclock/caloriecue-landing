@@ -1,0 +1,54 @@
+{
+  "rice_150g_raw_reference": {
+    "exact_kcal": "547.5",
+    "display_kcal": 548
+  },
+  "rice_150g_cooked_reference": {
+    "exact_kcal": "195",
+    "display_kcal": 195
+  },
+  "rice_entry_difference": {
+    "exact_kcal": "352.5",
+    "display_kcal": 353
+  },
+  "rice_batch_200g_dry": {
+    "exact_kcal": "730",
+    "display_kcal": 730
+  },
+  "rice_portion_150_of_600g_batch": {
+    "exact_kcal": "182.5",
+    "display_kcal": 183
+  },
+  "pasta_140_of_280g_batch": {
+    "exact_kcal": "200",
+    "display_kcal": 200
+  },
+  "pasta_140g_wrong_dry_entry": {
+    "exact_kcal": "500.0",
+    "display_kcal": 500
+  },
+  "chicken_150g_cooked_reference": {
+    "exact_kcal": "247.5",
+    "display_kcal": 248
+  },
+  "chicken_150g_raw_reference": {
+    "exact_kcal": "180",
+    "display_kcal": 180
+  },
+  "chicken_entry_difference": {
+    "exact_kcal": "67.5",
+    "display_kcal": 68
+  },
+  "mixed_dish_200g": {
+    "exact_kcal": "320",
+    "display_kcal": 320
+  },
+  "mixed_dish_250g": {
+    "exact_kcal": "400",
+    "display_kcal": 400
+  },
+  "mixed_dish_300g": {
+    "exact_kcal": "480",
+    "display_kcal": 480
+  }
+}
