@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useId, useState } from "react";
 import CheatSheetNextStep from "./CheatSheetNextStep";
 import { motion } from "framer-motion";
 import { trackEvent, trackGenerateLead } from "@/lib/analytics";
@@ -16,6 +16,9 @@ type CheatSheetResponse = {
 };
 
 export default function CheatSheetForm({ contentSlug }: CheatSheetFormProps) {
+  const [mode, setMode] = useState<"instant" | "email">("instant");
+  const modeName = useId();
+  const emailId = useId();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -64,131 +67,59 @@ export default function CheatSheetForm({ contentSlug }: CheatSheetFormProps) {
   };
 
   return (
-    <div className="my-8 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary-50/60 to-transparent p-6 sm:p-8">
-      <div className="flex items-start gap-3 mb-3">
-        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-          <svg
-            className="w-5 h-5 text-primary"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
+    <section className="my-8 overflow-hidden rounded-3xl border border-[#F2D4C5] bg-[#FFFAF6] p-5 shadow-sm sm:p-7" aria-label="Free calorie counting cheat sheet">
+      <div className="grid gap-6 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-7 lg:grid-cols-[175px_minmax(0,1fr)]">
+        <div aria-hidden="true" className="hidden sm:flex flex-col overflow-hidden rounded-xl border border-[#E9D7C9] bg-[#FFFDF9] shadow-lg">
+          <div className="flex flex-1 flex-col p-4">
+            <span className="text-xs font-bold text-primary-dark">CalorieCue</span>
+            <span className="mt-4 text-[20px] font-bold leading-tight text-foreground">Calorie Counting<br />Cheat Sheet</span>
+            <span className="mt-2 text-[10px] leading-relaxed text-muted-foreground">A practical guide to calories and portions.</span>
+          </div>
+          <div className="h-28 bg-cover bg-center" style={{ backgroundImage: "url('/cheat-sheet/cover-food.jpg')" }} />
         </div>
-        <div>
-          <h3 className="text-lg font-semibold text-foreground !mt-0 !mb-1">
-            Get the Free Cheat Sheet PDF
-          </h3>
-          <p className="text-sm text-muted-foreground !mb-0">
-            Calorie targets, 80+ food calories, high-protein swaps, a restaurant
-            guide, and a printable 7-day tracking log. Download it now or have
-            a copy emailed to you.
-          </p>
+        <div className="min-w-0">
+          <div className="flex items-start gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FCE8DC] text-primary-dark" aria-hidden="true">
+              <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 3h8l4 4v14H6z" strokeLinejoin="round"/><path d="M14 3v5h4M9 14h6M9 17h6" strokeLinecap="round"/></svg>
+            </span>
+            <div>
+              <h3 className="!m-0 !text-xl !font-bold !leading-tight">Your free calorie cheat sheet</h3>
+              <p className="!mb-0 !mt-1 text-sm text-muted-foreground">A practical guide to calories, portions, and everyday foods.</p>
+            </div>
+          </div>
+          <fieldset className="mt-5 space-y-2.5" disabled={loading}>
+            <legend className="sr-only">Choose how to get your PDF</legend>
+            {([
+              { value: "instant", title: "Download instantly", description: "Get the PDF now — no email needed" },
+              { value: "email", title: "Send to my email", description: "Keep a copy in your inbox" },
+            ] as const).map((option) => (
+              <label key={option.value} className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-3 transition-colors ${mode === option.value ? "border-primary-dark bg-[#FCECE3]" : "border-[#E8DCD4] bg-white hover:border-primary-dark/50"}`}>
+                <input type="radio" name={modeName} value={option.value} checked={mode === option.value} onChange={() => setMode(option.value)} className="h-4 w-4 shrink-0 accent-[#BC4527]" />
+                <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FCE8DC] text-primary-dark">
+                  {option.value === "instant" ? <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 3h8l4 4v14H6z" strokeLinejoin="round"/><path d="M14 3v5h4M12 11v6m-3-3 3 3 3-3" strokeLinecap="round" strokeLinejoin="round"/></svg> : <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                </span>
+                <span className="min-w-0"><span className="block text-sm font-bold text-foreground">{option.title}</span><span className="block text-xs text-muted-foreground">{option.description}</span></span>
+              </label>
+            ))}
+          </fieldset>
+          {mode === "instant" ? (
+            <a href="/downloads/caloriecue-cheat-sheet.pdf" download onClick={() => trackEvent("cheat_sheet_download", { content_slug: contentSlug, location: "cheat_sheet_form" })} className="mt-4 flex min-h-12 w-full items-center justify-center rounded-xl bg-primary-dark px-5 py-3 text-sm font-bold !text-white !no-underline hover:bg-primary-700 hover:!text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-dark">Download PDF instantly</a>
+          ) : success ? (
+            <>
+              <motion.div role="status" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="mt-4 rounded-xl border border-green-200 bg-green-50 p-4 text-sm font-medium text-green-700">Check your inbox! We&apos;ve emailed your cheat sheet PDF (attached).</motion.div>
+              <Suspense fallback={null}><CheatSheetNextStep contentSlug={contentSlug} /></Suspense>
+            </>
+          ) : (
+            <form onSubmit={handleSubmit} className="mt-4">
+              <label htmlFor={emailId} className="mb-1.5 block text-sm font-semibold text-foreground">Email address</label>
+              <input id={emailId} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" className="w-full rounded-xl border border-border bg-white px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" disabled={loading} />
+              <button type="submit" disabled={loading} className="mt-3 flex min-h-12 w-full items-center justify-center rounded-xl bg-primary-dark px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-70">{loading ? "Sending..." : "Send Me the PDF"}</button>
+              {error && <motion.p role="alert" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="!mb-0 !mt-3 text-sm text-red-600">{error}</motion.p>}
+              <p className="!mb-0 !mt-3 text-xs text-muted-foreground">No spam, ever. Unsubscribe anytime.</p>
+            </form>
+          )}
         </div>
       </div>
-
-      <a
-        href="/downloads/caloriecue-cheat-sheet.pdf"
-        download
-        onClick={() => trackEvent("cheat_sheet_download", {
-          content_slug: contentSlug,
-          location: "cheat_sheet_form",
-        })}
-        className="inline-flex items-center justify-center rounded-xl bg-primary-dark px-6 py-3 text-sm font-semibold !text-white !no-underline hover:bg-primary-700 hover:!text-white"
-      >
-        Download PDF instantly
-      </a>
-
-      {success ? (
-        <>
-        <motion.div
-          role="status"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex items-center gap-2 bg-green-50 text-green-700 px-4 py-3 rounded-xl border border-green-200 mt-4"
-        >
-          <svg
-            className="w-5 h-5 flex-shrink-0"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <span className="font-medium text-sm">
-            Check your inbox! We&apos;ve emailed your cheat sheet PDF (attached).
-          </span>
-        </motion.div>
-        <Suspense fallback={null}><CheatSheetNextStep contentSlug={contentSlug} /></Suspense>
-        </>
-      ) : (
-        <form onSubmit={handleSubmit} className="mt-4">
-          <p className="mb-2 text-sm text-muted-foreground">Or get a copy by email:</p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-xl bg-white border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all text-sm"
-              disabled={loading}
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap text-sm"
-            >
-              {loading ? (
-                <>
-                  <svg
-                    className="animate-spin w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  <span>Sending...</span>
-                </>
-              ) : (
-                "Send Me the PDF"
-              )}
-            </button>
-          </div>
-          {error && (
-            <motion.p
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-3 text-sm text-red-500"
-            >
-              {error}
-            </motion.p>
-          )}
-          <p className="text-xs text-muted-foreground mt-3">
-            No spam, ever. Unsubscribe anytime.
-          </p>
-        </form>
-      )}
-    </div>
+    </section>
   );
 }
