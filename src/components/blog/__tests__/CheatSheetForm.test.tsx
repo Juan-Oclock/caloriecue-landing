@@ -17,6 +17,7 @@ vi.mock("@/lib/analytics", async (importOriginal) => {
 
 async function submit(email: string) {
   const user = userEvent.setup();
+  await user.click(screen.getByRole("radio", { name: /send to my email/i }));
   await user.type(screen.getByPlaceholderText("Enter your email"), email);
   const form = screen
     .getByRole("button", { name: "Send Me the PDF" })
@@ -44,7 +45,24 @@ describe("CheatSheetForm", () => {
       location: "cheat_sheet_form",
     });
     expect(trackGenerateLead).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "Send Me the PDF" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Send Me the PDF" })).not.toBeInTheDocument();
+  });
+
+  it("switches between instant download and email delivery", async () => {
+    render(<CheatSheetForm contentSlug="calorie-counting-cheat-sheet" />);
+    const user = userEvent.setup();
+    const direct = screen.getByRole("radio", { name: /download instantly/i });
+    const email = screen.getByRole("radio", { name: /send to my email/i });
+    expect(direct).toBeChecked();
+    expect(screen.getByRole("link", { name: /download pdf instantly/i })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Email address")).not.toBeInTheDocument();
+    await user.click(email);
+    expect(email).toBeChecked();
+    expect(screen.getByLabelText("Email address")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /download pdf instantly/i })).not.toBeInTheDocument();
+    await user.click(direct);
+    expect(direct).toBeChecked();
+    expect(screen.queryByLabelText("Email address")).not.toBeInTheDocument();
   });
 
   it("tracks one lead when delivery succeeds and a new contact was created", async () => {
