@@ -10,7 +10,7 @@ import {
 export const metadata: Metadata = {
   title: "Calorie Counting Cheat Sheet — Quick Reference",
   description:
-    "A printable quick-reference of calorie targets, portion sizes, and tracking rules. Download the full 5-page Calorie Counting Cheat Sheet PDF for the complete guide.",
+    "A printable quick-reference of calorie targets, portion sizes, and tracking rules. Download the full 15-page Calorie Counting Cheat Sheet PDF for the complete guide.",
   robots: { index: false, follow: false },
 };
 
@@ -30,7 +30,7 @@ export default function CheatSheetPrintPage() {
       {/* Top bar - hidden when printing */}
       <div className="no-print fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between gap-3">
         <span className="text-sm text-gray-500 hidden sm:block">
-          Quick reference below — or get the full 5-page PDF
+          Quick reference below — or get the full 15-page PDF
         </span>
         <div className="flex items-center gap-2">
           <a
@@ -59,10 +59,10 @@ export default function CheatSheetPrintPage() {
         <div className="no-print mb-5 rounded-xl border border-[#E05A3A]/30 bg-[#FFF5F2] px-4 py-3 text-sm text-[#7a2e1a]">
           This is the quick version. The{" "}
           <a href={PDF_URL} className="font-semibold underline">
-            full 5-page PDF
+            full 15-page PDF
           </a>{" "}
-          adds ~90 common foods, high-protein low-calorie foods &amp; smart swaps,
-          a restaurant &amp; fast-food guide, and a printable 7-day tracking log.
+          includes 80 common food calorie estimates, meal ideas, restaurant tips,
+          label-reading guidance, and a printable 7-day tracking log.
         </div>
 
         <div className="grid grid-cols-2 gap-4 print:gap-3">
