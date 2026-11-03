@@ -1,0 +1,459 @@
+[
+  {
+    "title": "Proteins",
+    "items": [
+      {
+        "name": "Chicken breast (cooked)",
+        "serving": "4 oz",
+        "calories": "185",
+        "protein": "35g"
+      },
+      {
+        "name": "Chicken thigh (skinless)",
+        "serving": "4 oz",
+        "calories": "200",
+        "protein": "28g"
+      },
+      {
+        "name": "Salmon (farmed)",
+        "serving": "4 oz",
+        "calories": "235",
+        "protein": "25g"
+      },
+      {
+        "name": "Tuna (canned in water)",
+        "serving": "4 oz",
+        "calories": "130",
+        "protein": "29g"
+      },
+      {
+        "name": "Shrimp",
+        "serving": "4 oz",
+        "calories": "110",
+        "protein": "27g"
+      },
+      {
+        "name": "Ground beef (90% lean)",
+        "serving": "4 oz raw",
+        "calories": "200",
+        "protein": "23g"
+      },
+      {
+        "name": "Ground turkey (93%)",
+        "serving": "4 oz raw",
+        "calories": "170",
+        "protein": "21g"
+      },
+      {
+        "name": "Sirloin steak (lean)",
+        "serving": "4 oz",
+        "calories": "205",
+        "protein": "32g"
+      },
+      {
+        "name": "Lean pork chop",
+        "serving": "4 oz",
+        "calories": "210",
+        "protein": "29g"
+      },
+      {
+        "name": "Eggs",
+        "serving": "2 large",
+        "calories": "145",
+        "protein": "13g"
+      },
+      {
+        "name": "Egg whites",
+        "serving": "3 large",
+        "calories": "50",
+        "protein": "11g"
+      },
+      {
+        "name": "Greek yogurt (plain, 0%)",
+        "serving": "1 cup",
+        "calories": "145",
+        "protein": "25g"
+      },
+      {
+        "name": "Cottage cheese (2%)",
+        "serving": "1 cup",
+        "calories": "185",
+        "protein": "24g"
+      },
+      {
+        "name": "Tofu (firm)",
+        "serving": "4 oz",
+        "calories": "165",
+        "protein": "20g"
+      },
+      {
+        "name": "Black beans",
+        "serving": "1 cup",
+        "calories": "225",
+        "protein": "15g"
+      },
+      {
+        "name": "Whey protein",
+        "serving": "32 g",
+        "calories": "115",
+        "protein": "25g"
+      }
+    ]
+  },
+  {
+    "title": "Grains & Carbs",
+    "items": [
+      {
+        "name": "White rice (cooked)",
+        "serving": "1 cup",
+        "calories": "205"
+      },
+      {
+        "name": "Brown rice (cooked)",
+        "serving": "1 cup",
+        "calories": "220"
+      },
+      {
+        "name": "Pasta (cooked)",
+        "serving": "1 cup",
+        "calories": "195"
+      },
+      {
+        "name": "Quinoa (cooked)",
+        "serving": "1 cup",
+        "calories": "220"
+      },
+      {
+        "name": "Whole wheat bread",
+        "serving": "1 slice",
+        "calories": "80"
+      },
+      {
+        "name": "Bagel",
+        "serving": "1 medium",
+        "calories": "275"
+      },
+      {
+        "name": "Oatmeal (cooked)",
+        "serving": "1 cup",
+        "calories": "165"
+      },
+      {
+        "name": "Sweet potato",
+        "serving": "1 medium",
+        "calories": "105"
+      },
+      {
+        "name": "Baked potato",
+        "serving": "1 medium",
+        "calories": "160"
+      },
+      {
+        "name": "Corn tortilla",
+        "serving": "1",
+        "calories": "60"
+      },
+      {
+        "name": "Flour tortilla",
+        "serving": "1 medium",
+        "calories": "145"
+      },
+      {
+        "name": "Corn flakes",
+        "serving": "1 cup",
+        "calories": "110"
+      }
+    ]
+  },
+  {
+    "title": "Fats & Nuts",
+    "items": [
+      {
+        "name": "Avocado",
+        "serving": "75 g",
+        "calories": "120"
+      },
+      {
+        "name": "Olive oil",
+        "serving": "1 tbsp",
+        "calories": "120"
+      },
+      {
+        "name": "Butter",
+        "serving": "1 tbsp",
+        "calories": "100"
+      },
+      {
+        "name": "Almonds",
+        "serving": "1 oz (23)",
+        "calories": "165",
+        "protein": "6g"
+      },
+      {
+        "name": "Peanut butter",
+        "serving": "1 tbsp",
+        "calories": "95",
+        "protein": "4g"
+      },
+      {
+        "name": "Walnuts",
+        "serving": "1 oz",
+        "calories": "185"
+      },
+      {
+        "name": "Cheddar cheese",
+        "serving": "1 oz",
+        "calories": "115",
+        "protein": "6g"
+      },
+      {
+        "name": "Mozzarella (part-skim)",
+        "serving": "1 oz",
+        "calories": "85",
+        "protein": "7g"
+      },
+      {
+        "name": "Cream cheese",
+        "serving": "1 tbsp",
+        "calories": "50"
+      },
+      {
+        "name": "Mayonnaise",
+        "serving": "1 tbsp",
+        "calories": "95"
+      },
+      {
+        "name": "Chia seeds",
+        "serving": "12 g",
+        "calories": "60"
+      }
+    ]
+  },
+  {
+    "title": "Fruits & Vegetables",
+    "items": [
+      {
+        "name": "Banana",
+        "serving": "1 medium",
+        "calories": "105"
+      },
+      {
+        "name": "Apple",
+        "serving": "1 medium",
+        "calories": "95"
+      },
+      {
+        "name": "Orange",
+        "serving": "1 medium",
+        "calories": "60"
+      },
+      {
+        "name": "Strawberries",
+        "serving": "1 cup",
+        "calories": "50"
+      },
+      {
+        "name": "Blueberries",
+        "serving": "1 cup",
+        "calories": "85"
+      },
+      {
+        "name": "Grapes",
+        "serving": "1 cup",
+        "calories": "105"
+      },
+      {
+        "name": "Broccoli (cooked)",
+        "serving": "1 cup",
+        "calories": "55"
+      },
+      {
+        "name": "Spinach (raw)",
+        "serving": "2 cups",
+        "calories": "15"
+      },
+      {
+        "name": "Lettuce (romaine)",
+        "serving": "2 cups",
+        "calories": "15"
+      },
+      {
+        "name": "Carrots",
+        "serving": "1 cup",
+        "calories": "50"
+      },
+      {
+        "name": "Bell pepper",
+        "serving": "1 medium",
+        "calories": "30"
+      },
+      {
+        "name": "Cucumber",
+        "serving": "1 cup",
+        "calories": "15"
+      }
+    ]
+  },
+  {
+    "title": "Drinks",
+    "items": [
+      {
+        "name": "Black coffee",
+        "serving": "8 fl oz",
+        "calories": "2"
+      },
+      {
+        "name": "Latte (whole milk)",
+        "serving": "12 fl oz",
+        "calories": "180"
+      },
+      {
+        "name": "Orange juice",
+        "serving": "8 fl oz",
+        "calories": "110"
+      },
+      {
+        "name": "Whole milk",
+        "serving": "8 fl oz",
+        "calories": "150"
+      },
+      {
+        "name": "Skim milk",
+        "serving": "8 fl oz",
+        "calories": "85"
+      },
+      {
+        "name": "Almond milk (unsweet.)",
+        "serving": "8 fl oz",
+        "calories": "30"
+      },
+      {
+        "name": "Soda (cola)",
+        "serving": "12 fl oz",
+        "calories": "140"
+      },
+      {
+        "name": "Beer (regular)",
+        "serving": "12 fl oz",
+        "calories": "155"
+      },
+      {
+        "name": "Wine",
+        "serving": "5 fl oz",
+        "calories": "125"
+      },
+      {
+        "name": "Sweet tea",
+        "serving": "16 fl oz",
+        "calories": "165"
+      }
+    ]
+  },
+  {
+    "title": "Snacks & Treats",
+    "items": [
+      {
+        "name": "Protein bar",
+        "serving": "53 g",
+        "calories": "220",
+        "protein": "16g"
+      },
+      {
+        "name": "String cheese",
+        "serving": "28 g",
+        "calories": "85",
+        "protein": "7g"
+      },
+      {
+        "name": "Trail mix",
+        "serving": "¼ cup",
+        "calories": "175"
+      },
+      {
+        "name": "Tortilla chips",
+        "serving": "1 oz",
+        "calories": "135"
+      },
+      {
+        "name": "Potato chips",
+        "serving": "1 oz",
+        "calories": "150"
+      },
+      {
+        "name": "Dark chocolate",
+        "serving": "1 oz",
+        "calories": "170"
+      },
+      {
+        "name": "Popcorn (air-popped)",
+        "serving": "3 cups",
+        "calories": "95"
+      },
+      {
+        "name": "Hummus",
+        "serving": "2 tbsp",
+        "calories": "70"
+      },
+      {
+        "name": "Rice cake",
+        "serving": "1",
+        "calories": "35"
+      },
+      {
+        "name": "Ice cream",
+        "serving": "½ cup",
+        "calories": "135"
+      }
+    ]
+  },
+  {
+    "title": "Condiments & Sauces",
+    "items": [
+      {
+        "name": "Ketchup",
+        "serving": "1 tbsp",
+        "calories": "15"
+      },
+      {
+        "name": "Mustard",
+        "serving": "1 tbsp",
+        "calories": "10"
+      },
+      {
+        "name": "Soy sauce",
+        "serving": "1 tbsp",
+        "calories": "10"
+      },
+      {
+        "name": "BBQ sauce",
+        "serving": "1 tbsp",
+        "calories": "30"
+      },
+      {
+        "name": "Ranch dressing",
+        "serving": "2 tbsp",
+        "calories": "130"
+      },
+      {
+        "name": "Salsa",
+        "serving": "2 tbsp",
+        "calories": "10"
+      },
+      {
+        "name": "Honey",
+        "serving": "1 tbsp",
+        "calories": "65"
+      },
+      {
+        "name": "Maple syrup",
+        "serving": "1 tbsp",
+        "calories": "50"
+      },
+      {
+        "name": "Marinara sauce",
+        "serving": "½ cup",
+        "calories": "65"
+      }
+    ]
+  }
+]

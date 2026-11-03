@@ -1,0 +1,81 @@
+name,serving,calories,grams,fdc_id,source_description,source_url
+Chicken breast (cooked),4 oz,185,113,171477,"Chicken, broilers or fryers, breast, meat only, cooked, roasted",https://fdc.nal.usda.gov/food-details/171477/nutrients
+Chicken thigh (skinless),4 oz,200,113,172388,"Chicken, broilers or fryers, thigh, meat only, cooked, roasted",https://fdc.nal.usda.gov/food-details/172388/nutrients
+Salmon (farmed),4 oz,235,113,175168,"Fish, salmon, Atlantic, farmed, cooked, dry heat",https://fdc.nal.usda.gov/food-details/175168/nutrients
+Tuna (canned in water),4 oz,130,113,171986,"Fish, tuna, light, canned in water, without salt, drained solids",https://fdc.nal.usda.gov/food-details/171986/nutrients
+Shrimp,4 oz,110,113,175180,"Crustaceans, shrimp, cooked",https://fdc.nal.usda.gov/food-details/175180/nutrients
+Ground beef (90% lean),4 oz raw,200,113,174030,"Beef, ground, 90% lean meat / 10% fat, raw",https://fdc.nal.usda.gov/food-details/174030/nutrients
+Ground turkey (93%),4 oz raw,170,113,172850,"Turkey, ground, 93% lean, 7% fat, raw",https://fdc.nal.usda.gov/food-details/172850/nutrients
+Sirloin steak (lean),4 oz,205,113,172170,"Beef, loin, top sirloin cap steak, boneless, separable lean only, trimmed to 1/8"" fat, all grades, cooked, grilled",https://fdc.nal.usda.gov/food-details/172170/nutrients
+Lean pork chop,4 oz,210,113,168244,"Pork, fresh, loin, center rib (chops), bone-in, separable lean only, cooked, broiled",https://fdc.nal.usda.gov/food-details/168244/nutrients
+Eggs,2 large,145,100,171287,"Egg, whole, raw, fresh",https://fdc.nal.usda.gov/food-details/171287/nutrients
+Egg whites,3 large,50,99,172183,"Egg, white, raw, fresh",https://fdc.nal.usda.gov/food-details/172183/nutrients
+"Greek yogurt (plain, 0%)",1 cup,145,245,170894,"Yogurt, Greek, plain, nonfat (Includes foods for USDA's Food Distribution Program)",https://fdc.nal.usda.gov/food-details/170894/nutrients
+Cottage cheese (2%),1 cup,185,226,172182,"Cheese, cottage, lowfat, 2% milkfat",https://fdc.nal.usda.gov/food-details/172182/nutrients
+Tofu (firm),4 oz,165,113,172475,"Tofu, raw, firm, prepared with calcium sulfate",https://fdc.nal.usda.gov/food-details/172475/nutrients
+Black beans,1 cup,225,172,173735,"Beans, black, mature seeds, cooked, boiled, without salt",https://fdc.nal.usda.gov/food-details/173735/nutrients
+Whey protein,32 g,115,32,173180,"Beverages, Protein powder whey based",https://fdc.nal.usda.gov/food-details/173180/nutrients
+White rice (cooked),1 cup,205,158,168878,"Rice, white, long-grain, regular, enriched, cooked",https://fdc.nal.usda.gov/food-details/168878/nutrients
+Brown rice (cooked),1 cup,220,195,168875,"Rice, brown, medium-grain, cooked (Includes foods for USDA's Food Distribution Program)",https://fdc.nal.usda.gov/food-details/168875/nutrients
+Pasta (cooked),1 cup,195,124,169737,"Pasta, cooked, enriched, without added salt",https://fdc.nal.usda.gov/food-details/169737/nutrients
+Quinoa (cooked),1 cup,220,185,168917,"Quinoa, cooked",https://fdc.nal.usda.gov/food-details/168917/nutrients
+Whole wheat bread,1 slice,80,32,172688,"Bread, whole-wheat, commercially prepared",https://fdc.nal.usda.gov/food-details/172688/nutrients
+Bagel,1 medium,275,105,174899,"Bagels, plain, enriched, with calcium propionate (includes onion, poppy, sesame)",https://fdc.nal.usda.gov/food-details/174899/nutrients
+Oatmeal (cooked),1 cup,165,234,173905,"Cereals, oats, regular and quick, unenriched, cooked with water (includes boiling and microwaving), without salt",https://fdc.nal.usda.gov/food-details/173905/nutrients
+Sweet potato,1 medium,105,114,168483,"Sweet potato, cooked, baked in skin, flesh, without salt",https://fdc.nal.usda.gov/food-details/168483/nutrients
+Baked potato,1 medium,160,173,170093,"Potatoes, baked, flesh and skin, without salt",https://fdc.nal.usda.gov/food-details/170093/nutrients
+Corn tortilla,1,60,26,173241,"Tortillas, ready-to-bake or -fry, corn, without added salt",https://fdc.nal.usda.gov/food-details/173241/nutrients
+Flour tortilla,1 medium,145,49,167535,"Tortillas, ready-to-bake or -fry, flour, shelf stable",https://fdc.nal.usda.gov/food-details/167535/nutrients
+Corn flakes,1 cup,110,28,174648,"Cereals ready-to-eat, RALSTON Corn Flakes",https://fdc.nal.usda.gov/food-details/174648/nutrients
+Avocado,75 g,120,75,171705,"Avocados, raw, all commercial varieties",https://fdc.nal.usda.gov/food-details/171705/nutrients
+Olive oil,1 tbsp,120,13.5,171413,"Oil, olive, salad or cooking",https://fdc.nal.usda.gov/food-details/171413/nutrients
+Butter,1 tbsp,100,14.2,173410,"Butter, salted",https://fdc.nal.usda.gov/food-details/173410/nutrients
+Almonds,1 oz (23),165,28.35,170567,"Nuts, almonds",https://fdc.nal.usda.gov/food-details/170567/nutrients
+Peanut butter,1 tbsp,95,16,174294,"Peanut Butter, smooth (Includes foods for USDA's Food Distribution Program)",https://fdc.nal.usda.gov/food-details/174294/nutrients
+Walnuts,1 oz,185,28.35,170187,"Nuts, walnuts, english",https://fdc.nal.usda.gov/food-details/170187/nutrients
+Cheddar cheese,1 oz,115,28.35,173414,"Cheese, cheddar (Includes foods for USDA's Food Distribution Program)",https://fdc.nal.usda.gov/food-details/173414/nutrients
+Mozzarella (part-skim),1 oz,85,28.35,171244,"Cheese, mozzarella, low moisture, part-skim",https://fdc.nal.usda.gov/food-details/171244/nutrients
+Cream cheese,1 tbsp,50,14.5,173418,"Cheese, cream",https://fdc.nal.usda.gov/food-details/173418/nutrients
+Mayonnaise,1 tbsp,95,13.8,171009,"Salad dressing, mayonnaise, regular",https://fdc.nal.usda.gov/food-details/171009/nutrients
+Chia seeds,12 g,60,12,170554,"Seeds, chia seeds, dried",https://fdc.nal.usda.gov/food-details/170554/nutrients
+Banana,1 medium,105,118,173944,"Bananas, raw",https://fdc.nal.usda.gov/food-details/173944/nutrients
+Apple,1 medium,95,182,171688,"Apples, raw, with skin (Includes foods for USDA's Food Distribution Program)",https://fdc.nal.usda.gov/food-details/171688/nutrients
+Orange,1 medium,60,131,169097,"Oranges, raw, all commercial varieties",https://fdc.nal.usda.gov/food-details/169097/nutrients
+Strawberries,1 cup,50,152,167762,"Strawberries, raw",https://fdc.nal.usda.gov/food-details/167762/nutrients
+Blueberries,1 cup,85,148,171711,"Blueberries, raw",https://fdc.nal.usda.gov/food-details/171711/nutrients
+Grapes,1 cup,105,151,174683,"Grapes, red or green (European type, such as Thompson seedless), raw",https://fdc.nal.usda.gov/food-details/174683/nutrients
+Broccoli (cooked),1 cup,55,156,169967,"Broccoli, cooked, boiled, drained, without salt",https://fdc.nal.usda.gov/food-details/169967/nutrients
+Spinach (raw),2 cups,15,60,168462,"Spinach, raw",https://fdc.nal.usda.gov/food-details/168462/nutrients
+Lettuce (romaine),2 cups,15,94,169247,"Lettuce, cos or romaine, raw",https://fdc.nal.usda.gov/food-details/169247/nutrients
+Carrots,1 cup,50,122,170393,"Carrots, raw",https://fdc.nal.usda.gov/food-details/170393/nutrients
+Bell pepper,1 medium,30,119,170108,"Peppers, sweet, red, raw",https://fdc.nal.usda.gov/food-details/170108/nutrients
+Cucumber,1 cup,15,104,168409,"Cucumber, with peel, raw",https://fdc.nal.usda.gov/food-details/168409/nutrients
+Black coffee,8 fl oz,2,237,171890,"Beverages, coffee, brewed, prepared with tap water",https://fdc.nal.usda.gov/food-details/171890/nutrients
+Latte (whole milk),12 fl oz,180,,,"Recipe estimate: 290 g whole milk (USDA 171265) plus one espresso; unsweetened, no syrup.",https://fdc.nal.usda.gov/food-details/171265/nutrients
+Orange juice,8 fl oz,110,248,169098,"Orange juice, raw (Includes foods for USDA's Food Distribution Program)",https://fdc.nal.usda.gov/food-details/169098/nutrients
+Whole milk,8 fl oz,150,244,171265,"Milk, whole, 3.25% milkfat, with added vitamin D",https://fdc.nal.usda.gov/food-details/171265/nutrients
+Skim milk,8 fl oz,85,245,171269,"Milk, nonfat, fluid, with added vitamin A and vitamin D (fat free or skim)",https://fdc.nal.usda.gov/food-details/171269/nutrients
+Almond milk (unsweet.),8 fl oz,30,,,Representative unsweetened Almond Breeze label; approximately 30 kcal per cup. Brands vary.,https://almondbreeze.ca/products/refrigerated/original-unsweetened/
+Soda (cola),12 fl oz,140,,,Representative Coca-Cola 12 fl oz label; formulations vary.,https://www.coca-cola.com/us/en/brands/coca-cola/products/original?redirect=true
+Beer (regular),12 fl oz,155,356,168746,"Alcoholic beverage, beer, regular, all",https://fdc.nal.usda.gov/food-details/168746/nutrients
+Wine,5 fl oz,125,147,173190,"Alcoholic beverage, wine, table, red",https://fdc.nal.usda.gov/food-details/173190/nutrients
+Sweet tea,16 fl oz,165,,,"Representative Gold Peak label: 190 kcal / 18.5 fl oz, scaled to 16 fl oz and rounded to 5 kcal.",https://www.coca-cola.com/us/en/brands/gold-peak-tea/gold-peak-products
+Protein bar,53 g,220,53,173158,"Formulated Bar, SOUTH BEACH protein bar",https://fdc.nal.usda.gov/food-details/173158/nutrients
+String cheese,28 g,85,28,171244,"Cheese, mozzarella, low moisture, part-skim",https://fdc.nal.usda.gov/food-details/171244/nutrients
+Trail mix,¼ cup,175,37.5,167561,"Snacks, trail mix, regular",https://fdc.nal.usda.gov/food-details/167561/nutrients
+Tortilla chips,1 oz,135,28.35,167558,"Snacks, tortilla chips, plain, white corn, salted",https://fdc.nal.usda.gov/food-details/167558/nutrients
+Potato chips,1 oz,150,28.35,169677,"Snacks, potato chips, plain, salted",https://fdc.nal.usda.gov/food-details/169677/nutrients
+Dark chocolate,1 oz,170,28.35,170273,"Chocolate, dark, 70-85% cacao solids",https://fdc.nal.usda.gov/food-details/170273/nutrients
+Popcorn (air-popped),3 cups,95,24,167959,"Snacks, popcorn, air-popped",https://fdc.nal.usda.gov/food-details/167959/nutrients
+Hummus,2 tbsp,70,30,174289,"Hummus, commercial",https://fdc.nal.usda.gov/food-details/174289/nutrients
+Rice cake,1,35,9,170250,"Snacks, rice cakes, brown rice, plain, unsalted",https://fdc.nal.usda.gov/food-details/170250/nutrients
+Ice cream,½ cup,135,66,167575,"Ice creams, vanilla",https://fdc.nal.usda.gov/food-details/167575/nutrients
+Ketchup,1 tbsp,15,17,168556,Catsup,https://fdc.nal.usda.gov/food-details/168556/nutrients
+Mustard,1 tbsp,10,15,172234,"Mustard, prepared, yellow",https://fdc.nal.usda.gov/food-details/172234/nutrients
+Soy sauce,1 tbsp,10,16,174277,Soy sauce made from soy and wheat (shoyu),https://fdc.nal.usda.gov/food-details/174277/nutrients
+BBQ sauce,1 tbsp,30,17,174523,"Sauce, barbecue",https://fdc.nal.usda.gov/food-details/174523/nutrients
+Ranch dressing,2 tbsp,130,30,173592,"Salad dressing, ranch dressing, regular",https://fdc.nal.usda.gov/food-details/173592/nutrients
+Salsa,2 tbsp,10,36,174524,"Sauce, salsa, ready-to-serve",https://fdc.nal.usda.gov/food-details/174524/nutrients
+Honey,1 tbsp,65,21,169640,Honey,https://fdc.nal.usda.gov/food-details/169640/nutrients
+Maple syrup,1 tbsp,50,20,169661,"Syrups, maple",https://fdc.nal.usda.gov/food-details/169661/nutrients
+Marinara sauce,½ cup,65,132,171192,"Sauce, pasta, spaghetti/marinara, ready-to-serve",https://fdc.nal.usda.gov/food-details/171192/nutrients
