@@ -7,6 +7,10 @@ for (const [route, filename] of [
   ["macro-cheat-sheet", "caloriecue-macro-tracking-cheat-sheet.pdf"],
 ]) {
   const source = await readFile(join("public/downloads", filename));
+  if (route === "cheat-sheet") {
+    const approved = await readFile(join("assets/pdfs", filename));
+    assert.ok(source.equals(approved), "calorie guide must match the approved editorial PDF");
+  }
   const output = await readFile(join(".next/server/app/api", route, "pdf.body"));
   assert.equal(source.subarray(0, 5).toString(), "%PDF-");
   assert.ok(source.equals(output), `${route}: static response must match the prebuilt PDF`);
