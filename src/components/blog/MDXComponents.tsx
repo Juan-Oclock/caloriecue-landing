@@ -263,7 +263,7 @@ export function getMDXComponents(contentSlug: string): MDXComponentsType {
       </div>
     ),
     th: ({ children }) => (
-      <th className="border-b border-border bg-background px-4 py-3 text-left text-xs font-bold uppercase tracking-[0.06em] text-subtle" style={{ whiteSpace: 'nowrap' }}>
+      <th className="border-b border-border bg-background px-4 py-3 text-left text-xs font-bold uppercase tracking-[0.06em] text-subtle" style={{ whiteSpace: 'nowrap', textTransform: getTextContent(children).includes("fatsecret") ? "none" : undefined }}>
         {children}
       </th>
     ),
